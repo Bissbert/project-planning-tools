@@ -15,7 +15,7 @@ import {
   DATA_VERSION,
   STORAGE_KEY,
   BACKUP_KEY,
-  migrateToV5,
+  migrateToV6,
   cloneProjectData,
   defaultWorkflow,
   getCurrentWeek,
@@ -84,8 +84,8 @@ function loadData() {
     try {
       // Migrate if needed
       if (!saved.version || saved.version < DATA_VERSION) {
-        console.log('Migrating data to v5 format...');
-        projectData = migrateToV5(saved);
+        console.log('Migrating data to v6 format...');
+        projectData = migrateToV6(saved);
       } else {
         projectData = saved;
       }
@@ -123,6 +123,7 @@ function getDefaultProjectData() {
       "General": "#a78bfa"
     },
     workflow: JSON.parse(JSON.stringify(defaultWorkflow)),
+    sprints: [],
     tasks: []
   };
 }
@@ -945,8 +946,8 @@ async function handleFileImport(e) {
       throw new Error('Invalid project file structure');
     }
 
-    // Migrate to v5 if needed
-    const migrated = migrateToV5(imported);
+    // Migrate to v6 if needed
+    const migrated = migrateToV6(imported);
     migrated.version = DATA_VERSION;
 
     projectData = migrated;

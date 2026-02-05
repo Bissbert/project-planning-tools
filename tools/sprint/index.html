@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/sprint/">
+  <title>Sprint Planner - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Sprint-specific CSS -->
+  <link rel="stylesheet" href="css/sprint-layout.css">
+  <link rel="stylesheet" href="css/sprint-cards.css">
+  <link rel="stylesheet" href="css/sprint-edit.css">
+  <link rel="stylesheet" href="css/sprint-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="station-badge">
+        <span class="station-badge__number">03</span>
+        <span class="station-badge__label">Sprint</span>
+      </div>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--points">
+          <span class="stat-item__value" id="totalPoints">0</span>
+          <span class="stat-item__label">Points</span>
+        </div>
+        <div class="stat-item stat-item--velocity">
+          <span class="stat-item__value" id="velocity">0</span>
+          <span class="stat-item__label">Velocity</span>
+        </div>
+        <div class="stat-item stat-item--sprints">
+          <span class="stat-item__value" id="sprintCount">0</span>
+          <span class="stat-item__label">Sprints</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Sprint Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Default Sprint Duration (weeks)</label>
+        <input type="number" class="form-input" id="settingsSprintDuration" min="1" max="8" value="2">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sprint Edit Modal -->
+  <div class="modal-overlay" id="sprintEditModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="sprintEditTitle">New Sprint</h2>
+        <button class="modal-close" onclick="closeSprintEdit()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sprint Name</label>
+        <input type="text" class="form-input" id="sprintEditName" placeholder="Sprint 1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Goal</label>
+        <textarea class="form-input" id="sprintEditGoal" rows="2" placeholder="What is the goal of this sprint?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Timeline (Weeks)</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="number" class="form-input" id="sprintEditStartWeek" min="1" style="width: 80px;" placeholder="Start">
+          <span>to</span>
+          <input type="number" class="form-input" id="sprintEditEndWeek" min="1" style="width: 80px;" placeholder="End">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="sprintEditStatus">
+          <option value="planning">Planning</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+        <button class="btn btn--primary" onclick="saveSprint()">Save</button>
+        <button class="btn btn--success edit-only" onclick="startSprint()" id="startSprintBtn">Start Sprint</button>
+        <button class="btn btn--warning edit-only" onclick="completeSprint()" id="completeSprintBtn">Complete</button>
+        <button class="btn btn--danger edit-only" onclick="deleteSprint()" id="deleteSprintBtn">Delete</button>
+        <button class="btn" onclick="closeSprintEdit()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Edit Modal -->
+  <div class="modal-overlay" id="taskEditModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="taskEditTitle">Edit Task</h2>
+        <button class="modal-close" onclick="closeTaskEdit()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task Name</label>
+        <input type="text" class="form-input" id="taskEditName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Story Points</label>
+        <div class="points-selector" id="pointsSelector">
+          <button type="button" class="points-btn" data-points="">?</button>
+          <button type="button" class="points-btn" data-points="1">1</button>
+          <button type="button" class="points-btn" data-points="2">2</button>
+          <button type="button" class="points-btn" data-points="3">3</button>
+          <button type="button" class="points-btn" data-points="5">5</button>
+          <button type="button" class="points-btn" data-points="8">8</button>
+          <button type="button" class="points-btn" data-points="13">13</button>
+          <button type="button" class="points-btn" data-points="21">21</button>
+        </div>
+        <input type="hidden" id="taskEditPoints" value="">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="taskEditCategory"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assignee</label>
+        <select class="form-input" id="taskEditAssignee">
+          <option value="">Unassigned</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-input" id="taskEditPriority">
+          <option value="">None</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-input" id="taskEditNotes" rows="3" placeholder="Add notes..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kanban Status</label>
+        <select class="form-input" id="taskEditColumn"></select>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+        <button class="btn btn--primary" onclick="saveTaskEdit()">Save</button>
+        <button class="btn btn--danger edit-only" onclick="deleteCurrentTask()">Delete</button>
+        <button class="btn" onclick="closeTaskEdit()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Task Modal -->
+  <div class="modal-overlay" id="newTaskModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>New Task</h2>
+        <button class="modal-close" onclick="closeNewTask()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task Name</label>
+        <input type="text" class="form-input" id="newTaskName" placeholder="Enter task name...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Story Points</label>
+        <div class="points-selector" id="newPointsSelector">
+          <button type="button" class="points-btn points-btn--selected" data-points="">?</button>
+          <button type="button" class="points-btn" data-points="1">1</button>
+          <button type="button" class="points-btn" data-points="2">2</button>
+          <button type="button" class="points-btn" data-points="3">3</button>
+          <button type="button" class="points-btn" data-points="5">5</button>
+          <button type="button" class="points-btn" data-points="8">8</button>
+          <button type="button" class="points-btn" data-points="13">13</button>
+          <button type="button" class="points-btn" data-points="21">21</button>
+        </div>
+        <input type="hidden" id="newTaskPoints" value="">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="newTaskCategory"></select>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="createNewTask()">Create</button>
+        <button class="btn" onclick="closeNewTask()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="sprint-container">
+    <!-- Left Panel: Product Backlog -->
+    <aside class="backlog-panel">
+      <div class="backlog-header">
+        <h2 class="backlog-title">Product Backlog</h2>
+        <div class="backlog-stats">
+          <span id="backlogCount">0</span> items
+          <span class="backlog-stats__sep">|</span>
+          <span id="backlogPoints">0</span> pts
+        </div>
+      </div>
+      <div class="backlog-list" id="backlogList">
+        <!-- Backlog items rendered here -->
+      </div>
+      <div class="backlog-footer">
+        <button class="backlog-add-btn edit-only" onclick="openNewTask()">+ Add Task</button>
+      </div>
+    </aside>
+
+    <!-- Right Panel: Sprint Board -->
+    <section class="sprint-panel">
+      <!-- Sprint Tabs -->
+      <div class="sprint-tabs" id="sprintTabs">
+        <!-- Tabs rendered here -->
+        <button class="sprint-tab sprint-tab--add edit-only" onclick="openNewSprint()">+ New Sprint</button>
+      </div>
+
+      <!-- Sprint Content -->
+      <div class="sprint-board" id="sprintBoard">
+        <!-- Sprint content rendered here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/sprint-app.js"></script>
+</body>
+</html>
