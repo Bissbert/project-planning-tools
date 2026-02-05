@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/kanban/">
+  <title>Kanban Board - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Kanban-specific CSS -->
+  <link rel="stylesheet" href="css/kanban-layout.css">
+  <link rel="stylesheet" href="css/kanban-cards.css">
+  <link rel="stylesheet" href="css/kanban-edit.css">
+  <link rel="stylesheet" href="css/kanban-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="station-badge">
+        <span class="station-badge__number">02</span>
+        <span class="station-badge__label">Kanban</span>
+      </div>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--backlog">
+          <span class="stat-item__value" id="countBacklog">0</span>
+          <span class="stat-item__label">Backlog</span>
+        </div>
+        <div class="stat-item stat-item--progress">
+          <span class="stat-item__value" id="countProgress">0</span>
+          <span class="stat-item__label">Active</span>
+        </div>
+        <div class="stat-item stat-item--done">
+          <span class="stat-item__value" id="countDone">0</span>
+          <span class="stat-item__label">Done</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Board Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Columns</label>
+        <p class="form-hint">Drag to reorder. Default columns (Backlog, To Do, In Progress, Done) cannot be deleted.</p>
+        <div class="column-settings" id="columnSettings"></div>
+        <button class="btn btn--ghost" onclick="addNewColumn()" style="margin-top: 8px;">+ Add Column</button>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Edit Modal -->
+  <div class="modal-overlay" id="taskEditModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="taskEditTitle">Edit Task</h2>
+        <button class="modal-close" onclick="closeTaskEdit()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task Name</label>
+        <input type="text" class="form-input" id="taskEditName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="taskEditCategory"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assignee</label>
+        <select class="form-input" id="taskEditAssignee">
+          <option value="">Unassigned</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-input" id="taskEditPriority">
+          <option value="">None</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" id="taskEditMilestone">
+          Mark as Milestone
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-input" id="taskEditNotes" rows="3" placeholder="Add notes..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Planned Timeline (Weeks)</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="number" class="form-input" id="taskEditStartWeek" min="1" style="width: 80px;" placeholder="Start">
+          <span>to</span>
+          <input type="number" class="form-input" id="taskEditEndWeek" min="1" style="width: 80px;" placeholder="End">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reality (Weeks Worked)</label>
+        <div id="taskEditRealityContainer" class="reality-weeks-container"></div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <input type="number" class="form-input" id="taskEditAddRealityWeek" min="1" style="width: 80px;" placeholder="Week">
+          <button class="btn btn--sm edit-only" onclick="addRealityWeek()">+ Add Week</button>
+        </div>
+      </div>
+      <div class="form-group" id="taskEditProgressGroup">
+        <label class="form-label">Progress</label>
+        <div class="task-progress-bar">
+          <div class="task-progress-fill" id="taskEditProgressFill"></div>
+        </div>
+        <span class="task-progress-text" id="taskEditProgressText"></span>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+        <button class="btn btn--primary" onclick="saveTaskEdit()">Save</button>
+        <button class="btn btn--success edit-only" onclick="markTaskAsDone()" id="markDoneBtn">Mark as Done</button>
+        <button class="btn btn--danger edit-only" onclick="deleteCurrentTask()">Delete</button>
+        <button class="btn" onclick="closeTaskEdit()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Task Modal -->
+  <div class="modal-overlay" id="newTaskModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>New Task</h2>
+        <button class="modal-close" onclick="closeNewTask()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task Name</label>
+        <input type="text" class="form-input" id="newTaskName" placeholder="Enter task name...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="newTaskCategory"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Column</label>
+        <select class="form-input" id="newTaskColumn"></select>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="createNewTask()">Create</button>
+        <button class="btn" onclick="closeNewTask()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="board-container">
+    <div id="kanbanBoard" class="kanban-board loading">Loading board...</div>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/kanban-app.js"></script>
+</body>
+</html>

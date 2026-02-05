@@ -1,0 +1,162 @@
+/* ========== KANBAN PRINT STYLES ========== */
+
+@media print {
+  /* Hide UI elements */
+  .header,
+  .edit-mode-banner,
+  .column-footer,
+  .kanban-card__actions,
+  .modal-overlay,
+  #status {
+    display: none !important;
+  }
+
+  /* Reset page */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 10pt;
+  }
+
+  /* Board layout for print */
+  .board-container {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .kanban-board {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16pt;
+    min-height: auto;
+  }
+
+  /* Columns */
+  .kanban-column {
+    flex: 1 1 200pt;
+    max-width: none;
+    background: white !important;
+    border: 1pt solid #ccc !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .kanban-column--collapsed {
+    display: none;
+  }
+
+  .column-header {
+    background: #f5f5f5 !important;
+    border-bottom: 1pt solid #ccc !important;
+    padding: 8pt;
+  }
+
+  .column-header__title {
+    color: black !important;
+    font-size: 11pt;
+  }
+
+  .column-header__count {
+    background: #e5e5e5 !important;
+    border: 1pt solid #ccc !important;
+    color: #333 !important;
+  }
+
+  .column-header__collapse {
+    display: none;
+  }
+
+  .column-cards {
+    padding: 8pt;
+    overflow: visible;
+    max-height: none;
+  }
+
+  /* Cards */
+  .kanban-card {
+    background: white !important;
+    border: 1pt solid #ddd !important;
+    box-shadow: none !important;
+    transform: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 8pt;
+    margin-bottom: 6pt;
+  }
+
+  .kanban-card::before {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .kanban-card__title {
+    color: black !important;
+    font-size: 10pt;
+  }
+
+  .kanban-card__category {
+    border: 1pt solid #ccc;
+    font-size: 8pt;
+  }
+
+  .kanban-card__meta {
+    font-size: 8pt;
+  }
+
+  .kanban-card__avatar {
+    border: 1pt solid #ccc !important;
+    background: #f5f5f5 !important;
+    color: #333 !important;
+  }
+
+  .kanban-card__progress-bar {
+    background: #e5e5e5 !important;
+  }
+
+  .kanban-card__progress-fill {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Print header */
+  .kanban-board::before {
+    content: attr(data-title);
+    display: block;
+    width: 100%;
+    font-size: 14pt;
+    font-weight: bold;
+    margin-bottom: 12pt;
+    padding-bottom: 8pt;
+    border-bottom: 2pt solid black;
+  }
+
+  /* Print footer */
+  .kanban-board::after {
+    content: "Printed: " attr(data-print-date);
+    display: block;
+    width: 100%;
+    font-size: 8pt;
+    color: #666;
+    margin-top: 12pt;
+    padding-top: 8pt;
+    border-top: 1pt solid #ccc;
+    text-align: right;
+  }
+}
+
+/* Print optimization classes */
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+
+  .print-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+}

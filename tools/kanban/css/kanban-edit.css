@@ -1,0 +1,343 @@
+/* ========== KANBAN EDIT - Edit mode styles, drag states ========== */
+
+/* Edit mode banner */
+.edit-mode-banner {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-xs);
+  background: var(--accent);
+  color: var(--bg-primary);
+  text-align: center;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  z-index: 200;
+}
+
+.edit-mode .edit-mode-banner {
+  display: block;
+}
+
+.edit-mode .header {
+  top: 24px;
+}
+
+/* Edit-only elements */
+.edit-only {
+  display: none;
+}
+
+.edit-mode .edit-only {
+  display: inline-flex;
+}
+
+/* Edit button state */
+.btn--edit {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+}
+
+.edit-mode .btn--edit {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+/* Danger button */
+.btn--danger {
+  background: var(--status-error-subtle);
+  border-color: var(--status-error);
+  color: var(--status-error);
+}
+
+.btn--danger:hover {
+  background: var(--status-error);
+  color: white;
+}
+
+/* ========== DRAG STATES ========== */
+.kanban-card[draggable="true"] {
+  cursor: grab;
+}
+
+.kanban-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.kanban-card.dragging {
+  opacity: 0.4;
+}
+
+/* Column drag over state */
+.column-cards.drag-over {
+  background: var(--accent-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* Drop indicator between cards */
+.drop-indicator {
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin: var(--spacing-xs) 0;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* ========== CARD EDITING ========== */
+.kanban-card--editing {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+/* Inline edit input */
+.kanban-card__edit-input {
+  width: 100%;
+  padding: var(--spacing-xs);
+  font-size: var(--font-md);
+  font-family: inherit;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+
+.kanban-card__edit-input:focus {
+  outline: none;
+  border-color: var(--accent-bright);
+}
+
+/* ========== COLUMN EDITING ========== */
+.column-header--editing .column-header__title {
+  display: none;
+}
+
+.column-header__edit-input {
+  flex: 1;
+  padding: var(--spacing-xs);
+  font-size: var(--font-md);
+  font-weight: 600;
+  font-family: inherit;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+
+/* ========== MODAL FORM STYLES ========== */
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.form-label input[type="checkbox"] {
+  margin-right: var(--spacing-sm);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  font-size: var(--font-md);
+  font-family: inherit;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ========== ADD CARD FORM ========== */
+.add-card-form {
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.add-card-form__input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  font-size: var(--font-md);
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.add-card-form__input:focus {
+  outline: none;
+}
+
+.add-card-form__input::placeholder {
+  color: var(--text-muted);
+}
+
+.add-card-form__actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.add-card-form__actions .btn {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-sm);
+}
+
+/* ========== SUCCESS BUTTON ========== */
+.btn--success {
+  background: var(--status-success-subtle);
+  border-color: var(--status-success);
+  color: var(--status-success);
+}
+
+.btn--success:hover {
+  background: var(--status-success);
+  color: white;
+}
+
+.btn--success:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Small button variant */
+.btn--sm {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-xs);
+}
+
+/* ========== REALITY WEEKS CONTAINER ========== */
+.reality-weeks-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  min-height: 32px;
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.reality-weeks-container:empty::before {
+  content: 'No weeks recorded yet';
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+}
+
+.reality-week-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 2px var(--spacing-sm);
+  background: var(--status-success-subtle);
+  border: 1px solid var(--status-success);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  color: var(--status-success);
+}
+
+.reality-week-tag__remove {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--status-error);
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.edit-mode .reality-week-tag__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reality-week-tag__remove:hover {
+  opacity: 1;
+}
+
+/* ========== TASK PROGRESS BAR (Modal) ========== */
+.task-progress-bar {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: var(--spacing-xs);
+}
+
+.task-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  transition: width var(--transition-fast);
+}
+
+.task-progress-fill--complete {
+  background: var(--status-success);
+}
+
+.task-progress-text {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+/* ========== KEYBOARD HINTS ========== */
+.keyboard-hint {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.keyboard-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--spacing-xs);
+  font-size: 10px;
+  font-family: inherit;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
