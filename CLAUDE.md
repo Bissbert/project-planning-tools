@@ -12,22 +12,24 @@ Offline-first, browser-based planning tools suite. No build step, no server requ
 ## Project Structure
 
 ```
-ash-gantt-chart/
-├── project-planning-tools/    # Main application
-│   ├── index.html             # Landing page
-│   ├── shared/                # Reusable modules
-│   │   ├── css/               # Design tokens, components
-│   │   └── js/                # Storage, undo, export, status
-│   └── tools/                 # Individual tools
-│       └── gantt/             # Gantt chart tool
-└── .archived/                 # Legacy files (do not modify)
+project-planning-tools/
+├── index.html             # Landing page
+├── README.md              # User documentation
+├── PLAN.md                # Roadmap and future tools
+├── CLAUDE.md              # Claude Code context
+├── shared/                # Reusable modules
+│   ├── css/               # Design tokens, components
+│   └── js/                # Storage, undo, export, status
+├── tools/                 # Individual tools
+│   └── gantt/             # Gantt chart tool
+└── .archived/             # Legacy files (do not modify)
 ```
 
 ## Commands
 
 ```bash
 # Run locally (ES modules require a server)
-cd project-planning-tools && npx serve .
+npx serve .
 
 # Alternative servers
 python -m http.server 3000
@@ -66,7 +68,7 @@ IMPORTANT: Always use specialized agents when available:
 
 ## Key Files
 
-- `project-planning-tools/README.md` - User documentation
-- `project-planning-tools/PLAN.md` - Roadmap and future tools
-- `project-planning-tools/shared/css/tokens.css` - Design system tokens
-- `project-planning-tools/shared/js/storage.js` - localStorage API
+- `README.md` - User documentation
+- `PLAN.md` - Roadmap and future tools
+- `shared/css/tokens.css` - Design system tokens
+- `shared/js/storage.js` - localStorage API
