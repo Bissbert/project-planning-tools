@@ -28,9 +28,10 @@ Build a comprehensive, offline-first suite of project planning tools that:
 - [x] Shared JS modules (storage, undo, export, status)
 - [x] Gantt Chart tool
 - [x] Landing page
+- [x] GitHub Pages deployment with custom domain (project.bissbert.ch)
 
-### Phase 2: Core Planning Tools
-- [ ] Kanban Board
+### Phase 2: Core Planning Tools (In Progress)
+- [x] Kanban Board (with Gantt bidirectional sync)
 - [ ] Sprint Planner
 - [ ] Time Tracker
 
@@ -45,8 +46,8 @@ Build a comprehensive, offline-first suite of project planning tools that:
 - [ ] Retrospective Board
 - [ ] Decision Log
 
-### Phase 5: Integration
-- [ ] Cross-tool data sharing
+### Phase 5: Integration (In Progress)
+- [x] Cross-tool data sharing (unified-data.js, v5 data model)
 - [ ] Unified dashboard
 - [ ] Project-level data management
 
@@ -58,20 +59,26 @@ Build a comprehensive, offline-first suite of project planning tools that:
 
 High priority - complement Gantt directly and share similar data patterns.
 
-#### Kanban Board
+#### Kanban Board (Complete)
 
-Visual workflow management with customizable columns.
+Visual workflow management with customizable columns and bidirectional Gantt sync.
 
-**Features:**
-- Configurable columns (e.g., To Do, In Progress, Review, Done)
-- Drag-and-drop cards between columns
-- Card details: title, description, assignee, priority, due date
-- WIP (Work In Progress) limits per column
+**Implemented Features:**
+- [x] Configurable columns (Backlog, To Do, In Progress, Done by default)
+- [x] Custom columns (add, delete, rename, recolor, reorder)
+- [x] Drag-and-drop cards between columns
+- [x] Card details: name, category, assignee, priority, notes
+- [x] Card filtering and search
+- [x] Column collapse/expand
+- [x] Bidirectional sync with Gantt (unified data model v5)
+- [x] Edit mode toggle for modifications
+- [x] Print/export support
+
+**Not Implemented:**
 - Swimlanes for categories or assignees
-- Card filtering and search
-- Column collapse/expand
+- WIP limits (removed by design choice)
 
-**Shared modules:** storage, undo, export, status
+**Shared modules:** storage, undo, unified-data, status
 
 #### Sprint Planner
 
@@ -218,18 +225,18 @@ Record and track project decisions.
 Enhancements to shared modules for future tools:
 
 ### CSS Modules
-- [ ] `cards.css` - Card components for Kanban/boards
+- [x] `kanban-cards.css` - Card components for Kanban/boards
 - [ ] `calendar.css` - Calendar grid layouts
 - [ ] `charts.css` - Chart styling (burndown, etc.)
-- [ ] `drag-drop.css` - Drag-and-drop visual feedback
+- [x] `kanban-edit.css` - Drag-and-drop visual feedback (tool-specific)
 - [ ] `tables.css` - Data table styling
 
 ### JavaScript Modules
-- [ ] `drag-drop.js` - Shared drag-and-drop utilities
+- [ ] `drag-drop.js` - Shared drag-and-drop utilities (currently tool-specific)
 - [ ] `keyboard.js` - Keyboard shortcut manager
 - [ ] `dates.js` - Date formatting and calculations
 - [ ] `charts.js` - Simple chart rendering
-- [ ] `sync.js` - Cross-tool data synchronization
+- [x] `unified-data.js` - Cross-tool data synchronization and model
 
 ---
 
@@ -237,10 +244,11 @@ Enhancements to shared modules for future tools:
 
 Tools could share data for a unified experience:
 
-### Gantt ↔ Kanban
-- Tasks created in Gantt appear as cards in Kanban
-- Moving a card to "Done" updates Gantt progress
-- Bidirectional sync of task status
+### Gantt ↔ Kanban (Complete)
+- [x] Tasks created in Gantt appear as cards in Kanban
+- [x] Moving a card to "Done" updates Gantt progress (fills reality weeks)
+- [x] Bidirectional sync of task status via unified data model (v5)
+- [x] Cross-tab sync via localStorage events
 
 ### Sprint Planner ↔ Burndown
 - Sprint data automatically feeds burndown chart
@@ -262,30 +270,31 @@ Tools could share data for a unified experience:
 
 ---
 
-## Deployment: GitHub Pages
+## Deployment: GitHub Pages (Live)
 
-The suite requires no build tools, making it ideal for GitHub Pages.
+The suite is deployed and accessible at **https://project.bissbert.ch/**
 
-### Setup
+### Current Setup
 
-1. Push the `project-planning-tools` directory to a GitHub repository
+- **Repository:** [Bissbert/project-planning-tools](https://github.com/Bissbert/project-planning-tools)
+- **Branch:** main
+- **Custom Domain:** project.bissbert.ch
+- **DNS:** Cloudflare CNAME → bissbert.github.io (DNS only, no proxy)
+- **HTTPS:** Enabled via GitHub Pages SSL
 
-2. Enable GitHub Pages:
-   - Go to repository Settings → Pages
-   - Source: Deploy from a branch
-   - Branch: main (or master)
-   - Folder: / (root) or /docs if you move files there
+### Available Tools
 
-3. Access your tools at:
-   ```
-   https://<username>.github.io/<repo-name>/
-   ```
+| Tool | URL | Status |
+|------|-----|--------|
+| Landing Page | https://project.bissbert.ch/ | Active |
+| Gantt Chart | https://project.bissbert.ch/tools/gantt/ | Active |
+| Kanban Board | https://project.bissbert.ch/tools/kanban/ | Active |
 
 ### Benefits
 
 - **Free hosting** with HTTPS included
 - **Automatic deployment** on every push
-- **Custom domain** support available
+- **Custom domain** configured
 - **No build step** - files served as-is
 - **ES modules work** - proper MIME types over HTTPS
 
