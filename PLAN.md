@@ -32,7 +32,7 @@ Build a comprehensive, offline-first suite of project planning tools that:
 
 ### Phase 2: Core Planning Tools (In Progress)
 - [x] Kanban Board (with Gantt bidirectional sync)
-- [ ] Sprint Planner
+- [x] Sprint Planner (with velocity tracking and Gantt/Kanban sync)
 - [ ] Time Tracker
 
 ### Phase 3: Supporting Tools
@@ -47,7 +47,7 @@ Build a comprehensive, offline-first suite of project planning tools that:
 - [ ] Decision Log
 
 ### Phase 5: Integration (In Progress)
-- [x] Cross-tool data sharing (unified-data.js, v5 data model)
+- [x] Cross-tool data sharing (unified-data.js, v6 data model with sprint support)
 - [ ] Unified dashboard
 - [ ] Project-level data management
 
@@ -80,20 +80,29 @@ Visual workflow management with customizable columns and bidirectional Gantt syn
 
 **Shared modules:** storage, undo, unified-data, status
 
-#### Sprint Planner
+#### Sprint Planner (Complete)
 
-Agile sprint planning with backlog management.
+Agile sprint planning with backlog management and velocity tracking.
 
-**Features:**
-- Product backlog with story points
-- Sprint creation and management
-- Drag items from backlog to sprint
-- Velocity tracking across sprints
-- Sprint capacity planning
-- Sprint burndown integration
+**Implemented Features:**
+- [x] Product backlog with story point estimation (Fibonacci: 1, 2, 3, 5, 8, 13, 21)
+- [x] Sprint creation with name, goal, and week range
+- [x] Sprint tabs for navigation between sprints
+- [x] Drag-and-drop from backlog to sprint
+- [x] Drag-and-drop reordering within backlog/sprint
+- [x] Move tasks back to backlog from sprint
+- [x] Velocity tracking from completed sprints
+- [x] Capacity bar comparing committed vs velocity
+- [x] Sprint status (planning, active, completed)
+- [x] Bidirectional sync with Gantt and Kanban (unified data model v6)
+- [x] Edit mode toggle for modifications
+- [x] Two-panel layout (backlog + sprint board)
+
+**Not Implemented:**
+- Sprint burndown chart (planned as separate tool)
 - Sprint retrospective link
 
-**Shared modules:** storage, undo, export, status
+**Shared modules:** storage, undo, unified-data, status
 
 #### Time Tracker
 
@@ -247,8 +256,20 @@ Tools could share data for a unified experience:
 ### Gantt ↔ Kanban (Complete)
 - [x] Tasks created in Gantt appear as cards in Kanban
 - [x] Moving a card to "Done" updates Gantt progress (fills reality weeks)
-- [x] Bidirectional sync of task status via unified data model (v5)
+- [x] Bidirectional sync of task status via unified data model (v6)
 - [x] Cross-tab sync via localStorage events
+
+### Gantt ↔ Sprint Planner (Complete)
+- [x] Tasks in product backlog can be assigned to sprints
+- [x] Sprint weeks automatically set task planned weeks
+- [x] Story points tracked per task
+- [x] Sprint velocity calculated from completed tasks
+- [x] Cross-tab sync via localStorage events
+
+### Sprint Planner ↔ Kanban (Complete)
+- [x] Sprint tasks show Kanban status (To Do, In Progress, Done)
+- [x] Moving card to "Done" in Kanban contributes to sprint velocity
+- [x] Shared task data via unified data model (v6)
 
 ### Sprint Planner ↔ Burndown
 - Sprint data automatically feeds burndown chart
@@ -277,10 +298,19 @@ The suite is deployed and accessible at **https://project.bissbert.ch/**
 ### Current Setup
 
 - **Repository:** [Bissbert/project-planning-tools](https://github.com/Bissbert/project-planning-tools)
-- **Branch:** main
+- **Source Branch:** main (development)
+- **Deploy Branch:** gh-pages (GitHub Actions workflow)
 - **Custom Domain:** project.bissbert.ch
 - **DNS:** Cloudflare CNAME → bissbert.github.io (DNS only, no proxy)
 - **HTTPS:** Enabled via GitHub Pages SSL
+
+### Deployment Workflow
+
+Automatic deployment via GitHub Actions (`.github/workflows/deploy.yml`):
+1. Push to `main` triggers the workflow
+2. Workflow deploys files to `gh-pages` branch
+3. CNAME file is added automatically (only exists on `gh-pages`)
+4. GitHub Pages serves from `gh-pages` branch
 
 ### Available Tools
 
@@ -289,6 +319,7 @@ The suite is deployed and accessible at **https://project.bissbert.ch/**
 | Landing Page | https://project.bissbert.ch/ | Active |
 | Gantt Chart | https://project.bissbert.ch/tools/gantt/ | Active |
 | Kanban Board | https://project.bissbert.ch/tools/kanban/ | Active |
+| Sprint Planner | https://project.bissbert.ch/tools/sprint/ | Active |
 
 ### Benefits
 
