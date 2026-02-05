@@ -30,36 +30,40 @@
   <div class="edit-mode-banner">Editing Mode</div>
 
   <header class="header">
-    <div class="header-group header-group--info">
+    <div class="header-left">
+      <div class="station-badge">
+        <span class="station-badge__number">01</span>
+        <span class="station-badge__label">Gantt</span>
+      </div>
       <h1 id="projectTitle">Loading...</h1>
-      <span class="progress-stats" id="progressStats"></span>
-      <div class="variance-card" id="varianceCard">
-        <div class="variance-stat variance-stat--planned">
-          <span class="variance-stat__value" id="variancePlanned">0</span>
-          <span class="variance-stat__label">Planned</span>
+      <div class="stat-group">
+        <div class="stat-item stat-item--planned">
+          <span class="stat-item__value" id="variancePlanned">0</span>
+          <span class="stat-item__label">Plan</span>
         </div>
-        <div class="variance-stat variance-stat--reality">
-          <span class="variance-stat__value" id="varianceReality">0</span>
-          <span class="variance-stat__label">Reality</span>
+        <div class="stat-item stat-item--reality">
+          <span class="stat-item__value" id="varianceReality">0</span>
+          <span class="stat-item__label">Real</span>
         </div>
-        <div class="variance-stat variance-stat--diff" id="varianceDiff">
-          <span class="variance-stat__value" id="varianceDiffValue">0</span>
-          <span class="variance-stat__label">Variance</span>
+        <div class="stat-item stat-item--variance" id="varianceDiff">
+          <span class="stat-item__value" id="varianceDiffValue">0</span>
+          <span class="stat-item__label">Var</span>
         </div>
       </div>
+      <span class="progress-stats" id="progressStats"></span>
     </div>
-    <div class="header-group header-group--controls">
-      <input type="text" class="search-input" placeholder="Search tasks, assignees... (F)" id="searchInput">
-      <button class="btn btn--collapse-all" onclick="toggleAllCategories()" id="collapseAllBtn">Collapse All</button>
-      <button class="btn btn--settings edit-only" onclick="openSettings()">Settings</button>
-      <span class="status" id="status">Ready</span>
-    </div>
-    <div class="header-group header-group--actions">
+
+    <div class="header-right">
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn" onclick="toggleAllCategories()" id="collapseAllBtn">Collapse</button>
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
       <input type="file" id="fileInput" accept=".json">
-      <button class="btn" onclick="importProject()">Import</button>
-      <button class="btn" onclick="exportToJSON()">JSON</button>
-      <button class="btn" onclick="exportToExcel()">Excel</button>
-      <button class="btn" onclick="exportToPDF()">PDF</button>
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+        <button class="btn btn--ghost" onclick="exportToExcel()">Excel</button>
+        <button class="btn btn--ghost" onclick="exportToPDF()">PDF</button>
+      </div>
       <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
     </div>
   </header>

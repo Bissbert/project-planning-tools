@@ -69,28 +69,19 @@ body.edit-mode .btn--edit {
 /* Editable title in edit mode */
 body.edit-mode .header h1 {
   cursor: text;
-  padding: 4px 8px;
-  margin: -4px -8px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin: calc(-1 * var(--spacing-xs)) calc(-1 * var(--spacing-sm));
   border-radius: var(--radius-md);
   transition: background var(--transition-base);
 }
 
 body.edit-mode .header h1:hover {
-  background: var(--bg-tertiary);
+  background: var(--bg-hover);
 }
 
-.header h1 .edit-hint {
-  display: none;
-  font-size: var(--font-sm);
-  font-weight: 400;
-  color: var(--text-muted);
-  margin-left: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-body.edit-mode .header h1:hover .edit-hint {
-  display: inline;
+/* Station badge changes in edit mode */
+body.edit-mode .station-badge__number {
+  background: var(--accent);
 }
 
 /* Editable task name in edit mode */
