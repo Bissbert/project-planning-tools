@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Shared CSS -->
   <link rel="stylesheet" href="shared/css/tokens.css">
@@ -16,151 +16,786 @@
   <link rel="stylesheet" href="shared/css/buttons.css">
 
   <style>
+    /* ========== ASSEMBLY LINE LANDING PAGE ========== */
+
+    /* Background with subtle conveyor track lines */
+    .landing-bg {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Horizontal track lines */
+    .landing-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 80px,
+        var(--track-color) 80px,
+        var(--track-color) 81px
+      );
+      opacity: 0.5;
+    }
+
+    /* Gradient overlay */
+    .landing-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, var(--accent-subtle), transparent 70%),
+        linear-gradient(180deg, transparent 0%, var(--bg-primary) 100%);
+    }
+
+    /* Main container */
     .landing {
-      max-width: 800px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 48px 24px;
+      padding: var(--spacing-4xl) var(--spacing-xl);
+      position: relative;
     }
 
-    .landing h1 {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: -1px;
+    /* Hero section */
+    .hero {
+      margin-bottom: var(--spacing-4xl);
+      position: relative;
     }
 
-    .landing p {
+    /* Station number badge */
+    .station-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: var(--station-bg);
+      border: 1px solid var(--station-border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wider);
       color: var(--text-secondary);
-      font-size: 16px;
-      margin-bottom: 48px;
+      margin-bottom: var(--spacing-xl);
     }
 
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
+    .station-badge__number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: var(--font-xs);
     }
 
-    .tool-card {
+    .station-badge__status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .station-badge__status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--status-success);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--status-success);
+    }
+
+    .hero h1 {
+      font-size: clamp(var(--font-3xl), 5vw, var(--font-4xl));
+      font-weight: 700;
+      letter-spacing: var(--tracking-tight);
+      line-height: var(--leading-tight);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .hero h1 .highlight {
+      color: var(--accent);
+    }
+
+    .hero-description {
+      font-size: var(--font-lg);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      max-width: 600px;
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    /* Process indicators */
+    .process-flow {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .process-step {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 24px;
+      border-radius: var(--radius-lg);
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+    }
+
+    .process-step__icon {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+    }
+
+    .process-connector {
+      width: 24px;
+      height: 2px;
+      background: var(--border);
+      position: relative;
+    }
+
+    .process-connector::after {
+      content: '';
+      position: absolute;
+      right: -2px;
+      top: -3px;
+      border: 4px solid transparent;
+      border-left-color: var(--border);
+    }
+
+    /* Tools section with track line */
+    .tools-section {
+      margin-bottom: var(--spacing-4xl);
+      position: relative;
+    }
+
+    /* Track line running through cards */
+    .track-line {
+      position: absolute;
+      left: 40px;
+      top: 60px;
+      bottom: 40px;
+      width: 2px;
+      background: var(--track-color);
+    }
+
+    .track-line::after {
+      content: '';
+      position: absolute;
+      left: -4px;
+      bottom: -5px;
+      width: 10px;
+      height: 10px;
+      background: var(--bg-primary);
+      border: 2px solid var(--track-color);
+      border-radius: 50%;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+      padding-left: 70px;
+    }
+
+    .section-header__badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: var(--font-sm);
+      position: absolute;
+      left: 27px;
+    }
+
+    .section-header h2 {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wider);
+      color: var(--text-muted);
+    }
+
+    /* Tools grid */
+    .tools-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      padding-left: 70px;
+    }
+
+    /* Tool card - assembly station style */
+    .tool-card {
+      position: relative;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-xl);
+      padding-left: calc(var(--spacing-xl) + 48px);
       text-decoration: none;
       color: inherit;
-      transition: all 0.2s ease;
+      transition:
+        transform 0.15s var(--ease-snap),
+        background 0.1s var(--ease-step-out),
+        border-color 0.1s var(--ease-step-out),
+        box-shadow 0.15s var(--ease-mechanical);
+      display: block;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      left: -36px;
+      top: 50%;
+      width: 34px;
+      height: 2px;
+      background: var(--track-color);
+      transition: background 0.1s var(--ease-step-out);
+    }
+
+    .tool-card:hover::before {
+      background: var(--accent);
+    }
+
+    .tool-card::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+      opacity: 0;
+      transition: opacity 0.1s steps(1, end);
     }
 
     .tool-card:hover {
-      background: var(--bg-tertiary);
-      border-color: var(--planning);
-      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      background: var(--bg-elevated);
+      transform: translateX(8px);
+      box-shadow: var(--shadow-lg);
     }
 
-    .tool-card h2 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
+    .tool-card:hover::after {
+      opacity: 1;
+    }
+
+    .tool-card--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .tool-card--disabled:hover {
+      transform: none;
+      background: var(--bg-secondary);
+      box-shadow: none;
+    }
+
+    .tool-card--disabled:hover::after {
+      opacity: 0;
+    }
+
+    /* Station number on card */
+    .tool-card__station {
+      position: absolute;
+      left: var(--spacing-xl);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: center;
+      background: var(--station-bg);
+      border: 1px solid var(--station-border);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: var(--font-sm);
+      color: var(--text-muted);
+      transition:
+        background 0.08s steps(1, end),
+        border-color 0.08s steps(1, end),
+        color 0.08s steps(1, end);
     }
 
-    .tool-card h2 .icon {
-      font-size: 24px;
+    .tool-card:hover .tool-card__station {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg-primary);
     }
 
-    .tool-card p {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-      line-height: 1.6;
-    }
-
-    .tool-card .tag {
-      display: inline-block;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 4px 8px;
-      background: var(--bg-tertiary);
-      border-radius: 4px;
+    .tool-card--disabled:hover .tool-card__station {
+      background: var(--station-bg);
+      border-color: var(--station-border);
       color: var(--text-muted);
     }
 
-    .tool-card .tag--available {
-      background: rgba(34, 197, 94, 0.2);
-      color: #22c55e;
+    .tool-card__content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--spacing-xl);
     }
 
-    .tool-card .tag--coming {
-      background: rgba(245, 158, 11, 0.2);
-      color: #f59e0b;
+    .tool-card__main {
+      flex: 1;
     }
 
-    .note {
-      margin-top: 48px;
-      padding: 16px;
+    .tool-card__header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .tool-card__title {
+      font-size: var(--font-xl);
+      font-weight: 600;
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .tool-card__status {
+      font-size: var(--font-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+
+    .tool-card__status--available {
+      background: var(--status-success-subtle);
+      color: var(--status-success);
+    }
+
+    .tool-card__status--coming {
+      background: var(--status-warning-subtle);
+      color: var(--status-warning);
+    }
+
+    .tool-card__description {
+      font-size: var(--font-md);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .tool-card__features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .tool-card__feature {
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+    }
+
+    .tool-card__action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition:
+        background 0.08s steps(1, end),
+        border-color 0.08s steps(1, end),
+        color 0.08s steps(1, end),
+        transform 0.12s var(--ease-snap);
+    }
+
+    .tool-card:hover .tool-card__action {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg-primary);
+      transform: translateX(2px);
+    }
+
+    .tool-card--disabled .tool-card__action {
+      display: none;
+    }
+
+    /* Specs section - assembly line style */
+    .specs-section {
+      margin-bottom: var(--spacing-4xl);
+      position: relative;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-lg);
+      padding-left: 70px;
+    }
+
+    .spec-card {
+      padding: var(--spacing-lg);
       background: var(--bg-secondary);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 13px;
+      border-radius: var(--radius-lg);
+      position: relative;
+    }
+
+    .spec-card__header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .spec-card__number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: var(--station-bg);
+      border: 1px solid var(--station-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-xs);
+      font-weight: 600;
       color: var(--text-muted);
     }
 
-    .note code {
+    .spec-card__title {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+      color: var(--text-primary);
+    }
+
+    .spec-card__text {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      padding-left: 36px;
+    }
+
+    /* Quick start section */
+    .quickstart-section {
+      margin-bottom: var(--spacing-4xl);
+      position: relative;
+    }
+
+    .quickstart-content {
+      padding-left: 70px;
+    }
+
+    .quickstart-card {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xl);
+      padding: var(--spacing-lg) var(--spacing-xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+    }
+
+    .quickstart-card code {
       background: var(--bg-tertiary);
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
       font-family: inherit;
+      color: var(--accent-bright);
+      border: 1px solid var(--border);
+    }
+
+    .quickstart-card__step {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .quickstart-card__number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: var(--station-bg);
+      border: 1px solid var(--station-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-xs);
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .quickstart-card__arrow {
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .specs-grid {
+        grid-template-columns: 1fr;
+        padding-left: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .landing {
+        padding: var(--spacing-2xl) var(--spacing-lg);
+      }
+
+      .track-line {
+        display: none;
+      }
+
+      .section-header {
+        padding-left: 0;
+      }
+
+      .section-header__badge {
+        position: static;
+      }
+
+      .tools-grid {
+        padding-left: 0;
+      }
+
+      .tool-card {
+        padding-left: var(--spacing-xl);
+      }
+
+      .tool-card::before {
+        display: none;
+      }
+
+      .tool-card__station {
+        display: none;
+      }
+
+      .process-flow {
+        flex-wrap: wrap;
+      }
+
+      .process-connector {
+        display: none;
+      }
+
+      .quickstart-content {
+        padding-left: 0;
+      }
+
+      .quickstart-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+      }
+
+      .quickstart-card__arrow {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Background -->
+  <div class="landing-bg"></div>
+
   <div class="landing">
-    <h1>Project Planning Tools</h1>
-    <p>A collection of lightweight, browser-based planning tools that work offline and keep your data local.</p>
+    <!-- Hero -->
+    <header class="hero">
+      <div class="station-badge">
+        <span class="station-badge__number">01</span>
+        <span class="station-badge__status">System Online</span>
+      </div>
+      <h1>Project <span class="highlight">Planning</span> Tools</h1>
+      <p class="hero-description">
+        Lightweight, browser-based planning tools that work offline and keep your data local. No accounts, no servers, no complexity.
+      </p>
+      <div class="process-flow">
+        <div class="process-step">
+          <svg class="process-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
+          <span>No Build</span>
+        </div>
+        <div class="process-connector"></div>
+        <div class="process-step">
+          <svg class="process-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18"/>
+          </svg>
+          <span>Local Data</span>
+        </div>
+        <div class="process-connector"></div>
+        <div class="process-step">
+          <svg class="process-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span>Export</span>
+        </div>
+      </div>
+    </header>
 
-    <div class="tools-grid">
-      <a href="tools/gantt/index.html" class="tool-card">
-        <h2>
-          <span class="icon">📊</span>
-          Gantt Chart
-        </h2>
-        <p>
-          Visual project timeline with planned vs. reality tracking.
-          Drag-drop task management, week-by-week scheduling, and export to JSON/Excel/PDF.
-        </p>
-        <span class="tag tag--available">Available</span>
-      </a>
+    <!-- Tools Section -->
+    <section class="tools-section">
+      <div class="track-line"></div>
 
-      <div class="tool-card" style="opacity: 0.6; cursor: not-allowed;">
-        <h2>
-          <span class="icon">📋</span>
-          Kanban Board
-        </h2>
-        <p>
-          Visual workflow management with customizable columns and cards.
-          Track items through different stages of your process.
-        </p>
-        <span class="tag tag--coming">Coming Soon</span>
+      <div class="section-header">
+        <span class="section-header__badge">A</span>
+        <h2>Available Tools</h2>
       </div>
 
-      <div class="tool-card" style="opacity: 0.6; cursor: not-allowed;">
-        <h2>
-          <span class="icon">🎯</span>
-          Sprint Planner
-        </h2>
-        <p>
-          Agile sprint planning with backlog management, story points, and velocity tracking.
-        </p>
-        <span class="tag tag--coming">Coming Soon</span>
-      </div>
-    </div>
+      <div class="tools-grid">
+        <!-- Gantt Chart -->
+        <a href="tools/gantt/index.html" class="tool-card">
+          <div class="tool-card__station">01</div>
+          <div class="tool-card__content">
+            <div class="tool-card__main">
+              <div class="tool-card__header">
+                <h3 class="tool-card__title">Gantt Chart</h3>
+                <span class="tool-card__status tool-card__status--available">Active</span>
+              </div>
+              <p class="tool-card__description">
+                Visual project timeline with planned vs. reality tracking. Week-by-week scheduling with drag-drop management.
+              </p>
+              <div class="tool-card__features">
+                <span class="tool-card__feature">Timeline</span>
+                <span class="tool-card__feature">Variance</span>
+                <span class="tool-card__feature">Export</span>
+              </div>
+            </div>
+            <div class="tool-card__action">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </div>
+        </a>
 
-    <div class="note">
-      <strong>Note:</strong> ES modules require a local server. Run <code>npx serve .</code> in this directory, then open <code>http://localhost:3000</code>
-    </div>
+        <!-- Kanban Board -->
+        <div class="tool-card tool-card--disabled">
+          <div class="tool-card__station">02</div>
+          <div class="tool-card__content">
+            <div class="tool-card__main">
+              <div class="tool-card__header">
+                <h3 class="tool-card__title">Kanban Board</h3>
+                <span class="tool-card__status tool-card__status--coming">Pending</span>
+              </div>
+              <p class="tool-card__description">
+                Visual workflow management with customizable columns. Track items through different stages of your process.
+              </p>
+              <div class="tool-card__features">
+                <span class="tool-card__feature">Columns</span>
+                <span class="tool-card__feature">Drag-Drop</span>
+                <span class="tool-card__feature">WIP Limits</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sprint Planner -->
+        <div class="tool-card tool-card--disabled">
+          <div class="tool-card__station">03</div>
+          <div class="tool-card__content">
+            <div class="tool-card__main">
+              <div class="tool-card__header">
+                <h3 class="tool-card__title">Sprint Planner</h3>
+                <span class="tool-card__status tool-card__status--coming">Pending</span>
+              </div>
+              <p class="tool-card__description">
+                Agile sprint planning with backlog management, story points, and velocity tracking across iterations.
+              </p>
+              <div class="tool-card__features">
+                <span class="tool-card__feature">Sprints</span>
+                <span class="tool-card__feature">Backlog</span>
+                <span class="tool-card__feature">Velocity</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Specs Section -->
+    <section class="specs-section">
+      <div class="section-header">
+        <span class="section-header__badge">B</span>
+        <h2>System Specs</h2>
+      </div>
+
+      <div class="specs-grid">
+        <div class="spec-card">
+          <div class="spec-card__header">
+            <span class="spec-card__number">01</span>
+            <h3 class="spec-card__title">Local Storage</h3>
+          </div>
+          <p class="spec-card__text">Data stays in your browser. Nothing sent to servers. Export anytime.</p>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-card__header">
+            <span class="spec-card__number">02</span>
+            <h3 class="spec-card__title">Zero Build</h3>
+          </div>
+          <p class="spec-card__text">Plain HTML, CSS, JavaScript. No frameworks, no bundlers.</p>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-card__header">
+            <span class="spec-card__number">03</span>
+            <h3 class="spec-card__title">Offline Ready</h3>
+          </div>
+          <p class="spec-card__text">Works without internet once loaded. Perfect for travel.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="quickstart-section">
+      <div class="section-header">
+        <span class="section-header__badge">C</span>
+        <h2>Quick Start</h2>
+      </div>
+
+      <div class="quickstart-content">
+        <div class="quickstart-card">
+          <div class="quickstart-card__step">
+            <span class="quickstart-card__number">01</span>
+            <span>Run</span>
+            <code>npx serve .</code>
+          </div>
+          <span class="quickstart-card__arrow">&rarr;</span>
+          <div class="quickstart-card__step">
+            <span class="quickstart-card__number">02</span>
+            <span>Open</span>
+            <code>http://localhost:3000</code>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </body>
 </html>

@@ -36,6 +36,41 @@ python -m http.server 3000
 php -S localhost:3000
 ```
 
+## Design System
+
+**Aesthetic:** Assembly Line (factory/industrial workflow)
+**Palette:** Warm Steel (gray-purple)
+
+Key visual elements:
+- Track lines and conveyor-inspired flow
+- Numbered stations / step indicators
+- Progress bars and status lights
+- Modular panel-based cards
+- Subtle purple accent on dark steel backgrounds
+
+Primary colors:
+- Backgrounds: `#101014` → `#18181f` → `#202028`
+- Accent: `#a78bfa` (soft lavender)
+- Steel accent: `#7c7c8a` (purple-tinted gray)
+
+When creating new UI components, maintain the assembly line metaphor with organized, workflow-oriented layouts.
+
+### Animation Guidelines
+
+**Philosophy:** Animations should serve usability, not showcase the theme.
+
+**DO use animations for:**
+- Hover feedback on interactive elements (cards, buttons)
+- State changes (selected, active, disabled)
+- Brief transitions between views
+
+**DON'T use:**
+- Continuous/looping animations (blinking lights, moving indicators)
+- Staggered page load delays that slow content visibility
+- Decorative motion that doesn't aid comprehension
+
+**Rationale:** A productivity tool should show content immediately. The industrial aesthetic is conveyed through static design (colors, shapes, typography, track lines) rather than motion.
+
 ## Code Conventions
 
 - ES modules with explicit imports/exports

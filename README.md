@@ -18,6 +18,28 @@ A collection of lightweight, browser-based planning tools that work offline and 
 - Print-friendly layouts
 - Dark theme by default
 
+## Design System
+
+**Aesthetic Direction:** Assembly Line
+**Color Palette:** Warm Steel (gray-purple)
+
+The UI follows a factory/assembly line visual metaphor with:
+- Track lines and conveyor-inspired flow elements
+- Numbered stations and progress indicators
+- Organized, workflow-oriented layouts
+- Modular panel-based components
+
+**Color Palette:**
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--bg-primary` | `#101014` | Main background |
+| `--bg-secondary` | `#18181f` | Cards, panels |
+| `--bg-tertiary` | `#202028` | Elevated elements |
+| `--accent` | `#a78bfa` | Primary accent (soft lavender) |
+| `--accent-secondary` | `#7c7c8a` | Secondary (steel purple) |
+| `--text-primary` | `#e8e8e8` | Main text |
+| `--text-secondary` | `#9898a4` | Muted text |
+
 ## Getting Started
 
 ES modules require a local server. The simplest way to run:
