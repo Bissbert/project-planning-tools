@@ -1,0 +1,88 @@
+/* ========== GANTT CELLS - Week cells, today marker, month separators ========== */
+
+/* ========== WEEK CELLS ========== */
+.week-cell {
+  position: relative;
+  justify-content: center;
+  min-height: var(--cell-size);
+  border-left: 1px solid var(--border);
+}
+
+.week-cell:focus-visible {
+  outline: 2px solid var(--planning);
+  outline-offset: 1px;
+}
+
+/* Planned week cells */
+.week-cell--planned {
+  cursor: pointer;
+}
+
+.week-cell--planned:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.week-cell--planned.week-cell--active {
+  background: var(--task-color);
+}
+
+.week-cell--planned.week-cell--active:hover {
+  filter: brightness(1.15);
+}
+
+/* Reality week cells */
+.week-cell--reality {
+  cursor: pointer;
+}
+
+.week-cell--reality:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.week-cell--reality.week-cell--active {
+  background: var(--task-color);
+  opacity: 0.5;
+}
+
+.week-cell--reality.week-cell--active:hover {
+  opacity: 0.65;
+}
+
+.week-cell--reality.week-cell--active::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+/* ========== MONTH SEPARATORS ========== */
+.week-cell--month-start {
+  border-left: 2px solid var(--border);
+}
+
+/* ========== TODAY MARKER ========== */
+.week-cell--today {
+  position: relative;
+}
+
+.week-cell--today::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--status-warning);
+}
+
+.week-header .week-cell--today {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: var(--status-warning) !important;
+  font-weight: 700;
+}
+
+/* ========== WEEK RANGE SELECTION ========== */
+.week-cell--range-start {
+  box-shadow: inset 0 0 0 2px var(--status-warning);
+}

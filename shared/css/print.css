@@ -1,0 +1,57 @@
+/* ========== PRINT STYLES FOR PDF EXPORT ========== */
+@media print {
+  /* Page setup - landscape for wide charts */
+  @page {
+    size: A4 landscape;
+    margin: 12mm 8mm;
+  }
+
+  /* Force color printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Hide interactive UI elements */
+  .header-group--controls,
+  .header-group--actions,
+  .legend,
+  .modal-overlay,
+  .edit-only,
+  #fileInput,
+  .shortcuts-hint {
+    display: none !important;
+  }
+
+  /* Clean document background */
+  html, body {
+    background: #fff !important;
+    margin: 0;
+    padding: 0;
+    font-size: 9pt;
+  }
+
+  /* Container reset */
+  .container {
+    padding: 0;
+    max-width: none;
+    overflow: visible;
+  }
+
+  /* Header - show title prominently */
+  .header {
+    position: static;
+    background: transparent !important;
+    border: none;
+    padding: 0 0 12px 0;
+    justify-content: flex-start;
+  }
+
+  .header h1 {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #1a1a1a !important;
+    letter-spacing: -0.02em;
+  }
+}
