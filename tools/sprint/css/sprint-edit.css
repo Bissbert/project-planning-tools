@@ -1,0 +1,280 @@
+/* ========== SPRINT EDIT - Edit mode, drag states, modals ========== */
+
+/* ========== EDIT MODE BANNER ========== */
+.edit-mode-banner {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--accent);
+  color: var(--bg-primary);
+  text-align: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  z-index: 200;
+}
+
+.edit-mode .edit-mode-banner {
+  display: block;
+}
+
+.edit-mode .header {
+  margin-top: 24px;
+  top: 24px;
+}
+
+.edit-mode .sprint-container {
+  height: calc(100vh - 52px - 24px);
+}
+
+/* ========== EDIT-ONLY ELEMENTS ========== */
+.edit-only {
+  display: none;
+}
+
+.edit-mode .edit-only {
+  display: flex;
+}
+
+button.edit-only {
+  display: none;
+}
+
+.edit-mode button.edit-only {
+  display: inline-flex;
+}
+
+/* Edit toggle button */
+.btn--edit {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.edit-mode .btn--edit {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+/* ========== DRAGGABLE STATES ========== */
+.edit-mode .backlog-item,
+.edit-mode .sprint-task {
+  cursor: grab;
+}
+
+.edit-mode .backlog-item:active,
+.edit-mode .sprint-task:active {
+  cursor: grabbing;
+}
+
+.edit-mode .backlog-item__drag,
+.edit-mode .sprint-task__drag {
+  display: flex;
+}
+
+:not(.edit-mode) .backlog-item__drag,
+:not(.edit-mode) .sprint-task__drag {
+  display: none;
+}
+
+/* Drag ghost */
+.drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.9;
+  transform: rotate(3deg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ========== DROP INDICATORS ========== */
+.drop-indicator {
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  margin: var(--spacing-xs) 0;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.drop-indicator--before {
+  margin-top: 0;
+}
+
+.drop-indicator--after {
+  margin-bottom: 0;
+}
+
+/* ========== SPRINT TAB EDIT ========== */
+.sprint-tab__edit {
+  display: none;
+  margin-left: var(--spacing-xs);
+  padding: 2px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.edit-mode .sprint-tab:hover .sprint-tab__edit {
+  display: inline-flex;
+}
+
+.sprint-tab__edit:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ========== TASK PROGRESS BAR ========== */
+.task-progress-bar {
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: var(--spacing-sm);
+}
+
+.task-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.2s var(--ease-mechanical);
+}
+
+.task-progress-fill--complete {
+  background: var(--status-success);
+}
+
+.task-progress-text {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ========== REALITY WEEKS TAGS ========== */
+.reality-weeks-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  min-height: 28px;
+}
+
+.reality-week-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  color: var(--accent-bright);
+}
+
+.reality-week-tag__remove {
+  display: none;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: var(--font-sm);
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.edit-mode .reality-week-tag__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reality-week-tag__remove:hover {
+  background: var(--accent);
+  color: var(--bg-primary);
+}
+
+/* ========== BUTTON VARIANTS ========== */
+.btn--warning {
+  background: var(--status-warning-subtle);
+  border: 1px solid var(--status-warning);
+  color: var(--status-warning);
+}
+
+.btn--warning:hover {
+  background: var(--status-warning);
+  color: var(--bg-primary);
+}
+
+/* ========== SPRINT INFO EDIT BUTTON ========== */
+.sprint-info__edit {
+  display: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.edit-mode .sprint-info__edit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.sprint-info__edit:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ========== MOVE TO BACKLOG BUTTON ========== */
+.move-to-backlog {
+  display: none;
+  margin-left: auto;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.edit-mode .sprint-task:hover .move-to-backlog {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.move-to-backlog:hover {
+  background: var(--status-error-subtle);
+  border-color: var(--status-error);
+  color: var(--status-error);
+}
+
+/* ========== INLINE POINT EDITOR ========== */
+.points-edit {
+  cursor: pointer;
+}
+
+.edit-mode .points-edit:hover {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ========== FILE INPUT HIDDEN ========== */
+#fileInput {
+  display: none;
+}
