@@ -2,6 +2,8 @@
  * Gantt Edit Module - Edit mode, CRUD, drag-drop handlers
  */
 
+import { generateTaskId, deriveColumnFromProgress } from '../../../shared/js/unified-data.js';
+
 // ========== TASK CRUD OPERATIONS ==========
 
 /**
@@ -14,9 +16,12 @@ export function addTask(projectData, category) {
   const name = prompt('Enter task name:');
   if (!name || !name.trim()) return null;
 
-  const maxId = Math.max(0, ...projectData.tasks.map(t => t.id));
+  // Calculate board position (new tasks go to backlog)
+  const backlogTasks = projectData.tasks.filter(t => t.board?.columnId === 'backlog');
+  const boardPosition = backlogTasks.length;
+
   const newTask = {
-    id: maxId + 1,
+    id: generateTaskId(),
     category: category,
     name: name.trim(),
     planned: [],
@@ -24,7 +29,11 @@ export function addTask(projectData, category) {
     assignee: '',
     priority: '',
     notes: '',
-    isMilestone: false
+    isMilestone: false,
+    board: {
+      columnId: 'backlog',
+      position: boardPosition
+    }
   };
 
   // Find last task in this category and insert after it
@@ -79,16 +88,19 @@ export function renameTask(projectData, taskId, newName) {
 /**
  * Duplicate a task
  * @param {Object} projectData - Project data
- * @param {number} taskId - Task ID
+ * @param {string} taskId - Task ID
  * @returns {Object|null} - New task or null
  */
 export function duplicateTask(projectData, taskId) {
   const task = projectData.tasks.find(t => t.id === taskId);
   if (!task) return null;
 
-  const maxId = Math.max(0, ...projectData.tasks.map(t => t.id));
+  // Calculate board position (duplicated task goes to backlog)
+  const backlogTasks = projectData.tasks.filter(t => t.board?.columnId === 'backlog');
+  const boardPosition = backlogTasks.length;
+
   const newTask = {
-    id: maxId + 1,
+    id: generateTaskId(),
     category: task.category,
     name: task.name + ' (copy)',
     planned: [...task.planned],
@@ -96,7 +108,11 @@ export function duplicateTask(projectData, taskId) {
     assignee: task.assignee || '',
     priority: task.priority || '',
     notes: task.notes || '',
-    isMilestone: task.isMilestone || false
+    isMilestone: task.isMilestone || false,
+    board: {
+      columnId: 'backlog',
+      position: boardPosition
+    }
   };
 
   // Insert after the original task

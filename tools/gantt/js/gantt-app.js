@@ -20,7 +20,8 @@ import {
   migrateTask,
   calculateWeeksFromDates,
   generateMonthsFromDateRange,
-  cloneProjectData
+  cloneProjectData,
+  syncGanttToKanban
 } from './gantt-data.js';
 
 import { render } from './gantt-render.js';
@@ -124,8 +125,30 @@ export function init() {
   // Setup event listeners
   setupEventListeners();
 
+  // Setup cross-tab sync
+  setupStorageSync();
+
   // Initial render
   renderApp();
+}
+
+// ========== CROSS-TAB SYNC ==========
+
+function setupStorageSync() {
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY && e.newValue) {
+      try {
+        const newData = JSON.parse(e.newValue);
+        if (newData.version >= DATA_VERSION) {
+          projectData = newData;
+          renderApp();
+          statusManager.show('Synced from another tab', true);
+        }
+      } catch (err) {
+        console.error('Failed to sync from storage event:', err);
+      }
+    }
+  });
 }
 
 // ========== SAVE/LOAD ==========
@@ -199,6 +222,11 @@ function getHandlers() {
     onCopyToReality: (taskId) => {
       saveState();
       if (copyPlannedToReality(projectData, taskId)) {
+        // Sync to Kanban
+        const task = projectData.tasks.find(t => t.id === taskId);
+        if (task) {
+          syncGanttToKanban(task, projectData.workflow);
+        }
         save();
         renderApp();
         statusManager.show('Copied to reality', true);
@@ -279,6 +307,12 @@ function handleWeekClick(e, taskId, week, type) {
     const isAdding = !task[type].includes(rangeStartCell.week);
     fillWeekRange(projectData, taskId, rangeStartCell.week, week, type, isAdding);
     rangeStartCell = null;
+
+    // Sync to Kanban if reality changed
+    if (type === 'reality') {
+      syncGanttToKanban(task, projectData.workflow);
+    }
+
     save();
     renderApp();
   } else {
@@ -286,6 +320,12 @@ function handleWeekClick(e, taskId, week, type) {
     rangeStartCell = { taskId, week, type };
     saveState();
     toggleWeek(projectData, taskId, week, type);
+
+    // Sync to Kanban if reality changed
+    if (type === 'reality') {
+      syncGanttToKanban(task, projectData.workflow);
+    }
+
     save();
     renderApp();
   }
