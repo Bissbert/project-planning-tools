@@ -77,18 +77,38 @@ project-planning-tools/
 │       ├── export.js       # File download utilities
 │       └── status.js       # Status message display
 └── tools/
-    └── gantt/              # Gantt Chart tool
+    ├── gantt/              # Gantt Chart tool
+    │   ├── index.html
+    │   ├── css/
+    │   │   ├── gantt-layout.css
+    │   │   ├── gantt-cells.css
+    │   │   ├── gantt-edit.css
+    │   │   └── gantt-print.css
+    │   └── js/
+    │       ├── gantt-app.js
+    │       ├── gantt-data.js
+    │       ├── gantt-render.js
+    │       └── gantt-edit.js
+    ├── kanban/             # Kanban Board tool
+    │   ├── index.html
+    │   ├── css/
+    │   │   ├── kanban-layout.css
+    │   │   ├── kanban-cards.css
+    │   │   ├── kanban-edit.css
+    │   │   └── kanban-print.css
+    │   └── js/
+    │       └── kanban-app.js
+    └── sprint/             # Sprint Planner tool
         ├── index.html
         ├── css/
-        │   ├── gantt-layout.css
-        │   ├── gantt-cells.css
-        │   ├── gantt-edit.css
-        │   └── gantt-print.css
+        │   ├── sprint-layout.css
+        │   ├── sprint-cards.css
+        │   ├── sprint-edit.css
+        │   └── sprint-print.css
         └── js/
-            ├── gantt-app.js
-            ├── gantt-data.js
-            ├── gantt-render.js
-            └── gantt-edit.js
+            ├── sprint-app.js
+            ├── sprint-render.js
+            └── sprint-edit.js
 ```
 
 ## Available Tools
@@ -110,6 +130,38 @@ Visual project timeline with planned vs. reality tracking.
 - Import/export JSON project files
 - Export to Excel and PDF
 - Keyboard shortcuts
+- Edit mode for modifications
+
+### Kanban Board
+
+Visual workflow management with customizable columns.
+
+**Features:**
+- Configurable columns (Backlog, To Do, In Progress, Done)
+- Custom columns (add, delete, rename, recolor, reorder)
+- Drag-and-drop cards between columns
+- Card details: name, category, assignee, priority, notes
+- Card filtering and search
+- Column collapse/expand
+- Bidirectional sync with Gantt and Sprint Planner
+- Edit mode for modifications
+- Print/export support
+
+### Sprint Planner
+
+Agile sprint planning with backlog management and velocity tracking.
+
+**Features:**
+- Product backlog with story point estimation (Fibonacci scale)
+- Sprint creation with name, goal, and week range
+- Sprint tabs for navigation
+- Drag-and-drop from backlog to sprint
+- Move tasks back to backlog
+- Velocity tracking from completed sprints
+- Capacity bar (committed vs velocity)
+- Sprint status management (planning, active, completed)
+- Two-panel layout (backlog + sprint board)
+- Bidirectional sync with Gantt and Kanban
 - Edit mode for modifications
 
 ## Shared Modules
@@ -135,6 +187,7 @@ Visual project timeline with planned vs. reality tracking.
 | `export.js` | File downloads | `downloadJSON()`, `downloadBlob()`, `readJSONFile()` |
 | `status.js` | Status messages | `initStatus()`, `showStatus()`, `createStatusManager()` |
 | `backup.js` | Backup utilities | Backup/restore functionality |
+| `unified-data.js` | Cross-tool data sync | `migrateToV6()`, `getProductBacklog()`, `getSprintTasks()`, `calculateVelocity()` |
 
 ## Creating New Tools
 
