@@ -1,0 +1,214 @@
+/* ========== SPRINT PRINT - Print-specific styles ========== */
+
+@media print {
+  /* Hide non-essential elements */
+  .edit-mode-banner,
+  .header-right,
+  .backlog-footer,
+  .sprint-tab--add,
+  .task-actions,
+  .sprint-info__edit,
+  .move-to-backlog,
+  #status {
+    display: none !important;
+  }
+
+  /* Reset backgrounds for print */
+  body {
+    background: white;
+    color: black;
+  }
+
+  .header {
+    position: static;
+    background: white;
+    border-bottom: 2px solid #333;
+    padding: 10px 0;
+  }
+
+  .station-badge__number {
+    background: #333;
+    color: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .header h1 {
+    color: black;
+  }
+
+  .stat-group {
+    background: none;
+    border: 1px solid #ccc;
+  }
+
+  .stat-item {
+    background: white;
+    border-right: 1px solid #ccc;
+  }
+
+  .stat-item:last-child {
+    border-right: none;
+  }
+
+  .stat-item__value {
+    color: black !important;
+  }
+
+  .stat-item__label {
+    color: #666;
+  }
+
+  /* Layout adjustments */
+  .sprint-container {
+    display: block;
+    height: auto;
+  }
+
+  .backlog-panel {
+    max-width: none;
+    height: auto;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  .backlog-header {
+    background: #f5f5f5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .backlog-title {
+    color: black;
+  }
+
+  .backlog-stats {
+    color: #666;
+  }
+
+  .backlog-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .sprint-panel {
+    page-break-before: always;
+  }
+
+  .sprint-tabs {
+    background: white;
+    border-bottom: 1px solid #ccc;
+    overflow: visible;
+    flex-wrap: wrap;
+  }
+
+  .sprint-tab {
+    background: white;
+    border: 1px solid #ccc;
+    color: black;
+  }
+
+  .sprint-tab--active {
+    background: #f5f5f5;
+    border-color: #333;
+    font-weight: bold;
+  }
+
+  .sprint-board {
+    overflow: visible;
+  }
+
+  .sprint-info {
+    background: white;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  .sprint-info__title {
+    color: black;
+  }
+
+  .sprint-info__status {
+    border: 1px solid currentColor;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .sprint-info__goal {
+    color: #333;
+  }
+
+  .sprint-info__weeks {
+    color: #666;
+  }
+
+  /* Cards */
+  .backlog-item,
+  .sprint-task {
+    background: white;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  .backlog-item__name,
+  .sprint-task__name {
+    color: black;
+  }
+
+  .backlog-item__meta,
+  .sprint-task__meta {
+    color: #666;
+  }
+
+  .points-badge {
+    background: #f5f5f5;
+    border-color: #999;
+    color: black;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .status-chip {
+    border: 1px solid currentColor;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Capacity bar */
+  .capacity-bar {
+    background: white;
+    border: 1px solid #ccc;
+  }
+
+  .capacity-bar__track {
+    background: #eee;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .capacity-bar__fill {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Category colors should print */
+  .sprint-task__category,
+  .sprint-task__category-dot {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Drag handles hidden in print */
+  .backlog-item__drag,
+  .sprint-task__drag {
+    display: none !important;
+  }
+
+  /* Priority indicators should print */
+  .backlog-item::before,
+  .sprint-task::before {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

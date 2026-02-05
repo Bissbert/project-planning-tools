@@ -1,0 +1,427 @@
+/* ========== SPRINT CARDS - Backlog items, sprint tasks, story points ========== */
+
+/* ========== BACKLOG ITEM ========== */
+.backlog-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    transform 0.1s var(--ease-snap),
+    box-shadow 0.1s var(--ease-step-out),
+    border-color 0.1s var(--ease-step-out);
+  position: relative;
+}
+
+.backlog-item:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+  transform: translateX(2px);
+}
+
+.backlog-item.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Priority indicator */
+.backlog-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  opacity: 0;
+}
+
+.backlog-item--priority-high::before {
+  background: var(--status-error);
+  opacity: 1;
+}
+
+.backlog-item--priority-medium::before {
+  background: var(--status-warning);
+  opacity: 1;
+}
+
+.backlog-item--priority-low::before {
+  background: var(--status-info);
+  opacity: 1;
+}
+
+/* Drag handle */
+.backlog-item__drag {
+  color: var(--text-muted);
+  opacity: 0.5;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.backlog-item__drag:hover {
+  opacity: 1;
+}
+
+/* Item content */
+.backlog-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.backlog-item__name {
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.backlog-item__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: 2px;
+}
+
+.backlog-item__category {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.backlog-item__assignee {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* Story points badge */
+.points-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 var(--spacing-xs);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.points-badge--unestimated {
+  color: var(--text-muted);
+  background: transparent;
+  border-style: dashed;
+}
+
+.points-badge--small {
+  background: var(--status-success-subtle);
+  border-color: var(--status-success);
+  color: var(--status-success);
+}
+
+.points-badge--medium {
+  background: var(--status-warning-subtle);
+  border-color: var(--status-warning);
+  color: var(--status-warning);
+}
+
+.points-badge--large {
+  background: var(--status-error-subtle);
+  border-color: var(--status-error);
+  color: var(--status-error);
+}
+
+/* ========== SPRINT TASK CARD ========== */
+.sprint-task {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    transform 0.1s var(--ease-snap),
+    box-shadow 0.1s var(--ease-step-out),
+    border-color 0.1s var(--ease-step-out);
+  position: relative;
+}
+
+.sprint-task:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.sprint-task.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Priority indicator */
+.sprint-task::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  opacity: 0;
+}
+
+.sprint-task--priority-high::before {
+  background: var(--status-error);
+  opacity: 1;
+}
+
+.sprint-task--priority-medium::before {
+  background: var(--status-warning);
+  opacity: 1;
+}
+
+.sprint-task--priority-low::before {
+  background: var(--status-info);
+  opacity: 1;
+}
+
+/* Drag handle */
+.sprint-task__drag {
+  color: var(--text-muted);
+  opacity: 0.5;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.sprint-task__drag:hover {
+  opacity: 1;
+}
+
+/* Task content */
+.sprint-task__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sprint-task__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.sprint-task__name {
+  font-size: var(--font-md);
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.sprint-task__category {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 2px var(--spacing-sm);
+  font-size: var(--font-xs);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.sprint-task__category-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.sprint-task__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.sprint-task__assignee {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+}
+
+.sprint-task__avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-subtle);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+/* Kanban status chip */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 2px var(--spacing-sm);
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.status-chip--backlog {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+.status-chip--todo {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.status-chip--in-progress {
+  background: var(--status-warning-subtle);
+  color: var(--status-warning);
+}
+
+.status-chip--done {
+  background: var(--status-success-subtle);
+  color: var(--status-success);
+}
+
+/* ========== POINTS SELECTOR ========== */
+.points-selector {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.points-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.points-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.points-btn--selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+.points-btn--selected:hover {
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+}
+
+/* ========== DROP ZONES ========== */
+.backlog-list.drag-over {
+  background: var(--accent-subtle);
+  border-radius: var(--radius-md);
+}
+
+.sprint-tasks.drag-over {
+  background: var(--accent-subtle);
+  border-radius: var(--radius-md);
+  min-height: 60px;
+}
+
+.drop-placeholder {
+  height: 40px;
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-subtle);
+  margin: var(--spacing-xs) 0;
+}
+
+/* ========== TASK ACTIONS (edit mode) ========== */
+.task-actions {
+  display: none;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.edit-mode .backlog-item:hover .task-actions,
+.edit-mode .sprint-task:hover .task-actions {
+  display: flex;
+}
+
+.task-action {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.task-action:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.task-action--delete:hover {
+  background: var(--status-error-subtle);
+  color: var(--status-error);
+  border-color: var(--status-error);
+}
+
+/* ========== EMPTY BACKLOG STATE ========== */
+.backlog-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-muted);
+  height: 100%;
+}
+
+.backlog-empty__icon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.4;
+  margin-bottom: var(--spacing-sm);
+}
+
+.backlog-empty__text {
+  font-size: var(--font-sm);
+}

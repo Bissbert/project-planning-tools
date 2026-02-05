@@ -9,15 +9,21 @@ export {
   STORAGE_KEY,
   BACKUP_KEY,
   generateTaskId,
+  generateSprintId,
   deriveColumnFromProgress,
   deriveStatus,
   migrateTaskToV5,
   migrateToV5,
+  migrateToV6,
   syncGanttToKanban,
   syncKanbanToGantt,
   repositionColumn,
   moveTaskToColumn,
   getColumnTasks,
+  getProductBacklog,
+  getSprintTasks,
+  calculateSprintPoints,
+  calculateVelocity,
   calculateWeeksFromDates,
   generateMonthsFromDateRange,
   getCurrentWeek,
@@ -30,7 +36,7 @@ export {
 // Import what we need for local use
 import {
   DATA_VERSION,
-  migrateToV5 as migrateProjectToV5,
+  migrateToV6 as migrateProjectToV6,
   migrateTaskToV5,
   deriveStatus
 } from '../../../shared/js/unified-data.js';
@@ -62,51 +68,52 @@ export const defaultProjectData = {
     ],
     enableWipLimits: true
   },
+  sprints: [],
   tasks: [
-    { id: "task_1", category: "Planning", name: "Plan game concept", planned: [1], reality: [], board: { columnId: "todo", position: 0 } },
-    { id: "task_2", category: "Planning", name: "Create mood boards", planned: [1, 2], reality: [], board: { columnId: "todo", position: 1 } },
-    { id: "task_3", category: "Planning", name: "Style guide", planned: [2, 3], reality: [], board: { columnId: "todo", position: 2 } },
-    { id: "task_4", category: "Planning", name: "List assets", planned: [2], reality: [], board: { columnId: "todo", position: 3 } },
-    { id: "task_5", category: "Planning", name: "Thumbnails", planned: [3, 4], reality: [], board: { columnId: "backlog", position: 0 } },
-    { id: "task_6", category: "Planning", name: "Concept sketches", planned: [3, 4], reality: [], board: { columnId: "backlog", position: 1 } },
-    { id: "task_7", category: "Planning", name: "Understanding Unity", planned: [1, 2, 3, 4], reality: [], board: { columnId: "todo", position: 4 } },
-    { id: "task_8", category: "Characters", name: "Luna mesh", planned: [5, 6], reality: [], board: { columnId: "backlog", position: 2 } },
-    { id: "task_9", category: "Characters", name: "Weapon mesh", planned: [7], reality: [], board: { columnId: "backlog", position: 3 } },
-    { id: "task_10", category: "Characters", name: "Enemy mesh", planned: [8, 9], reality: [], board: { columnId: "backlog", position: 4 } },
-    { id: "task_11", category: "Characters", name: "Luna texture", planned: [10, 11], reality: [], board: { columnId: "backlog", position: 5 } },
-    { id: "task_12", category: "Characters", name: "Weapon texture", planned: [11, 12], reality: [], board: { columnId: "backlog", position: 6 } },
-    { id: "task_13", category: "Characters", name: "Enemy texture", planned: [12, 13], reality: [], board: { columnId: "backlog", position: 7 } },
-    { id: "task_14", category: "Characters", name: "Luna animations", planned: [14, 15], reality: [], board: { columnId: "backlog", position: 8 } },
-    { id: "task_15", category: "Characters", name: "Enemy animations", planned: [16, 17], reality: [], board: { columnId: "backlog", position: 9 } },
-    { id: "task_16", category: "Env - Objectives", name: "Angel Fountain mesh", planned: [5, 6], reality: [], board: { columnId: "backlog", position: 10 } },
-    { id: "task_17", category: "Env - Objectives", name: "Vision Tower mesh", planned: [7, 8], reality: [], board: { columnId: "backlog", position: 11 } },
-    { id: "task_18", category: "Env - Objectives", name: "Chest mesh", planned: [8, 9], reality: [], board: { columnId: "backlog", position: 12 } },
-    { id: "task_19", category: "Env - Objectives", name: "Angel Fountain texture", planned: [9, 10], reality: [], board: { columnId: "backlog", position: 13 } },
-    { id: "task_20", category: "Env - Objectives", name: "Vision Tower texture", planned: [10, 11], reality: [], board: { columnId: "backlog", position: 14 } },
-    { id: "task_21", category: "Env - Objectives", name: "Chest texture", planned: [11, 12], reality: [], board: { columnId: "backlog", position: 15 } },
-    { id: "task_22", category: "Env - Town", name: "Floor tiles", planned: [12, 13], reality: [], board: { columnId: "backlog", position: 16 } },
-    { id: "task_23", category: "Env - Town", name: "House tiles", planned: [13, 14, 15], reality: [], board: { columnId: "backlog", position: 17 } },
-    { id: "task_24", category: "Env - Town", name: "Trees", planned: [15, 16], reality: [], board: { columnId: "backlog", position: 18 } },
-    { id: "task_25", category: "Env - Town", name: "Rocks", planned: [16], reality: [], board: { columnId: "backlog", position: 19 } },
-    { id: "task_26", category: "Env - Town", name: "Palisade", planned: [17], reality: [], board: { columnId: "backlog", position: 20 } },
-    { id: "task_27", category: "Env - Forest", name: "Floor tiles", planned: [18], reality: [], board: { columnId: "backlog", position: 21 } },
-    { id: "task_28", category: "Env - Forest", name: "Portal", planned: [19, 20], reality: [], board: { columnId: "backlog", position: 22 } },
-    { id: "task_29", category: "Env - Forest", name: "Bushes", planned: [21], reality: [], board: { columnId: "backlog", position: 23 } },
-    { id: "task_30", category: "Misc", name: "Unity integration", planned: [22, 23, 24, 25, 26, 27], reality: [], board: { columnId: "backlog", position: 24 } },
-    { id: "task_31", category: "Misc", name: "VFX", planned: [26, 27, 28, 29], reality: [], board: { columnId: "backlog", position: 25 } },
-    { id: "task_32", category: "Misc", name: "Documentation", planned: [30, 31], reality: [], board: { columnId: "backlog", position: 26 } },
-    { id: "task_33", category: "Misc", name: "Cushion time", planned: [32, 33, 34, 35], reality: [], board: { columnId: "backlog", position: 27 } }
+    { id: "task_1", category: "Planning", name: "Plan game concept", planned: [1], reality: [], board: { columnId: "todo", position: 0 }, storyPoints: null, sprintId: null, backlogPosition: 0 },
+    { id: "task_2", category: "Planning", name: "Create mood boards", planned: [1, 2], reality: [], board: { columnId: "todo", position: 1 }, storyPoints: null, sprintId: null, backlogPosition: 1 },
+    { id: "task_3", category: "Planning", name: "Style guide", planned: [2, 3], reality: [], board: { columnId: "todo", position: 2 }, storyPoints: null, sprintId: null, backlogPosition: 2 },
+    { id: "task_4", category: "Planning", name: "List assets", planned: [2], reality: [], board: { columnId: "todo", position: 3 }, storyPoints: null, sprintId: null, backlogPosition: 3 },
+    { id: "task_5", category: "Planning", name: "Thumbnails", planned: [3, 4], reality: [], board: { columnId: "backlog", position: 0 }, storyPoints: null, sprintId: null, backlogPosition: 4 },
+    { id: "task_6", category: "Planning", name: "Concept sketches", planned: [3, 4], reality: [], board: { columnId: "backlog", position: 1 }, storyPoints: null, sprintId: null, backlogPosition: 5 },
+    { id: "task_7", category: "Planning", name: "Understanding Unity", planned: [1, 2, 3, 4], reality: [], board: { columnId: "todo", position: 4 }, storyPoints: null, sprintId: null, backlogPosition: 6 },
+    { id: "task_8", category: "Characters", name: "Luna mesh", planned: [5, 6], reality: [], board: { columnId: "backlog", position: 2 }, storyPoints: null, sprintId: null, backlogPosition: 7 },
+    { id: "task_9", category: "Characters", name: "Weapon mesh", planned: [7], reality: [], board: { columnId: "backlog", position: 3 }, storyPoints: null, sprintId: null, backlogPosition: 8 },
+    { id: "task_10", category: "Characters", name: "Enemy mesh", planned: [8, 9], reality: [], board: { columnId: "backlog", position: 4 }, storyPoints: null, sprintId: null, backlogPosition: 9 },
+    { id: "task_11", category: "Characters", name: "Luna texture", planned: [10, 11], reality: [], board: { columnId: "backlog", position: 5 }, storyPoints: null, sprintId: null, backlogPosition: 10 },
+    { id: "task_12", category: "Characters", name: "Weapon texture", planned: [11, 12], reality: [], board: { columnId: "backlog", position: 6 }, storyPoints: null, sprintId: null, backlogPosition: 11 },
+    { id: "task_13", category: "Characters", name: "Enemy texture", planned: [12, 13], reality: [], board: { columnId: "backlog", position: 7 }, storyPoints: null, sprintId: null, backlogPosition: 12 },
+    { id: "task_14", category: "Characters", name: "Luna animations", planned: [14, 15], reality: [], board: { columnId: "backlog", position: 8 }, storyPoints: null, sprintId: null, backlogPosition: 13 },
+    { id: "task_15", category: "Characters", name: "Enemy animations", planned: [16, 17], reality: [], board: { columnId: "backlog", position: 9 }, storyPoints: null, sprintId: null, backlogPosition: 14 },
+    { id: "task_16", category: "Env - Objectives", name: "Angel Fountain mesh", planned: [5, 6], reality: [], board: { columnId: "backlog", position: 10 }, storyPoints: null, sprintId: null, backlogPosition: 15 },
+    { id: "task_17", category: "Env - Objectives", name: "Vision Tower mesh", planned: [7, 8], reality: [], board: { columnId: "backlog", position: 11 }, storyPoints: null, sprintId: null, backlogPosition: 16 },
+    { id: "task_18", category: "Env - Objectives", name: "Chest mesh", planned: [8, 9], reality: [], board: { columnId: "backlog", position: 12 }, storyPoints: null, sprintId: null, backlogPosition: 17 },
+    { id: "task_19", category: "Env - Objectives", name: "Angel Fountain texture", planned: [9, 10], reality: [], board: { columnId: "backlog", position: 13 }, storyPoints: null, sprintId: null, backlogPosition: 18 },
+    { id: "task_20", category: "Env - Objectives", name: "Vision Tower texture", planned: [10, 11], reality: [], board: { columnId: "backlog", position: 14 }, storyPoints: null, sprintId: null, backlogPosition: 19 },
+    { id: "task_21", category: "Env - Objectives", name: "Chest texture", planned: [11, 12], reality: [], board: { columnId: "backlog", position: 15 }, storyPoints: null, sprintId: null, backlogPosition: 20 },
+    { id: "task_22", category: "Env - Town", name: "Floor tiles", planned: [12, 13], reality: [], board: { columnId: "backlog", position: 16 }, storyPoints: null, sprintId: null, backlogPosition: 21 },
+    { id: "task_23", category: "Env - Town", name: "House tiles", planned: [13, 14, 15], reality: [], board: { columnId: "backlog", position: 17 }, storyPoints: null, sprintId: null, backlogPosition: 22 },
+    { id: "task_24", category: "Env - Town", name: "Trees", planned: [15, 16], reality: [], board: { columnId: "backlog", position: 18 }, storyPoints: null, sprintId: null, backlogPosition: 23 },
+    { id: "task_25", category: "Env - Town", name: "Rocks", planned: [16], reality: [], board: { columnId: "backlog", position: 19 }, storyPoints: null, sprintId: null, backlogPosition: 24 },
+    { id: "task_26", category: "Env - Town", name: "Palisade", planned: [17], reality: [], board: { columnId: "backlog", position: 20 }, storyPoints: null, sprintId: null, backlogPosition: 25 },
+    { id: "task_27", category: "Env - Forest", name: "Floor tiles", planned: [18], reality: [], board: { columnId: "backlog", position: 21 }, storyPoints: null, sprintId: null, backlogPosition: 26 },
+    { id: "task_28", category: "Env - Forest", name: "Portal", planned: [19, 20], reality: [], board: { columnId: "backlog", position: 22 }, storyPoints: null, sprintId: null, backlogPosition: 27 },
+    { id: "task_29", category: "Env - Forest", name: "Bushes", planned: [21], reality: [], board: { columnId: "backlog", position: 23 }, storyPoints: null, sprintId: null, backlogPosition: 28 },
+    { id: "task_30", category: "Misc", name: "Unity integration", planned: [22, 23, 24, 25, 26, 27], reality: [], board: { columnId: "backlog", position: 24 }, storyPoints: null, sprintId: null, backlogPosition: 29 },
+    { id: "task_31", category: "Misc", name: "VFX", planned: [26, 27, 28, 29], reality: [], board: { columnId: "backlog", position: 25 }, storyPoints: null, sprintId: null, backlogPosition: 30 },
+    { id: "task_32", category: "Misc", name: "Documentation", planned: [30, 31], reality: [], board: { columnId: "backlog", position: 26 }, storyPoints: null, sprintId: null, backlogPosition: 31 },
+    { id: "task_33", category: "Misc", name: "Cushion time", planned: [32, 33, 34, 35], reality: [], board: { columnId: "backlog", position: 27 }, storyPoints: null, sprintId: null, backlogPosition: 32 }
   ]
 };
 
 /**
  * Migrate old data format to new format
- * Wrapper for migrateToV5 for backwards compatibility
+ * Wrapper for migrateToV6 for backwards compatibility
  * @param {Object} data - Data to migrate
  * @returns {Object} - Migrated data
  */
 export function migrateProjectData(data) {
-  return migrateProjectToV5(data);
+  return migrateProjectToV6(data);
 }
 
 /**

@@ -3,8 +3,8 @@
  * Provides data structure, migrations, and bidirectional sync
  */
 
-// Data format version (v5 adds workflow and board data)
-export const DATA_VERSION = 5;
+// Data format version (v6 adds sprint planning)
+export const DATA_VERSION = 6;
 
 // Storage key (shared between tools)
 export const STORAGE_KEY = 'ganttProject';
@@ -29,6 +29,14 @@ export const defaultWorkflow = {
  */
 export function generateColumnId() {
   return 'col_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+/**
+ * Generate a unique sprint ID
+ * @returns {string} - Unique ID
+ */
+export function generateSprintId() {
+  return 'sprint_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
 
 /**
@@ -212,10 +220,132 @@ export function migrateToV5(data) {
     return migrated;
   });
 
+  // Update version to 5 (will be updated to 6 by migrateToV6)
+  data.version = 5;
+
+  return data;
+}
+
+/**
+ * Migrate project data to v6 format (adds sprint planning)
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+export function migrateToV6(data) {
+  // First ensure v5 migration is complete
+  if (!data.version || data.version < 5) {
+    data = migrateToV5(data);
+  }
+
+  // Add sprints array if missing
+  if (!data.sprints) {
+    data.sprints = [];
+    console.log('Added sprints array');
+  }
+
+  // Migrate tasks with sprint-related properties
+  data.tasks = data.tasks.map((task, index) => {
+    // Add story points if missing (null = unestimated)
+    if (task.storyPoints === undefined) {
+      task.storyPoints = null;
+    }
+
+    // Add sprint assignment if missing (null = product backlog)
+    if (task.sprintId === undefined) {
+      task.sprintId = null;
+    }
+
+    // Add backlog position if missing (for priority ordering)
+    if (task.backlogPosition === undefined) {
+      task.backlogPosition = index;
+    }
+
+    return task;
+  });
+
   // Update version
   data.version = DATA_VERSION;
 
   return data;
+}
+
+/**
+ * Get tasks in the product backlog (not assigned to any sprint)
+ * @param {Array} tasks - All tasks
+ * @returns {Array} - Tasks sorted by backlog position
+ */
+export function getProductBacklog(tasks) {
+  return tasks
+    .filter(t => t.sprintId === null || t.sprintId === undefined)
+    .sort((a, b) => (a.backlogPosition || 0) - (b.backlogPosition || 0));
+}
+
+/**
+ * Get tasks assigned to a specific sprint
+ * @param {Array} tasks - All tasks
+ * @param {string} sprintId - Sprint ID
+ * @returns {Array} - Tasks sorted by backlog position
+ */
+export function getSprintTasks(tasks, sprintId) {
+  return tasks
+    .filter(t => t.sprintId === sprintId)
+    .sort((a, b) => (a.backlogPosition || 0) - (b.backlogPosition || 0));
+}
+
+/**
+ * Calculate total story points for tasks
+ * @param {Array} tasks - Tasks to sum
+ * @returns {Object} - {total, estimated, unestimated}
+ */
+export function calculateSprintPoints(tasks) {
+  let total = 0;
+  let estimated = 0;
+  let unestimated = 0;
+
+  tasks.forEach(task => {
+    if (task.storyPoints !== null && task.storyPoints !== undefined) {
+      total += task.storyPoints;
+      estimated++;
+    } else {
+      unestimated++;
+    }
+  });
+
+  return { total, estimated, unestimated };
+}
+
+/**
+ * Calculate velocity from completed sprints
+ * @param {Array} tasks - All tasks
+ * @param {Array} sprints - All sprints
+ * @returns {Object} - {average, sprints: [{id, name, points}]}
+ */
+export function calculateVelocity(tasks, sprints) {
+  const completedSprints = sprints.filter(s => s.status === 'completed');
+  const sprintData = [];
+
+  completedSprints.forEach(sprint => {
+    // Get tasks that were completed in this sprint
+    const sprintTasks = tasks.filter(t =>
+      t.sprintId === sprint.id &&
+      t.board?.columnId === 'done'
+    );
+
+    const points = sprintTasks.reduce((sum, t) =>
+      sum + (t.storyPoints || 0), 0);
+
+    sprintData.push({
+      id: sprint.id,
+      name: sprint.name,
+      points
+    });
+  });
+
+  const average = sprintData.length > 0
+    ? Math.round(sprintData.reduce((sum, s) => sum + s.points, 0) / sprintData.length)
+    : 0;
+
+  return { average, sprints: sprintData };
 }
 
 /**
