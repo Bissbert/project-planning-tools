@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/gantt/">
+  <title>Gantt Chart - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Gantt-specific CSS -->
+  <link rel="stylesheet" href="css/gantt-layout.css">
+  <link rel="stylesheet" href="css/gantt-cells.css">
+  <link rel="stylesheet" href="css/gantt-edit.css">
+  <link rel="stylesheet" href="css/gantt-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-group header-group--info">
+      <h1 id="projectTitle">Loading...</h1>
+      <span class="progress-stats" id="progressStats"></span>
+      <div class="variance-card" id="varianceCard">
+        <div class="variance-stat variance-stat--planned">
+          <span class="variance-stat__value" id="variancePlanned">0</span>
+          <span class="variance-stat__label">Planned</span>
+        </div>
+        <div class="variance-stat variance-stat--reality">
+          <span class="variance-stat__value" id="varianceReality">0</span>
+          <span class="variance-stat__label">Reality</span>
+        </div>
+        <div class="variance-stat variance-stat--diff" id="varianceDiff">
+          <span class="variance-stat__value" id="varianceDiffValue">0</span>
+          <span class="variance-stat__label">Variance</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-group header-group--controls">
+      <input type="text" class="search-input" placeholder="Search tasks, assignees... (F)" id="searchInput">
+      <button class="btn btn--collapse-all" onclick="toggleAllCategories()" id="collapseAllBtn">Collapse All</button>
+      <button class="btn btn--settings edit-only" onclick="openSettings()">Settings</button>
+      <span class="status" id="status">Ready</span>
+    </div>
+    <div class="header-group header-group--actions">
+      <input type="file" id="fileInput" accept=".json">
+      <button class="btn" onclick="importProject()">Import</button>
+      <button class="btn" onclick="exportToJSON()">JSON</button>
+      <button class="btn" onclick="exportToExcel()">Excel</button>
+      <button class="btn" onclick="exportToPDF()">PDF</button>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Project Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input type="date" class="form-input" id="settingsStartDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-input" id="settingsEndDate">
+        <div class="project-dates" id="projectDates"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Team Members (for task assignment)</label>
+        <div class="team-list" id="teamList"></div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <input type="text" class="form-input" id="newTeamMember" placeholder="Enter name..." style="flex: 1;">
+          <button class="btn-add" onclick="addTeamMember()">+ Add</button>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week Range Picker Modal -->
+  <div class="range-picker-overlay" id="rangePickerOverlay" onclick="closeRangePicker(event)">
+    <div class="range-picker" onclick="event.stopPropagation()">
+      <h3>Set Week Range</h3>
+      <div class="range-picker__inputs">
+        <div class="range-picker__field">
+          <label>Start Week</label>
+          <input type="number" id="rangeStartWeek" min="1" max="99">
+        </div>
+        <div class="range-picker__field">
+          <label>End Week</label>
+          <input type="number" id="rangeEndWeek" min="1" max="99">
+        </div>
+      </div>
+      <div class="range-picker__actions">
+        <button class="btn" onclick="closeRangePicker()">Cancel</button>
+        <button class="btn btn--primary" onclick="applyWeekRange()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Edit Popover -->
+  <div class="task-edit-popover" id="taskEditPopover">
+    <h4 id="popoverTaskName">Edit Task</h4>
+    <div class="popover-field">
+      <label>Assignee</label>
+      <select id="popoverAssignee">
+        <option value="">Unassigned</option>
+      </select>
+    </div>
+    <div class="popover-field">
+      <label>Priority</label>
+      <select id="popoverPriority">
+        <option value="">None</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <div class="popover-checkbox">
+      <input type="checkbox" id="popoverMilestone">
+      <label for="popoverMilestone">Mark as Milestone</label>
+    </div>
+    <div class="popover-field">
+      <label>Notes</label>
+      <textarea id="popoverNotes" placeholder="Add notes about this task..."></textarea>
+    </div>
+    <div class="popover-actions">
+      <button class="btn" onclick="closeTaskPopover()">Cancel</button>
+      <button class="btn btn--primary" onclick="saveTaskPopover()">Save</button>
+    </div>
+  </div>
+
+  <main class="container">
+    <div id="ganttChart" class="loading">Loading project data...</div>
+    <div class="legend" id="legend"></div>
+  </main>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/gantt-app.js"></script>
+</body>
+</html>

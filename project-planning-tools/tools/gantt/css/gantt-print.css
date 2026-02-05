@@ -1,0 +1,124 @@
+/* ========== GANTT PRINT STYLES - Gantt-specific print overrides ========== */
+
+@media print {
+  /* Hide gantt-specific interactive elements */
+  .task-actions,
+  .add-task-row,
+  .category-actions,
+  .add-category-row,
+  .progress-stats,
+  .collapse-toggle,
+  .status-indicator,
+  .category-drag-handle,
+  .move-dropdown,
+  .edit-mode-banner {
+    display: none !important;
+  }
+
+  /* Remove reality row left border for print */
+  .task-row--reality > div:first-child {
+    border-left: none !important;
+  }
+
+  /* Gantt container */
+  .gantt {
+    background: #fff !important;
+    border: 1px solid #333;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  /* Disable sticky columns for print */
+  .gantt > * > div:first-child,
+  .gantt > * > div:nth-child(2) {
+    position: static !important;
+    box-shadow: none !important;
+  }
+
+  /* Month headers - subtle contrast */
+  .month-header > div {
+    background: #2a2a2a !important;
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 8pt;
+    border-right: 1px solid #444;
+  }
+
+  /* Week headers - light gray */
+  .week-header > div {
+    background: #f0f0f0 !important;
+    color: #333 !important;
+    font-size: 7pt;
+    font-weight: 500;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ccc;
+  }
+
+  /* Category rows - maintain category colors but ensure contrast */
+  .category-row > div {
+    font-weight: 700 !important;
+    font-size: 8pt;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #333 !important;
+  }
+
+  /* Task rows */
+  .task-row > div {
+    background: #fff !important;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 8pt;
+  }
+
+  .task-row > div:first-child {
+    font-weight: 500;
+    color: #1a1a1a !important;
+  }
+
+  /* Task type labels */
+  .task-row > div:nth-child(2) {
+    color: #666 !important;
+    font-size: 7pt;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* Week cells - active cells keep their colors */
+  .week-cell--active {
+    border: none !important;
+  }
+
+  /* Force background colors to print */
+  .week-cell--planned.week-cell--active {
+    background: var(--task-color) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  .week-cell--reality.week-cell--active {
+    background: var(--task-color) !important;
+    opacity: 0.5 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Category row backgrounds */
+  .category-row > div {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Print footer with date */
+  .gantt::after {
+    content: "Exported " attr(data-export-date);
+    display: block;
+    text-align: right;
+    font-size: 7pt;
+    color: #999;
+    padding: 8px 12px 0 0;
+    border-top: 1px solid #e5e5e5;
+    margin-top: 8px;
+  }
+}

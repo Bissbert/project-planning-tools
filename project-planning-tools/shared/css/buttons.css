@@ -1,0 +1,86 @@
+/* ========== BUTTON STYLES ========== */
+
+.btn {
+  font-family: inherit;
+  font-size: var(--font-base);
+  font-weight: 500;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: #3a3a3a;
+}
+
+.btn:focus-visible {
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(68, 114, 196, 0.3);
+}
+
+/* Primary button */
+.btn--primary {
+  background: var(--planning);
+  border-color: var(--planning);
+  color: white;
+}
+
+.btn--primary:hover {
+  background: #5588dd;
+  border-color: #5588dd;
+}
+
+/* Settings button */
+.btn--settings {
+  background: var(--bg-tertiary);
+}
+
+/* Collapse all button */
+.btn--collapse-all {
+  font-size: var(--font-sm);
+  padding: 6px 10px;
+}
+
+/* Delete button */
+.btn-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: var(--font-md);
+  line-height: 1;
+  border-radius: var(--radius-sm);
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* Add button */
+.btn-add {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px 14px;
+  font-size: var(--font-base);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.btn-add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}

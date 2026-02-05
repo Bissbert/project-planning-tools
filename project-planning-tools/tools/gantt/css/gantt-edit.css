@@ -1,0 +1,303 @@
+/* ========== GANTT EDIT MODE - Edit mode banner, controls, drag handles ========== */
+
+/* Edit mode state */
+body.edit-mode {
+  --accent: #f59e0b;
+}
+
+/* Edit mode visual indicator - colored top border */
+body.edit-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+  z-index: 1000;
+  animation: editModePulse 2s ease-in-out infinite;
+}
+
+@keyframes editModePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Edit mode banner */
+.edit-mode-banner {
+  display: none;
+  position: fixed;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #000;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 1001;
+}
+
+body.edit-mode .edit-mode-banner {
+  display: block;
+}
+
+/* Edit-only elements hidden by default */
+.edit-only {
+  display: none !important;
+}
+
+body.edit-mode .edit-only {
+  display: flex !important;
+}
+
+/* Edit mode toggle button */
+.btn--edit {
+  background: transparent;
+  border-color: var(--text-muted);
+}
+
+body.edit-mode .btn--edit {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+/* Editable title in edit mode */
+body.edit-mode .header h1 {
+  cursor: text;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-base);
+}
+
+body.edit-mode .header h1:hover {
+  background: var(--bg-tertiary);
+}
+
+.header h1 .edit-hint {
+  display: none;
+  font-size: var(--font-sm);
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+body.edit-mode .header h1:hover .edit-hint {
+  display: inline;
+}
+
+/* Editable task name in edit mode */
+body.edit-mode .task-name--editable {
+  cursor: text;
+}
+
+body.edit-mode .task-name--editable:hover {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.task-name--editable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-radius: var(--radius-sm);
+}
+
+/* ========== TASK DRAG HANDLE ========== */
+.drag-handle {
+  cursor: grab;
+  opacity: 0;
+  padding: 0 3px;
+  font-size: var(--font-xs);
+  user-select: none;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: opacity var(--transition-base);
+}
+
+.task-row:hover .drag-handle {
+  opacity: 0.5;
+}
+
+.drag-handle:hover {
+  opacity: 1 !important;
+}
+
+.task-row.dragging {
+  opacity: 0.5;
+}
+
+.task-row.drag-over {
+  border-top: 2px solid var(--accent) !important;
+}
+
+/* ========== CATEGORY DRAG HANDLE ========== */
+.category-drag-handle {
+  cursor: grab;
+  opacity: 0.3;
+  padding: 0 4px;
+  font-size: var(--font-sm);
+  user-select: none;
+  color: var(--text-muted);
+}
+
+.category-drag-handle:hover {
+  opacity: 1;
+}
+
+.category-row.dragging > div {
+  opacity: 0.5;
+}
+
+.category-row.drag-over > div {
+  border-top: 2px solid var(--accent) !important;
+}
+
+/* ========== TASK ACTIONS ========== */
+.task-actions {
+  display: flex;
+  gap: 1px;
+  margin-left: auto;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* Persistent action trigger - always visible */
+.task-actions-trigger {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: var(--font-md);
+  letter-spacing: -2px;
+  border-radius: var(--radius-sm);
+  opacity: 0.55;
+  transition: all var(--transition-base);
+}
+
+.task-row:hover .task-actions-trigger {
+  opacity: 0.8;
+}
+
+.task-actions-trigger:hover {
+  opacity: 1 !important;
+  background: var(--bg-tertiary);
+}
+
+/* Expandable action buttons */
+.task-actions-buttons {
+  display: flex;
+  gap: 1px;
+  max-width: 0;
+  overflow: hidden;
+  transition: max-width var(--transition-slow), opacity var(--transition-base);
+  opacity: 0;
+}
+
+.task-row:hover .task-actions-buttons {
+  max-width: 120px;
+  opacity: 1;
+}
+
+.task-btn {
+  background: var(--bg-tertiary);
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 7px;
+  font-size: var(--font-sm);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  line-height: 1;
+  transition: all var(--transition-fast);
+}
+
+.task-btn:hover {
+  color: var(--text-primary);
+}
+
+.task-btn--copy:hover {
+  background: var(--environment);
+  color: white;
+}
+
+.task-btn--duplicate:hover {
+  background: var(--planning);
+  color: white;
+}
+
+.task-btn--move:hover {
+  background: var(--status-warning);
+  color: white;
+}
+
+.task-btn--edit-details:hover {
+  background: var(--misc);
+  color: white;
+}
+
+.task-btn--range:hover {
+  background: var(--planning);
+  color: white;
+}
+
+/* Compact delete button in task actions */
+.task-actions .btn-delete {
+  padding: 3px 5px;
+  font-size: var(--font-sm);
+}
+
+/* ========== MOVE DROPDOWN ========== */
+.move-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.move-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  min-width: 150px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.move-dropdown-content.show {
+  display: block;
+}
+
+.move-dropdown-item {
+  padding: 10px 14px;
+  font-size: var(--font-base);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.move-dropdown-item:hover {
+  background: var(--bg-hover);
+}
+
+.move-dropdown-item.current {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.move-dropdown-item .category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
