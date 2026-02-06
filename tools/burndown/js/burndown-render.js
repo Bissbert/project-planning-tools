@@ -28,10 +28,10 @@ export function renderSprintSelector(sprints, selectedSprintId, onSelect) {
     const statusOrder = { active: 0, planning: 1, completed: 2 };
     const statusDiff = statusOrder[a.status] - statusOrder[b.status];
     if (statusDiff !== 0) return statusDiff;
-    // Within same status, sort by start week (newest first for completed)
+    // Within same status, sort by start date (newest first for completed)
     return a.status === 'completed'
-      ? (b.startWeek || 0) - (a.startWeek || 0)
-      : (a.startWeek || 0) - (b.startWeek || 0);
+      ? (b.startDate || '').localeCompare(a.startDate || '')
+      : (a.startDate || '').localeCompare(b.startDate || '');
   });
 
   container.innerHTML = sortedSprints.map(sprint => {

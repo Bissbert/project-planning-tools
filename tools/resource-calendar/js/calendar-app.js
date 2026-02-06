@@ -16,7 +16,7 @@ import {
   DATA_VERSION,
   STORAGE_KEY,
   BACKUP_KEY,
-  migrateToV9,
+  migrateToLatest,
   cloneProjectData,
   generateMemberId,
   getMemberAvailability,
@@ -92,8 +92,7 @@ function loadData() {
     try {
       // Migrate if needed
       if (!saved.version || saved.version < DATA_VERSION) {
-        console.log('Migrating data to v9 format...');
-        projectData = migrateToV9(saved);
+        projectData = migrateToLatest(saved);
       } else {
         projectData = saved;
       }
@@ -555,7 +554,7 @@ async function handleFileImport(e) {
     }
 
     // Migrate to v9 if needed
-    const migrated = migrateToV9(imported);
+    const migrated = migrateToLatest(imported);
     migrated.version = DATA_VERSION;
 
     projectData = migrated;

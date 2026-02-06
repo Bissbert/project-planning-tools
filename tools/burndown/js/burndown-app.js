@@ -16,11 +16,10 @@ import {
   DATA_VERSION,
   STORAGE_KEY,
   BACKUP_KEY,
-  migrateToV9,
+  migrateToLatest,
   cloneProjectData,
   defaultWorkflow,
   calculateVelocity,
-  recordBurndownSnapshot,
   getBurndownData
 } from '../../../shared/js/unified-data.js';
 
@@ -59,8 +58,8 @@ export function init() {
   // Setup cross-tab sync
   setupStorageSync();
 
-  // Auto-record snapshot for active sprint
-  autoRecordSnapshot();
+  // Note: Burndown is now calculated dynamically from task.completedAt timestamps
+  // No snapshot recording needed - data is always current
 
   // Initial render
   renderApp();
@@ -73,8 +72,7 @@ function loadData() {
     try {
       // Migrate if needed
       if (!saved.version || saved.version < DATA_VERSION) {
-        console.log('Migrating data to v9 format...');
-        projectData = migrateToV9(saved);
+        projectData = migrateToLatest(saved);
       } else {
         projectData = saved;
       }
@@ -143,41 +141,6 @@ function save() {
 
 function saveState() {
   undoManager.saveState(projectData);
-}
-
-// ========== AUTO SNAPSHOT ==========
-
-/**
- * Record snapshot for the selected sprint (if any)
- * This ensures we always have current data to display
- */
-function autoRecordSnapshot() {
-  // Record for selected sprint (any status)
-  const selectedSprint = projectData.sprints.find(s => s.id === selectedSprintId);
-  if (selectedSprint) {
-    recordSnapshotForSprint(selectedSprint);
-  }
-
-  // Also record for active sprint if different
-  const activeSprint = projectData.sprints.find(s => s.status === 'active');
-  if (activeSprint && activeSprint.id !== selectedSprintId) {
-    recordSnapshotForSprint(activeSprint);
-  }
-}
-
-/**
- * Record today's snapshot for a sprint if not already recorded
- */
-function recordSnapshotForSprint(sprint) {
-  const today = new Date().toISOString().split('T')[0];
-  const hasToday = sprint.burndown &&
-                   sprint.burndown.some(s => s.date === today);
-
-  if (!hasToday) {
-    recordBurndownSnapshot(sprint, projectData.tasks);
-    save();
-    console.log('Auto-recorded burndown snapshot for', sprint.name);
-  }
 }
 
 // ========== RENDER ==========
@@ -253,7 +216,7 @@ window.toggleEditMode = function() {
   renderApp();
 };
 
-// ========== SNAPSHOT MODAL ==========
+// ========== SYNC MODAL ==========
 
 window.openSnapshotModal = function() {
   if (!editMode) return;
@@ -269,6 +232,10 @@ window.openSnapshotModal = function() {
   const remaining = sprintTasks.filter(t => t.board?.columnId !== 'done');
   const remainingPoints = remaining.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
   const remainingTasks = remaining.length;
+
+  // Check for tasks missing completedAt
+  const doneTasks = sprintTasks.filter(t => t.board?.columnId === 'done');
+  const missingTimestamps = doneTasks.filter(t => !t.completedAt);
 
   document.getElementById('snapshotDate').textContent = today;
   document.getElementById('snapshotPoints').textContent = `${remainingPoints} pts`;
@@ -286,11 +253,21 @@ window.recordSnapshot = function() {
   if (!sprint) return;
 
   saveState();
-  recordBurndownSnapshot(sprint, projectData.tasks);
+
+  // Sync completedAt timestamps for any done tasks missing them
+  const sprintTasks = projectData.tasks.filter(t => t.sprintId === sprint.id);
+  let synced = 0;
+  sprintTasks.forEach(task => {
+    if (task.board?.columnId === 'done' && !task.completedAt) {
+      task.completedAt = new Date().toISOString();
+      synced++;
+    }
+  });
+
   save();
   closeSnapshotModal();
   renderApp();
-  statusManager.show('Progress recorded', true);
+  statusManager.show(synced > 0 ? `Synced ${synced} tasks` : 'Already synced', true);
 };
 
 // ========== SETTINGS MODAL ==========
@@ -352,7 +329,7 @@ async function handleFileImport(e) {
     }
 
     // Migrate to v9 if needed
-    const migrated = migrateToV9(imported);
+    const migrated = migrateToLatest(imported);
     migrated.version = DATA_VERSION;
 
     projectData = migrated;
@@ -416,9 +393,7 @@ function setupStorageSync() {
                                (projectData.sprints.length > 0 ? projectData.sprints[0].id : null);
           }
 
-          // Re-record snapshot with updated task data
-          autoRecordSnapshot();
-
+          // Burndown is calculated dynamically, just re-render
           renderApp();
           statusManager.show('Synced from another tab', true);
         }

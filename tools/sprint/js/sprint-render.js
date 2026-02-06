@@ -6,8 +6,26 @@ import {
   getProductBacklog,
   getSprintTasks,
   calculateSprintPoints,
-  calculateVelocity
+  calculateVelocity,
+  getSprintWeekNumber
 } from '../../../shared/js/unified-data.js';
+
+/**
+ * Format sprint date range for display
+ * @param {Object} sprint - Sprint with startDate/endDate
+ * @returns {string} - Formatted date range like "Feb 3 - Feb 16"
+ */
+function formatSprintDateRange(sprint) {
+  if (sprint.startDate && sprint.endDate) {
+    const start = new Date(sprint.startDate);
+    const end = new Date(sprint.endDate);
+    const opts = { month: 'short', day: 'numeric' };
+    const startStr = start.toLocaleDateString('en-US', opts);
+    const endStr = end.toLocaleDateString('en-US', opts);
+    return `${startStr} - ${endStr}`;
+  }
+  return 'Dates not set';
+}
 
 /**
  * Main render function for the Sprint Planner
@@ -200,9 +218,9 @@ function renderSprintTabs(projectData, editMode, activeSprintId, handlers) {
   // Clear existing tabs (except add button)
   tabsContainer.querySelectorAll('.sprint-tab:not(.sprint-tab--add)').forEach(tab => tab.remove());
 
-  // Sort sprints by startWeek
+  // Sort sprints by startDate
   const sortedSprints = [...(projectData.sprints || [])].sort((a, b) =>
-    (a.startWeek || 0) - (b.startWeek || 0)
+    (a.startDate || '').localeCompare(b.startDate || '')
   );
 
   sortedSprints.forEach(sprint => {
@@ -366,7 +384,7 @@ function renderSprintInfo(sprint, projectData, handlers) {
         <line x1="8" y1="2" x2="8" y2="6"/>
         <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
-      Week ${sprint.startWeek || '?'} - Week ${sprint.endWeek || '?'}
+      ${formatSprintDateRange(sprint)}
     </div>
   `;
 

@@ -3,8 +3,8 @@
  * Provides data structure, migrations, and bidirectional sync
  */
 
-// Data format version (v9 adds resource calendar)
-export const DATA_VERSION = 9;
+// Data format version (v10 optimizes sprint dates and adds assigneeId)
+export const DATA_VERSION = 10;
 
 // Storage key (shared between tools)
 export const STORAGE_KEY = 'ganttProject';
@@ -172,11 +172,11 @@ export function migrateTaskToV5(task, index = 0) {
 }
 
 /**
- * Migrate project data to v5 format
+ * Migrate project data from v4 to v5 format
  * @param {Object} data - Project data to migrate
  * @returns {Object} - Migrated data
  */
-export function migrateToV5(data) {
+function migrateV4ToV5(data) {
   // If old format with months array, calculate endDate
   if (data.months && data.months.length > 0 && !data.project.endDate) {
     const calculatedWeeks = data.months.reduce((sum, m) => sum + (m.weeks || 0), 0);
@@ -235,15 +235,11 @@ export function migrateToV5(data) {
 }
 
 /**
- * Migrate project data to v6 format (adds sprint planning)
+ * Migrate project data from v5 to v6 format (adds sprint planning)
  * @param {Object} data - Project data to migrate
  * @returns {Object} - Migrated data
  */
-export function migrateToV6(data) {
-  // First ensure v5 migration is complete
-  if (!data.version || data.version < 5) {
-    data = migrateToV5(data);
-  }
+function migrateV5ToV6(data) {
 
   // Add sprints array if missing
   if (!data.sprints) {
@@ -268,6 +264,12 @@ export function migrateToV6(data) {
       task.backlogPosition = index;
     }
 
+    // Add completedAt for tasks in 'done' column that don't have it (for burndown calculation)
+    if (task.board?.columnId === 'done' && !task.completedAt) {
+      task.completedAt = new Date().toISOString();
+      console.log(`Set completedAt for completed task: ${task.name}`);
+    }
+
     return task;
   });
 
@@ -278,40 +280,26 @@ export function migrateToV6(data) {
 }
 
 /**
- * Migrate project data to v7 format (adds time tracking)
+ * Migrate project data from v6 to v7 format (adds time tracking)
  * @param {Object} data - Project data to migrate
  * @returns {Object} - Migrated data
  */
-export function migrateToV7(data) {
-  // First ensure v6 migration is complete
-  if (!data.version || data.version < 6) {
-    data = migrateToV6(data);
-  }
-
+function migrateV6ToV7(data) {
   // Add timeEntries array if missing
   if (!data.timeEntries) {
     data.timeEntries = [];
-    console.log('Added timeEntries array');
   }
-
-  // Update version
-  data.version = 7;
 
   return data;
 }
 
 /**
- * Migrate project data to v8 format (adds burndown tracking)
+ * Migrate project data from v7 to v8 format (adds burndown tracking)
  * @param {Object} data - Project data to migrate
  * @returns {Object} - Migrated data
  */
-export function migrateToV8(data) {
-  // First ensure v7 migration is complete
-  if (!data.version || data.version < 7) {
-    data = migrateToV7(data);
-  }
-
-  // Initialize burndown arrays for existing sprints
+function migrateV7ToV8(data) {
+  // Initialize burndown arrays for existing sprints (will be removed in v10)
   if (data.sprints) {
     data.sprints.forEach(sprint => {
       if (!sprint.burndown) {
@@ -320,23 +308,15 @@ export function migrateToV8(data) {
     });
   }
 
-  // Update version (will be updated to 9 by migrateToV9)
-  data.version = 8;
-
   return data;
 }
 
 /**
- * Migrate project data to v9 format (adds resource calendar)
+ * Migrate project data from v8 to v9 format (adds resource calendar)
  * @param {Object} data - Project data to migrate
  * @returns {Object} - Migrated data
  */
-export function migrateToV9(data) {
-  // First ensure v8 migration is complete
-  if (!data.version || data.version < 8) {
-    data = migrateToV8(data);
-  }
-
+function migrateV8ToV9(data) {
   // Default team member colors palette
   const defaultColors = [
     '#a78bfa', '#f472b6', '#38bdf8', '#4ade80',
@@ -390,47 +370,154 @@ export function migrateToV9(data) {
     };
   }
 
-  // Update version
-  data.version = DATA_VERSION;
+  // Ensure completedAt is set for tasks in 'done' column (for burndown calculation)
+  (data.tasks || []).forEach(task => {
+    if (task.board?.columnId === 'done' && !task.completedAt) {
+      task.completedAt = new Date().toISOString();
+      console.log(`Set completedAt for completed task: ${task.name}`);
+    }
+  });
 
   return data;
+}
+
+/**
+ * Migrate project data from v9 to v10 format
+ * - Converts sprint startWeek/endWeek to ISO dates
+ * - Removes sprint.burndown arrays (now calculated from completedAt)
+ * - Adds assigneeId field linking to team member IDs
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+function migrateV9ToV10(data) {
+  // 1. Convert sprint dates to ISO format, remove week numbers and burndown
+  (data.sprints || []).forEach(sprint => {
+    // Convert startWeek to startDate
+    if (!sprint.startDate && sprint.startWeek && data.project?.startDate) {
+      const start = new Date(data.project.startDate);
+      start.setDate(start.getDate() + (sprint.startWeek - 1) * 7);
+      sprint.startDate = start.toISOString().split('T')[0];
+    }
+    // Convert endWeek to endDate
+    if (!sprint.endDate && sprint.endWeek && data.project?.startDate) {
+      const start = new Date(data.project.startDate);
+      start.setDate(start.getDate() + (sprint.endWeek * 7) - 1);
+      sprint.endDate = start.toISOString().split('T')[0];
+    }
+    // Clean up deprecated fields
+    delete sprint.startWeek;
+    delete sprint.endWeek;
+    delete sprint.burndown; // Calculated from completedAt now
+  });
+
+  // 2. Add assigneeId links based on existing assignee names
+  (data.tasks || []).forEach(task => {
+    if (task.assignee && !task.assigneeId) {
+      const member = (data.team || []).find(m =>
+        m.name === task.assignee || m === task.assignee
+      );
+      if (member?.id) {
+        task.assigneeId = member.id;
+      }
+    }
+  });
+
+  return data;
+}
+
+// ========== MIGRATION REGISTRY ==========
+
+/**
+ * Internal migration registry - maps version numbers to migration functions
+ * Each migration function upgrades data from version N-1 to version N
+ */
+const migrations = {
+  5: migrateV4ToV5,
+  6: migrateV5ToV6,
+  7: migrateV6ToV7,
+  8: migrateV7ToV8,
+  9: migrateV8ToV9,
+  10: migrateV9ToV10
+};
+
+/**
+ * Migrate data to latest version
+ * Automatically chains through all necessary migrations
+ * @param {Object} data - Project data (any version)
+ * @returns {Object} - Migrated data at latest version
+ */
+export function migrateToLatest(data) {
+  let currentVersion = data.version || 4;
+
+  while (currentVersion < DATA_VERSION) {
+    const nextVersion = currentVersion + 1;
+    const migrateFn = migrations[nextVersion];
+
+    if (!migrateFn) {
+      console.error(`No migration found for v${nextVersion}`);
+      break;
+    }
+
+    console.log(`Migrating v${currentVersion} → v${nextVersion}...`);
+    data = migrateFn(data);
+    data.version = nextVersion;
+    currentVersion = nextVersion;
+  }
+
+  return data;
+}
+
+/**
+ * @deprecated Use migrateToLatest() instead
+ * Kept for backwards compatibility with existing tool imports
+ */
+export function migrateToV9(data) {
+  console.warn('migrateToV9 is deprecated, use migrateToLatest instead');
+  return migrateToLatest(data);
+}
+
+// ========== HELPER FUNCTIONS ==========
+
+/**
+ * Get sprint week number from dates (replaces stored startWeek)
+ * @param {Object} sprint - Sprint with startDate
+ * @param {Object} project - Project with startDate
+ * @returns {number} - Week number relative to project start
+ */
+export function getSprintWeekNumber(sprint, project) {
+  if (!sprint.startDate || !project.startDate) return 1;
+  const projectStart = new Date(project.startDate);
+  const sprintStart = new Date(sprint.startDate);
+  const diffDays = Math.floor((sprintStart - projectStart) / (1000 * 60 * 60 * 24));
+  return Math.floor(diffDays / 7) + 1;
+}
+
+/**
+ * Get task assignee object (uses assigneeId with name fallback)
+ * @param {Object} task - Task object
+ * @param {Array} team - Team members array
+ * @returns {Object|null} - Team member object or null
+ */
+export function getTaskAssignee(task, team) {
+  if (!team || !Array.isArray(team)) return null;
+  if (task.assigneeId) {
+    return team.find(m => m.id === task.assigneeId) || null;
+  }
+  if (task.assignee) {
+    return team.find(m => m.name === task.assignee) || null;
+  }
+  return null;
 }
 
 // ========== BURNDOWN HELPERS ==========
 
 /**
- * Record a burndown snapshot for a sprint
- * Creates or updates today's snapshot with remaining work
- * @param {Object} sprint - Sprint to record snapshot for
- * @param {Array} tasks - All tasks
- * @returns {Object} - The recorded snapshot
+ * @deprecated Burndown is now calculated from task.completedAt timestamps
+ * This function is kept for backwards compatibility but does nothing useful
  */
 export function recordBurndownSnapshot(sprint, tasks) {
-  const today = new Date().toISOString().split('T')[0];
-  const sprintTasks = tasks.filter(t => t.sprintId === sprint.id);
-
-  // Calculate remaining (not in 'done' column)
-  const remaining = sprintTasks.filter(t => t.board?.columnId !== 'done');
-  const remainingPoints = remaining.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
-  const remainingTasks = remaining.length;
-
-  // Ensure burndown array exists
-  if (!sprint.burndown) {
-    sprint.burndown = [];
-  }
-
-  // Check if today already recorded
-  const existingIndex = sprint.burndown.findIndex(s => s.date === today);
-  const snapshot = { date: today, remainingPoints, remainingTasks };
-
-  if (existingIndex >= 0) {
-    sprint.burndown[existingIndex] = snapshot;
-  } else {
-    sprint.burndown.push(snapshot);
-    sprint.burndown.sort((a, b) => a.date.localeCompare(b.date));
-  }
-
-  return snapshot;
+  console.warn('recordBurndownSnapshot is deprecated - burndown is now calculated from completedAt');
+  return { date: new Date().toISOString().split('T')[0], remainingPoints: 0, remainingTasks: 0 };
 }
 
 /**
@@ -503,7 +590,58 @@ export function calculateIdealBurndown(sprint, project, totalPoints, totalTasks)
 }
 
 /**
+ * Calculate actual burndown from task completion timestamps
+ * Derives the burndown line from when tasks were completed (completedAt field)
+ * @param {Object} sprint - Sprint object
+ * @param {Object} project - Project object
+ * @param {Array} tasks - All tasks
+ * @returns {Array} - Array of {date, remainingPoints, remainingTasks} for actual line
+ */
+export function calculateBurndownActual(sprint, project, tasks) {
+  const sprintTasks = tasks.filter(t => t.sprintId === sprint.id);
+  const totalPoints = sprintTasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+  const totalTasks = sprintTasks.length;
+
+  const start = getSprintStartDate(sprint, project);
+  const end = getSprintEndDate(sprint, project);
+  const today = new Date();
+  today.setHours(23, 59, 59, 999); // Include all of today
+
+  // Use the earlier of end date or today
+  const actualEnd = today < end ? today : end;
+
+  const actual = [];
+  const currentDate = new Date(start);
+  currentDate.setHours(0, 0, 0, 0);
+
+  while (currentDate <= actualEnd) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const endOfDay = dateStr + 'T23:59:59.999Z';
+
+    // Count tasks NOT completed by end of this day
+    // A task is remaining if: no completedAt, or completedAt is after this day
+    const remainingTasks = sprintTasks.filter(t => {
+      if (!t.completedAt) return true; // Not completed
+      return t.completedAt > endOfDay; // Completed after this day
+    });
+
+    const remainingPoints = remainingTasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+
+    actual.push({
+      date: dateStr,
+      remainingPoints,
+      remainingTasks: remainingTasks.length
+    });
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return actual;
+}
+
+/**
  * Get comprehensive burndown data for a sprint
+ * Actual burndown is calculated from task completion timestamps (completedAt field)
  * @param {Object} sprint - Sprint object
  * @param {Object} project - Project object
  * @param {Array} tasks - All tasks
@@ -529,12 +667,15 @@ export function getBurndownData(sprint, project, tasks) {
   const daysElapsed = Math.max(0, Math.ceil((today - start) / (1000 * 60 * 60 * 24)));
   const daysRemaining = Math.max(0, Math.ceil((end - today) / (1000 * 60 * 60 * 24)) + 1);
 
+  // Calculate actual burndown from task completion timestamps
+  const actual = calculateBurndownActual(sprint, project, tasks);
+
   return {
     sprint,
     totalPoints,
     totalTasks,
     ideal: calculateIdealBurndown(sprint, project, totalPoints, totalTasks),
-    actual: sprint.burndown || [],
+    actual,
     currentRemaining: {
       points: currentRemainingPoints,
       tasks: currentRemainingTasks
@@ -819,13 +960,23 @@ export function calculateVelocity(tasks, sprints) {
  * @returns {Object} - Updated task with synced board state
  */
 export function syncGanttToKanban(task, workflow) {
+  const oldColumnId = task.board.columnId;
   const newColumnId = deriveColumnFromProgress(task);
 
   // Only update if column actually changed
-  if (task.board.columnId !== newColumnId) {
+  if (oldColumnId !== newColumnId) {
     task.board.columnId = newColumnId;
-    // Position will be recalculated by the Kanban view
-    console.log(`Synced task "${task.name}" to column: ${newColumnId}`);
+
+    // Track completion timestamp for burndown
+    if (newColumnId === 'done' && oldColumnId !== 'done') {
+      task.completedAt = new Date().toISOString();
+      console.log(`Synced task "${task.name}" to done, set completedAt`);
+    } else if (newColumnId !== 'done' && oldColumnId === 'done') {
+      task.completedAt = null;
+      console.log(`Synced task "${task.name}" out of done, cleared completedAt`);
+    } else {
+      console.log(`Synced task "${task.name}" to column: ${newColumnId}`);
+    }
   }
 
   return task;
@@ -842,11 +993,18 @@ export function syncGanttToKanban(task, workflow) {
 export function syncKanbanToGantt(task, newColumnId, currentWeek) {
   const oldColumnId = task.board.columnId;
 
-  // Moving to Done: DON'T auto-fill reality
+  // Moving to Done: record completion timestamp for burndown tracking
   // Reality should reflect actual work done, which may differ from planned
   // A task can be "done" even if it took fewer weeks or different weeks than planned
   if (newColumnId === 'done' && oldColumnId !== 'done') {
-    console.log(`Moved task "${task.name}" to Done (reality unchanged:`, task.reality, ')');
+    task.completedAt = new Date().toISOString();
+    console.log(`Moved task "${task.name}" to Done at ${task.completedAt}`);
+  }
+
+  // Moving back from Done: clear completion timestamp
+  if (newColumnId !== 'done' && oldColumnId === 'done') {
+    task.completedAt = null;
+    console.log(`Moved task "${task.name}" out of Done, cleared completedAt`);
   }
 
   // Moving to In Progress: optionally add current week if reality is empty
@@ -857,7 +1015,6 @@ export function syncKanbanToGantt(task, newColumnId, currentWeek) {
     }
   }
 
-  // Moving back from Done: keep reality as-is (user can manually adjust)
   // Moving to Backlog/To Do: no change to reality
 
   // Update board column
