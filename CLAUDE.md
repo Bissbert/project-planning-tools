@@ -131,3 +131,31 @@ IMPORTANT: Always use specialized agents when available:
 - `shared/css/tokens.css` - Design system tokens
 - `shared/js/storage.js` - localStorage API
 - `shared/js/navigation.js` - Inter-tool navigation (tool registry)
+- `shared/js/unified-data.js` - Data model, migrations, cross-tool sync
+
+## Data Model & Migrations
+
+**Current Version:** v10
+
+The unified data model uses a migration registry pattern:
+
+```javascript
+// Tools import migrateToLatest (never needs updating for new versions)
+import { migrateToLatest } from '../../../shared/js/unified-data.js';
+projectData = migrateToLatest(saved);
+```
+
+**Adding a new version:**
+1. Add migration function `migrateVXToVY(data)` in unified-data.js
+2. Register it in the `migrations` object
+3. Bump `DATA_VERSION`
+4. No tool changes required - migrateToLatest handles chaining
+
+**Key data structures:**
+- `sprint.startDate/endDate` - ISO date strings (not week numbers)
+- `task.completedAt` - ISO timestamp for burndown calculation
+- `task.assigneeId` - Links to `team[].id` (with `task.assignee` name fallback)
+
+**Helper functions:**
+- `getSprintWeekNumber(sprint, project)` - Week number from dates
+- `getTaskAssignee(task, team)` - Assignee lookup with ID/name fallback

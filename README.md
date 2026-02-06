@@ -110,17 +110,22 @@ project-planning-tools/
     │       ├── sprint-app.js
     │       ├── sprint-render.js
     │       └── sprint-edit.js
-    └── burndown/           # Burndown Chart tool
+    ├── burndown/           # Burndown Chart tool
+    │   ├── index.html
+    │   ├── css/
+    │   └── js/
+    ├── time-tracker/       # Time Tracker tool
+    │   ├── index.html
+    │   ├── css/
+    │   └── js/
+    ├── resource-calendar/  # Resource Calendar tool
+    │   ├── index.html
+    │   ├── css/
+    │   └── js/
+    └── milestone-tracker/  # Milestone Tracker tool
         ├── index.html
         ├── css/
-        │   ├── burndown-layout.css
-        │   ├── burndown-chart.css
-        │   ├── burndown-edit.css
-        │   └── burndown-print.css
         └── js/
-            ├── burndown-app.js
-            ├── burndown-render.js
-            └── burndown-chart.js
 ```
 
 ## Available Tools
@@ -182,17 +187,58 @@ Visual sprint progress tracking with ideal vs. actual burndown lines.
 
 **Features:**
 - Ideal burndown line showing linear progress
-- Actual burndown line from recorded snapshots
+- Actual burndown calculated dynamically from task completion timestamps
 - Story points or task count display modes
 - Sprint selector for viewing different sprints
-- Automatic snapshot recording on load
-- Manual progress recording in edit mode
 - Today marker showing current position
 - Historical sprint comparison in sidebar
 - Average velocity calculation
 - Export chart as PNG image
 - Cross-tab sync with Sprint Planner
 - Keyboard shortcuts
+
+### Time Tracker
+
+Track time spent on tasks and projects.
+
+**Features:**
+- Timer with start/stop/pause
+- Manual time entry (quick add)
+- Associate time with projects/tasks
+- Daily and weekly views
+- Date navigation
+- Time reports view
+- Billable hours tracking
+- Edit mode for modifications
+
+### Resource Calendar
+
+Team availability and capacity planning.
+
+**Features:**
+- Week and month view toggle
+- Calendar grid with team member rows
+- Mark days as available, partial, unavailable, or holiday
+- Team member management with color coding
+- Weekly hours configuration per member
+- Capacity calculation and visualization
+- Search/filter team members
+- Edit mode for modifications
+
+### Milestone Tracker
+
+High-level view of project milestones with deadline tracking.
+
+**Features:**
+- Timeline view with horizontal month headers
+- Card/list view with two-panel layout
+- Status indicators (on track, at risk, delayed, complete)
+- Auto-calculated status based on deadline and progress
+- Deadline tracking with days remaining
+- Dependencies between milestones and tasks
+- Progress percentage from dependency completion
+- Convert existing tasks to milestones
+- Search/filter milestones
 
 ## Shared Modules
 
@@ -218,7 +264,7 @@ Visual sprint progress tracking with ideal vs. actual burndown lines.
 | `export.js` | File downloads | `downloadJSON()`, `downloadBlob()`, `readJSONFile()` |
 | `status.js` | Status messages | `initStatus()`, `showStatus()`, `createStatusManager()` |
 | `backup.js` | Backup utilities | Backup/restore functionality |
-| `unified-data.js` | Cross-tool data sync | `migrateToV6()`, `getProductBacklog()`, `getSprintTasks()`, `calculateVelocity()` |
+| `unified-data.js` | Cross-tool data sync | `migrateToLatest()`, `getProductBacklog()`, `getSprintTasks()`, `calculateVelocity()`, `getSprintWeekNumber()`, `getTaskAssignee()` |
 | `navigation.js` | Inter-tool navigation | `initNavigation()` |
 
 ## Creating New Tools
@@ -296,6 +342,15 @@ All data is stored in your browser's localStorage:
 - Data is per-browser and per-domain
 - Clear browser data to reset
 - Export JSON for backups or sharing
+
+## Data Model
+
+The suite uses a unified data model (v10) shared across all tools:
+- **Automatic migration**: Data is automatically migrated to the latest version
+- **Cross-tool sync**: Changes in one tool sync to others via localStorage events
+- **Sprint dates**: Stored as ISO date strings for portability
+- **Burndown**: Calculated dynamically from task completion timestamps
+- **Assignees**: Linked by ID with name fallback for backwards compatibility
 
 ## License
 
