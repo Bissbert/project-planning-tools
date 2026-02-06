@@ -1,0 +1,151 @@
+/* ========== TOOL NAVIGATION DROPDOWN ========== */
+
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+
+.nav-dropdown__trigger:hover {
+  background: var(--bg-hover);
+  border-color: var(--border);
+}
+
+/* Keep station-badge styling inside trigger */
+.nav-dropdown__trigger .station-badge__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--station-bg);
+  border: 1px solid var(--station-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.nav-dropdown__trigger .station-badge__label {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+/* Chevron indicator */
+.nav-dropdown__chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.nav-dropdown--open .nav-dropdown__chevron {
+  transform: rotate(180deg);
+}
+
+/* Dropdown menu */
+.nav-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all var(--transition-fast);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.nav-dropdown--open .nav-dropdown__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Menu items */
+.nav-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--font-sm);
+  transition: all var(--transition-fast);
+}
+
+.nav-dropdown__item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Current/active item */
+.nav-dropdown__item--active {
+  background: var(--accent-subtle);
+  color: var(--accent-bright);
+}
+
+.nav-dropdown__item--active:hover {
+  background: var(--accent-subtle);
+}
+
+/* Station number in dropdown */
+.nav-dropdown__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--station-bg);
+  border: 1px solid var(--station-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.nav-dropdown__item--active .nav-dropdown__number {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+/* Home icon */
+.nav-dropdown__icon {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+}
+
+.nav-dropdown__item:hover .nav-dropdown__icon {
+  color: var(--text-primary);
+}
+
+/* Divider between home and tools */
+.nav-dropdown__divider {
+  height: 1px;
+  background: var(--border);
+  margin: var(--spacing-xs) 0;
+}

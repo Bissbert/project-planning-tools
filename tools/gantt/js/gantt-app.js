@@ -9,6 +9,7 @@ import { createBackup, restoreBackup as restoreFromBackup } from '../../../share
 import { createUndoManager } from '../../../shared/js/undo.js';
 import { downloadJSON, readJSONFile, sanitizeFilename, triggerPrint } from '../../../shared/js/export.js';
 import { createStatusManager } from '../../../shared/js/status.js';
+import { initNavigation } from '../../../shared/js/navigation.js';
 
 // Import gantt-specific modules
 import {
@@ -77,6 +78,9 @@ export function init() {
   // Initialize managers
   undoManager = createUndoManager(50);
   statusManager = createStatusManager('status');
+
+  // Initialize navigation
+  initNavigation();
 
   // Try to load from localStorage first
   const saved = loadFromStorage(STORAGE_KEY);

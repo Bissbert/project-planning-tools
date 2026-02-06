@@ -9,6 +9,7 @@ import { createBackup } from '../../../shared/js/backup.js';
 import { createUndoManager } from '../../../shared/js/undo.js';
 import { downloadJSON, readJSONFile, sanitizeFilename } from '../../../shared/js/export.js';
 import { createStatusManager } from '../../../shared/js/status.js';
+import { initNavigation } from '../../../shared/js/navigation.js';
 
 // Import unified data module
 import {
@@ -71,6 +72,9 @@ export function init() {
   // Initialize managers
   undoManager = createUndoManager(50);
   statusManager = createStatusManager('status');
+
+  // Initialize navigation
+  initNavigation();
 
   // Load data
   loadData();

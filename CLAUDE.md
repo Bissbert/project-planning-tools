@@ -89,9 +89,32 @@ When creating new UI components, maintain the assembly line metaphor with organi
 ## Adding New Tools
 
 1. Create `tools/<tool-name>/` with `index.html`, `css/`, `js/`
-2. Import shared CSS modules in order: tokens → base → buttons → forms → modals → status
-3. Import shared JS modules as needed
-4. Add tool card to main `index.html`
+
+2. **Register in navigation** - Add tool to `TOOLS` array in `shared/js/navigation.js`:
+   ```javascript
+   const TOOLS = [
+     { id: 'gantt', number: '01', label: 'Gantt', path: 'gantt' },
+     // ... existing tools ...
+     { id: 'new-tool', number: '05', label: 'New Tool', path: 'new-tool' }
+   ];
+   ```
+   This automatically adds the tool to all navigation dropdowns across the suite.
+
+3. Import shared CSS modules in order: tokens → base → buttons → forms → modals → status → **navigation** → print
+
+4. Add navigation placeholder in header:
+   ```html
+   <nav class="nav-dropdown" data-current="new-tool"></nav>
+   ```
+
+5. Import and call `initNavigation()` in your app.js:
+   ```javascript
+   import { initNavigation } from '../../../shared/js/navigation.js';
+   // In init():
+   initNavigation();
+   ```
+
+6. Add tool card to main `index.html`
 
 ## Agent Usage
 
@@ -107,3 +130,4 @@ IMPORTANT: Always use specialized agents when available:
 - `PLAN.md` - Roadmap and future tools
 - `shared/css/tokens.css` - Design system tokens
 - `shared/js/storage.js` - localStorage API
+- `shared/js/navigation.js` - Inter-tool navigation (tool registry)

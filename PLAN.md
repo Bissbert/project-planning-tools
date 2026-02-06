@@ -30,10 +30,10 @@ Build a comprehensive, offline-first suite of project planning tools that:
 - [x] Landing page
 - [x] GitHub Pages deployment with custom domain (project.bissbert.ch)
 
-### Phase 2: Core Planning Tools (In Progress)
+### Phase 2: Core Planning Tools (Complete)
 - [x] Kanban Board (with Gantt bidirectional sync)
 - [x] Sprint Planner (with velocity tracking and Gantt/Kanban sync)
-- [ ] Time Tracker
+- [x] Time Tracker (with timer, quick add, and task linking)
 
 ### Phase 3: Supporting Tools
 - [ ] Resource Calendar
@@ -48,6 +48,7 @@ Build a comprehensive, offline-first suite of project planning tools that:
 
 ### Phase 5: Integration (In Progress)
 - [x] Cross-tool data sharing (unified-data.js, v6 data model with sprint support)
+- [x] Inter-tool navigation (navigation.js - dropdown with centralized tool registry)
 - [ ] Unified dashboard
 - [ ] Project-level data management
 
@@ -104,19 +105,25 @@ Agile sprint planning with backlog management and velocity tracking.
 
 **Shared modules:** storage, undo, unified-data, status
 
-#### Time Tracker
+#### Time Tracker (Complete)
 
 Track time spent on tasks and projects.
 
-**Features:**
-- Timer with start/stop/pause
-- Manual time entry
-- Associate time with projects/tasks
-- Daily and weekly summaries
-- Time reports by project, task, or date range
-- Export time logs
+**Implemented Features:**
+- [x] Timer with start/stop/pause
+- [x] Manual time entry (quick add)
+- [x] Associate time with projects/tasks
+- [x] Daily and weekly views
+- [x] Date navigation (prev/next day/week)
+- [x] Time reports view
+- [x] Billable hours tracking
+- [x] Edit mode toggle for modifications
 
-**Shared modules:** storage, export, status
+**Not Implemented:**
+- Export time logs to CSV
+- Time reports by date range filter
+
+**Shared modules:** storage, undo, unified-data, navigation, status
 
 ---
 
@@ -246,6 +253,7 @@ Enhancements to shared modules for future tools:
 - [ ] `dates.js` - Date formatting and calculations
 - [ ] `charts.js` - Simple chart rendering
 - [x] `unified-data.js` - Cross-tool data synchronization and model
+- [x] `navigation.js` - Inter-tool navigation with centralized tool registry
 
 ---
 
@@ -320,6 +328,7 @@ Automatic deployment via GitHub Actions (`.github/workflows/deploy.yml`):
 | Gantt Chart | https://project.bissbert.ch/tools/gantt/ | Active |
 | Kanban Board | https://project.bissbert.ch/tools/kanban/ | Active |
 | Sprint Planner | https://project.bissbert.ch/tools/sprint/ | Active |
+| Time Tracker | https://project.bissbert.ch/tools/time-tracker/ | Active |
 
 ### Benefits
 
