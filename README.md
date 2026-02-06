@@ -122,10 +122,28 @@ project-planning-tools/
     │   ├── index.html
     │   ├── css/
     │   └── js/
-    └── milestone-tracker/  # Milestone Tracker tool
+    ├── milestone-tracker/  # Milestone Tracker tool
+    │   ├── index.html
+    │   ├── css/
+    │   └── js/
+    ├── retrospective/      # Retrospective Board tool
+    │   ├── index.html
+    │   ├── css/
+    │   └── js/
+    └── pert/               # PERT Chart tool
         ├── index.html
         ├── css/
+        │   ├── pert-layout.css
+        │   ├── pert-diagram.css
+        │   ├── pert-table.css
+        │   └── pert-print.css
         └── js/
+            ├── pert-app.js
+            ├── pert-calc.js
+            ├── pert-render.js
+            ├── pert-vis.js
+            ├── pert-edit.js
+            └── pert-layout.js
 ```
 
 ## Available Tools
@@ -240,6 +258,39 @@ High-level view of project milestones with deadline tracking.
 - Convert existing tasks to milestones
 - Search/filter milestones
 
+### Retrospective Board
+
+Agile sprint retrospectives with voting and item grouping.
+
+**Features:**
+- Three columns: Went Well, Didn't Go Well, Action Items
+- Anonymous mode toggle per retrospective
+- Unlimited voting on items
+- Drag-to-group similar items
+- Drag-to-move items between columns
+- Export action items as text
+- Link to sprint (optional)
+- Retrospective selector dropdown
+- Edit mode for modifications
+
+### PERT Chart
+
+Network diagram for task dependencies and critical path analysis.
+
+**Features:**
+- Interactive network diagram (vis-network library)
+- Critical path highlighting with zero-slack visualization
+- PERT calculations: Early Start/Finish, Late Start/Finish, Slack
+- Continuous edge drawing in edit mode
+- Incremental updates (view preserved when adding edges)
+- Cycle prevention when creating dependencies
+- Table view with sortable PERT values
+- Data scope toggle (milestones only vs all tasks)
+- Node details modal and sidebar
+- Floating glass-panel controls (zoom, edit notice)
+- Export as PNG or JSON
+- Search/filter nodes
+
 ## Shared Modules
 
 ### CSS Modules
@@ -345,12 +396,14 @@ All data is stored in your browser's localStorage:
 
 ## Data Model
 
-The suite uses a unified data model (v10) shared across all tools:
+The suite uses a unified data model (v12) shared across all tools:
 - **Automatic migration**: Data is automatically migrated to the latest version
 - **Cross-tool sync**: Changes in one tool sync to others via localStorage events
 - **Sprint dates**: Stored as ISO date strings for portability
 - **Burndown**: Calculated dynamically from task completion timestamps
 - **Assignees**: Linked by ID with name fallback for backwards compatibility
+- **Dependencies**: Task dependencies stored for PERT chart analysis
+- **Retrospectives**: Sprint retrospective data with voting and grouping
 
 ## License
 
