@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/resource-calendar/">
+  <title>Resource Calendar - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/edit-mode.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Calendar-specific CSS -->
+  <link rel="stylesheet" href="css/calendar-layout.css">
+  <link rel="stylesheet" href="css/calendar-grid.css">
+  <link rel="stylesheet" href="css/calendar-edit.css">
+  <link rel="stylesheet" href="css/calendar-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <nav class="nav-dropdown" data-current="resource-calendar"></nav>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--members">
+          <span class="stat-item__value" id="memberCount">0</span>
+          <span class="stat-item__label">Members</span>
+        </div>
+        <div class="stat-item stat-item--capacity">
+          <span class="stat-item__value" id="weekCapacity">0%</span>
+          <span class="stat-item__label">Capacity</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Calendar Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Default Hours Per Day</label>
+        <input type="number" class="form-input" id="settingsHoursPerDay" min="1" max="24" value="8">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Work Days</label>
+        <div class="workdays-selector" id="workdaysSelector">
+          <label class="workday-checkbox">
+            <input type="checkbox" data-day="0"> Sun
+          </label>
+          <label class="workday-checkbox">
+            <input type="checkbox" data-day="1" checked> Mon
+          </label>
+          <label class="workday-checkbox">
+            <input type="checkbox" data-day="2" checked> Tue
+          </label>
+          <label class="workday-checkbox">
+            <input type="checkbox" data-day="3" checked> Wed
+          </label>
+          <label class="workday-checkbox">
+            <input type="checkbox" data-day="4" checked> Thu
+          </label>
+          <label class="workday-checkbox">
+            <input type="checkbox" data-day="5" checked> Fri
+          </label>
+          <label class="workday-checkbox">
+            <input type="checkbox" data-day="6"> Sat
+          </label>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Team Member Modal -->
+  <div class="modal-overlay" id="memberModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="memberModalTitle">Add Team Member</h2>
+        <button class="modal-close" onclick="closeMemberModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" id="memberName" placeholder="Team member name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <input type="text" class="form-input" id="memberRole" placeholder="Developer, Designer, etc.">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div class="color-picker" id="colorPicker">
+          <button type="button" class="color-btn" data-color="#a78bfa" style="background:#a78bfa"></button>
+          <button type="button" class="color-btn" data-color="#f472b6" style="background:#f472b6"></button>
+          <button type="button" class="color-btn" data-color="#38bdf8" style="background:#38bdf8"></button>
+          <button type="button" class="color-btn" data-color="#4ade80" style="background:#4ade80"></button>
+          <button type="button" class="color-btn" data-color="#fbbf24" style="background:#fbbf24"></button>
+          <button type="button" class="color-btn" data-color="#fb923c" style="background:#fb923c"></button>
+          <button type="button" class="color-btn" data-color="#f87171" style="background:#f87171"></button>
+          <button type="button" class="color-btn" data-color="#a3e635" style="background:#a3e635"></button>
+        </div>
+        <input type="hidden" id="memberColor" value="#a78bfa">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hours Per Week</label>
+        <input type="number" class="form-input" id="memberHours" min="1" max="60" value="40">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+        <button class="btn btn--primary" onclick="saveMember()">Save</button>
+        <button class="btn btn--danger edit-only" onclick="deleteMember()" id="deleteMemberBtn" style="display:none">Delete</button>
+        <button class="btn" onclick="closeMemberModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Set Availability Modal -->
+  <div class="modal-overlay" id="availabilityModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Set Availability</h2>
+        <button class="modal-close" onclick="closeAvailabilityModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Team Member</label>
+        <div id="availabilityMemberName" class="availability-member-name">-</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date Range</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="date" class="form-input" id="availabilityStartDate" style="flex:1">
+          <span>to</span>
+          <input type="date" class="form-input" id="availabilityEndDate" style="flex:1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Availability Type</label>
+        <div class="availability-type-selector" id="availabilityTypeSelector">
+          <button type="button" class="availability-type-btn availability-type-btn--available" data-type="available">
+            <span class="availability-type-icon"></span>
+            Available
+          </button>
+          <button type="button" class="availability-type-btn availability-type-btn--partial" data-type="partial">
+            <span class="availability-type-icon"></span>
+            Partial
+          </button>
+          <button type="button" class="availability-type-btn availability-type-btn--unavailable" data-type="unavailable">
+            <span class="availability-type-icon"></span>
+            Unavailable
+          </button>
+          <button type="button" class="availability-type-btn availability-type-btn--holiday" data-type="holiday">
+            <span class="availability-type-icon"></span>
+            Holiday
+          </button>
+        </div>
+      </div>
+      <div class="form-group" id="partialHoursGroup" style="display:none">
+        <label class="form-label">Hours Available</label>
+        <input type="number" class="form-input" id="availabilityHours" min="1" max="12" value="4">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason / Notes</label>
+        <input type="text" class="form-input" id="availabilityReason" placeholder="Vacation, training, etc.">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveAvailability()">Save</button>
+        <button class="btn" onclick="closeAvailabilityModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="calendar-container">
+    <!-- Left Panel: Team Members -->
+    <aside class="team-panel">
+      <div class="team-header">
+        <h2 class="team-title">Team Members</h2>
+      </div>
+      <div class="team-list" id="teamList">
+        <!-- Team members rendered here -->
+      </div>
+      <div class="team-footer">
+        <button class="team-add-btn edit-only" onclick="openAddMember()">+ Add Member</button>
+      </div>
+      <div class="capacity-summary" id="capacitySummary">
+        <!-- Capacity stats rendered here -->
+      </div>
+    </aside>
+
+    <!-- Right Panel: Calendar Grid -->
+    <section class="calendar-panel">
+      <!-- View Controls -->
+      <div class="calendar-controls">
+        <div class="view-toggle">
+          <button class="view-btn view-btn--active" id="weekViewBtn" onclick="setView('week')">Week</button>
+          <button class="view-btn" id="monthViewBtn" onclick="setView('month')">Month</button>
+        </div>
+        <div class="nav-controls">
+          <button class="nav-btn" onclick="navigatePrev()" title="Previous">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button class="nav-btn nav-btn--today" onclick="navigateToday()">Today</button>
+          <button class="nav-btn" onclick="navigateNext()" title="Next">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="date-range" id="dateRange">Feb 3 - 9, 2025</div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Calendar rendered here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/calendar-app.js"></script>
+</body>
+</html>

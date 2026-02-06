@@ -1,0 +1,175 @@
+/* ========== BURNDOWN EDIT - Modals and edit mode styles ========== */
+
+/* ========== SNAPSHOT MODAL ========== */
+.snapshot-info {
+  margin-bottom: var(--spacing-md);
+}
+
+.snapshot-info p {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--spacing-md);
+}
+
+.snapshot-preview {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.snapshot-preview__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) 0;
+  font-size: var(--font-sm);
+}
+
+.snapshot-preview__row span:first-child {
+  color: var(--text-muted);
+}
+
+.snapshot-preview__row span:last-child {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ========== DROPDOWN MENUS ========== */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  display: none;
+}
+
+.dropdown.open .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.dropdown-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.dropdown-item--active {
+  background: var(--accent-subtle);
+  color: var(--accent-bright);
+}
+
+.dropdown-item:first-child {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.dropdown-item:last-child {
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* ========== COMPARISON MODE ========== */
+.comparison-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-md);
+}
+
+.comparison-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.comparison-label {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+/* ========== DRAG STATE ========== */
+.dragging {
+  opacity: 0.5;
+}
+
+.drag-over {
+  background: var(--accent-subtle) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ========== LOADING STATE ========== */
+.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg-primary);
+  opacity: 0.5;
+}
+
+/* ========== ERROR STATE ========== */
+.error {
+  border-color: var(--status-error) !important;
+}
+
+.error-message {
+  font-size: var(--font-sm);
+  color: var(--status-error);
+  margin-top: var(--spacing-xs);
+}
+
+/* ========== CONFIRMATION DIALOG ========== */
+.confirm-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.confirm-text {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* ========== DATA ENTRY HELPERS ========== */
+.data-entry-hint {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  margin-top: var(--spacing-xs);
+}
+
+.keyboard-shortcut {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}

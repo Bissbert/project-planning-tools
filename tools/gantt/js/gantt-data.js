@@ -17,6 +17,8 @@ export {
   migrateToV5,
   migrateToV6,
   migrateToV7,
+  migrateToV8,
+  migrateToV9,
   syncGanttToKanban,
   syncKanbanToGantt,
   repositionColumn,
@@ -38,7 +40,7 @@ export {
 // Import what we need for local use
 import {
   DATA_VERSION,
-  migrateToV7 as migrateProjectToV7,
+  migrateToV9 as migrateProjectToV9,
   migrateTaskToV5,
   deriveStatus
 } from '../../../shared/js/unified-data.js';
@@ -111,12 +113,12 @@ export const defaultProjectData = {
 
 /**
  * Migrate old data format to new format
- * Wrapper for migrateToV7 for backwards compatibility
+ * Wrapper for migrateToV9 for backwards compatibility
  * @param {Object} data - Data to migrate
  * @returns {Object} - Migrated data
  */
 export function migrateProjectData(data) {
-  return migrateProjectToV7(data);
+  return migrateProjectToV9(data);
 }
 
 /**

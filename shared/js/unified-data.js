@@ -3,8 +3,8 @@
  * Provides data structure, migrations, and bidirectional sync
  */
 
-// Data format version (v7 adds time tracking)
-export const DATA_VERSION = 7;
+// Data format version (v9 adds resource calendar)
+export const DATA_VERSION = 9;
 
 // Storage key (shared between tools)
 export const STORAGE_KEY = 'ganttProject';
@@ -295,9 +295,256 @@ export function migrateToV7(data) {
   }
 
   // Update version
+  data.version = 7;
+
+  return data;
+}
+
+/**
+ * Migrate project data to v8 format (adds burndown tracking)
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+export function migrateToV8(data) {
+  // First ensure v7 migration is complete
+  if (!data.version || data.version < 7) {
+    data = migrateToV7(data);
+  }
+
+  // Initialize burndown arrays for existing sprints
+  if (data.sprints) {
+    data.sprints.forEach(sprint => {
+      if (!sprint.burndown) {
+        sprint.burndown = [];
+      }
+    });
+  }
+
+  // Update version (will be updated to 9 by migrateToV9)
+  data.version = 8;
+
+  return data;
+}
+
+/**
+ * Migrate project data to v9 format (adds resource calendar)
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+export function migrateToV9(data) {
+  // First ensure v8 migration is complete
+  if (!data.version || data.version < 8) {
+    data = migrateToV8(data);
+  }
+
+  // Default team member colors palette
+  const defaultColors = [
+    '#a78bfa', '#f472b6', '#38bdf8', '#4ade80',
+    '#fbbf24', '#fb923c', '#f87171', '#a3e635'
+  ];
+
+  // Migrate team members with new fields
+  if (data.team && Array.isArray(data.team)) {
+    // Check if team is old format (array of strings)
+    if (data.team.length > 0 && typeof data.team[0] === 'string') {
+      data.team = data.team.map((name, index) => ({
+        id: 'member_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+        name: name,
+        role: '',
+        color: defaultColors[index % defaultColors.length],
+        hoursPerWeek: 40,
+        availability: []
+      }));
+      console.log('Migrated team members from string format to object format');
+    } else {
+      // Team is already object format, add missing fields
+      data.team = data.team.map((member, index) => {
+        if (typeof member === 'string') {
+          return {
+            id: 'member_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+            name: member,
+            role: '',
+            color: defaultColors[index % defaultColors.length],
+            hoursPerWeek: 40,
+            availability: []
+          };
+        }
+        // Ensure all fields exist
+        return {
+          id: member.id || 'member_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+          name: member.name || member,
+          role: member.role || '',
+          color: member.color || defaultColors[index % defaultColors.length],
+          hoursPerWeek: member.hoursPerWeek || 40,
+          availability: member.availability || []
+        };
+      });
+    }
+  }
+
+  // Add calendar settings if missing
+  if (!data.calendarSettings) {
+    data.calendarSettings = {
+      workDays: [1, 2, 3, 4, 5], // Mon-Fri (0=Sun, 6=Sat)
+      hoursPerDay: 8
+    };
+  }
+
+  // Update version
   data.version = DATA_VERSION;
 
   return data;
+}
+
+// ========== BURNDOWN HELPERS ==========
+
+/**
+ * Record a burndown snapshot for a sprint
+ * Creates or updates today's snapshot with remaining work
+ * @param {Object} sprint - Sprint to record snapshot for
+ * @param {Array} tasks - All tasks
+ * @returns {Object} - The recorded snapshot
+ */
+export function recordBurndownSnapshot(sprint, tasks) {
+  const today = new Date().toISOString().split('T')[0];
+  const sprintTasks = tasks.filter(t => t.sprintId === sprint.id);
+
+  // Calculate remaining (not in 'done' column)
+  const remaining = sprintTasks.filter(t => t.board?.columnId !== 'done');
+  const remainingPoints = remaining.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+  const remainingTasks = remaining.length;
+
+  // Ensure burndown array exists
+  if (!sprint.burndown) {
+    sprint.burndown = [];
+  }
+
+  // Check if today already recorded
+  const existingIndex = sprint.burndown.findIndex(s => s.date === today);
+  const snapshot = { date: today, remainingPoints, remainingTasks };
+
+  if (existingIndex >= 0) {
+    sprint.burndown[existingIndex] = snapshot;
+  } else {
+    sprint.burndown.push(snapshot);
+    sprint.burndown.sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  return snapshot;
+}
+
+/**
+ * Get the start date for a sprint (from startWeek or startDate)
+ * @param {Object} sprint - Sprint object
+ * @param {Object} project - Project object
+ * @returns {Date} - Sprint start date
+ */
+export function getSprintStartDate(sprint, project) {
+  if (sprint.startDate) {
+    return new Date(sprint.startDate);
+  }
+  // Calculate from project start and sprint week
+  if (sprint.startWeek && project.startDate) {
+    const start = new Date(project.startDate);
+    start.setDate(start.getDate() + (sprint.startWeek - 1) * 7);
+    return start;
+  }
+  return new Date();
+}
+
+/**
+ * Get the end date for a sprint (from endWeek or endDate)
+ * @param {Object} sprint - Sprint object
+ * @param {Object} project - Project object
+ * @returns {Date} - Sprint end date
+ */
+export function getSprintEndDate(sprint, project) {
+  if (sprint.endDate) {
+    return new Date(sprint.endDate);
+  }
+  // Calculate from project start and sprint week
+  if (sprint.endWeek && project.startDate) {
+    const start = new Date(project.startDate);
+    start.setDate(start.getDate() + sprint.endWeek * 7 - 1);
+    return start;
+  }
+  // Default to 2 weeks from start
+  const startDate = getSprintStartDate(sprint, project);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 13);
+  return endDate;
+}
+
+/**
+ * Calculate the ideal burndown line for a sprint
+ * @param {Object} sprint - Sprint object
+ * @param {Object} project - Project object
+ * @param {number} totalPoints - Total story points at sprint start
+ * @param {number} totalTasks - Total task count at sprint start
+ * @returns {Array} - Array of {date, points, tasks} for ideal line
+ */
+export function calculateIdealBurndown(sprint, project, totalPoints, totalTasks) {
+  const start = getSprintStartDate(sprint, project);
+  const end = getSprintEndDate(sprint, project);
+  const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+  const ideal = [];
+  for (let i = 0; i < days; i++) {
+    const date = new Date(start);
+    date.setDate(date.getDate() + i);
+    const progress = i / (days - 1);
+    ideal.push({
+      date: date.toISOString().split('T')[0],
+      points: Math.round(totalPoints * (1 - progress) * 10) / 10,
+      tasks: Math.round(totalTasks * (1 - progress) * 10) / 10
+    });
+  }
+  return ideal;
+}
+
+/**
+ * Get comprehensive burndown data for a sprint
+ * @param {Object} sprint - Sprint object
+ * @param {Object} project - Project object
+ * @param {Array} tasks - All tasks
+ * @returns {Object} - {sprint, totalPoints, totalTasks, ideal, actual, currentRemaining, daysRemaining, daysElapsed}
+ */
+export function getBurndownData(sprint, project, tasks) {
+  const sprintTasks = tasks.filter(t => t.sprintId === sprint.id);
+  const totalPoints = sprintTasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+  const totalTasks = sprintTasks.length;
+
+  // Calculate current remaining
+  const remaining = sprintTasks.filter(t => t.board?.columnId !== 'done');
+  const currentRemainingPoints = remaining.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+  const currentRemainingTasks = remaining.length;
+
+  // Calculate days info
+  const start = getSprintStartDate(sprint, project);
+  const end = getSprintEndDate(sprint, project);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+  const daysElapsed = Math.max(0, Math.ceil((today - start) / (1000 * 60 * 60 * 24)));
+  const daysRemaining = Math.max(0, Math.ceil((end - today) / (1000 * 60 * 60 * 24)) + 1);
+
+  return {
+    sprint,
+    totalPoints,
+    totalTasks,
+    ideal: calculateIdealBurndown(sprint, project, totalPoints, totalTasks),
+    actual: sprint.burndown || [],
+    currentRemaining: {
+      points: currentRemainingPoints,
+      tasks: currentRemainingTasks
+    },
+    daysElapsed,
+    daysRemaining,
+    totalDays,
+    startDate: start.toISOString().split('T')[0],
+    endDate: end.toISOString().split('T')[0]
+  };
 }
 
 // ========== TIME ENTRY HELPERS ==========
@@ -803,4 +1050,198 @@ export function calculateVariance(tasks) {
  */
 export function cloneProjectData(data) {
   return JSON.parse(JSON.stringify(data));
+}
+
+// ========== RESOURCE CALENDAR HELPERS ==========
+
+/**
+ * Generate a unique team member ID
+ * @returns {string} - Unique ID
+ */
+export function generateMemberId() {
+  return 'member_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+/**
+ * Get availability for a team member on a specific date
+ * @param {Object} member - Team member object
+ * @param {string} date - ISO date string (YYYY-MM-DD)
+ * @param {Object} calendarSettings - Calendar settings with workDays and hoursPerDay
+ * @returns {Object} - {type, hours, reason}
+ */
+export function getMemberAvailability(member, date, calendarSettings) {
+  // Check if there's a specific entry for this date
+  const entry = (member.availability || []).find(a => a.date === date);
+  if (entry) {
+    return {
+      type: entry.type,
+      hours: entry.hours,
+      reason: entry.reason || ''
+    };
+  }
+
+  // Check if it's a weekend/non-work day
+  const dayOfWeek = new Date(date).getDay();
+  const workDays = calendarSettings?.workDays || [1, 2, 3, 4, 5];
+  if (!workDays.includes(dayOfWeek)) {
+    return {
+      type: 'weekend',
+      hours: 0,
+      reason: ''
+    };
+  }
+
+  // Default: fully available
+  const hoursPerDay = calendarSettings?.hoursPerDay || 8;
+  return {
+    type: 'available',
+    hours: hoursPerDay,
+    reason: ''
+  };
+}
+
+/**
+ * Set availability for a team member on a date or date range
+ * @param {Object} member - Team member object
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD), optional
+ * @param {Object} availability - {type, hours, reason}
+ * @returns {Object} - Updated member
+ */
+export function setMemberAvailability(member, startDate, endDate, availability) {
+  if (!member.availability) {
+    member.availability = [];
+  }
+
+  const end = endDate || startDate;
+  const start = new Date(startDate);
+  const finish = new Date(end);
+
+  // Iterate through each day in range
+  for (let d = new Date(start); d <= finish; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split('T')[0];
+
+    // Remove existing entry for this date
+    member.availability = member.availability.filter(a => a.date !== dateStr);
+
+    // Add new entry (unless it's default available)
+    if (availability.type !== 'available' || availability.hours !== 8) {
+      member.availability.push({
+        date: dateStr,
+        type: availability.type,
+        hours: availability.hours,
+        reason: availability.reason || ''
+      });
+    }
+  }
+
+  // Sort by date
+  member.availability.sort((a, b) => a.date.localeCompare(b.date));
+
+  return member;
+}
+
+/**
+ * Calculate team capacity for a date range
+ * @param {Array} team - Team members array
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @param {Object} calendarSettings - Calendar settings
+ * @returns {Object} - {totalHours, perMember: {memberId: hours}}
+ */
+export function calculateTeamCapacity(team, startDate, endDate, calendarSettings) {
+  const result = {
+    totalHours: 0,
+    perMember: {}
+  };
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  (team || []).forEach(member => {
+    let memberHours = 0;
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const availability = getMemberAvailability(member, dateStr, calendarSettings);
+      memberHours += availability.hours;
+    }
+
+    result.perMember[member.id] = memberHours;
+    result.totalHours += memberHours;
+  });
+
+  return result;
+}
+
+/**
+ * Get capacity percentage for a week
+ * @param {Array} team - Team members array
+ * @param {Date} weekStart - Start of week
+ * @param {Object} calendarSettings - Calendar settings
+ * @returns {number} - Percentage (0-100)
+ */
+export function getWeekCapacityPercent(team, weekStart, calendarSettings) {
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+
+  const startStr = weekStart.toISOString().split('T')[0];
+  const endStr = weekEnd.toISOString().split('T')[0];
+
+  const capacity = calculateTeamCapacity(team, startStr, endStr, calendarSettings);
+
+  // Calculate max possible hours (all members fully available)
+  const workDays = calendarSettings?.workDays || [1, 2, 3, 4, 5];
+  const hoursPerDay = calendarSettings?.hoursPerDay || 8;
+
+  let workDaysInWeek = 0;
+  for (let d = new Date(weekStart); d <= weekEnd; d.setDate(d.getDate() + 1)) {
+    if (workDays.includes(d.getDay())) {
+      workDaysInWeek++;
+    }
+  }
+
+  const maxHours = (team || []).length * workDaysInWeek * hoursPerDay;
+
+  if (maxHours === 0) return 100;
+  return Math.round((capacity.totalHours / maxHours) * 100);
+}
+
+/**
+ * Get dates for a week starting from a given date
+ * @param {Date} weekStart - Start of week (Monday)
+ * @returns {Array} - Array of date objects for the week
+ */
+export function getWeekDates(weekStart) {
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+/**
+ * Format date as short string (e.g., "Mon 5")
+ * @param {Date} date - Date object
+ * @returns {string} - Formatted string
+ */
+export function formatDateShort(date) {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return `${days[date.getDay()]} ${date.getDate()}`;
+}
+
+/**
+ * Format date range as string
+ * @param {Date} start - Start date
+ * @param {Date} end - End date
+ * @returns {string} - Formatted string like "Feb 3 - 9, 2025"
+ */
+export function formatDateRange(start, end) {
+  const opts = { month: 'short', day: 'numeric' };
+  const startStr = start.toLocaleDateString('en-US', opts);
+  const endStr = end.toLocaleDateString('en-US', { day: 'numeric' });
+  const year = end.getFullYear();
+  return `${startStr} - ${endStr}, ${year}`;
 }

@@ -13,7 +13,9 @@ const TOOLS = [
   { id: 'gantt', number: '01', label: 'Gantt', path: 'gantt' },
   { id: 'kanban', number: '02', label: 'Kanban', path: 'kanban' },
   { id: 'sprint', number: '03', label: 'Sprint', path: 'sprint' },
-  { id: 'time-tracker', number: '04', label: 'Time Tracker', path: 'time-tracker' }
+  { id: 'time-tracker', number: '04', label: 'Time Tracker', path: 'time-tracker' },
+  { id: 'burndown', number: '05', label: 'Burndown', path: 'burndown' },
+  { id: 'resource-calendar', number: '06', label: 'Resources', path: 'resource-calendar' }
 ];
 
 // SVG icons

@@ -1,0 +1,122 @@
+/* ========== BURNDOWN PRINT - Print-specific styles ========== */
+
+@media print {
+  /* Reset page layout */
+  body {
+    background: white !important;
+  }
+
+  /* Hide interactive elements */
+  .header,
+  .edit-mode-banner,
+  .sidebar-panel,
+  .sprint-selector,
+  .chart-actions,
+  .chart-legend,
+  .modal-overlay,
+  .status,
+  .btn,
+  .action-group,
+  .mode-toggle {
+    display: none !important;
+  }
+
+  /* Full-width chart */
+  .burndown-container {
+    display: block;
+    height: auto;
+    padding: 0;
+  }
+
+  .chart-panel {
+    padding: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  .chart-wrapper {
+    border: none;
+    border-radius: 0;
+    background: white;
+    min-height: 400px;
+    page-break-inside: avoid;
+  }
+
+  /* Print header */
+  .chart-wrapper::before {
+    content: attr(data-title);
+    display: block;
+    font-size: 18pt;
+    font-weight: 600;
+    margin-bottom: 12pt;
+    color: black;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8pt;
+  }
+
+  /* Chart SVG adjustments */
+  .burndown-chart {
+    background: white !important;
+    width: 100%;
+    height: 400px;
+  }
+
+  /* Improve line visibility for print */
+  .chart-line-ideal {
+    stroke: #666 !important;
+    stroke-width: 1.5 !important;
+  }
+
+  .chart-line-actual {
+    stroke: #333 !important;
+    stroke-width: 2 !important;
+  }
+
+  .chart-point {
+    fill: #333 !important;
+    stroke: white !important;
+  }
+
+  .chart-today-line {
+    stroke: #999 !important;
+  }
+
+  /* Grid and axes for print */
+  .chart-grid {
+    stroke: #e0e0e0 !important;
+  }
+
+  .chart-axis {
+    stroke: #333 !important;
+  }
+
+  .chart-axis-label {
+    fill: #333 !important;
+  }
+
+  /* Hide tooltip */
+  .chart-tooltip {
+    display: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+}
+
+/* High contrast print mode */
+@media print and (prefers-color-scheme: light) {
+  .burndown-chart {
+    background: white !important;
+  }
+
+  .chart-line-ideal {
+    stroke: #888 !important;
+  }
+
+  .chart-line-actual {
+    stroke: #000 !important;
+  }
+}

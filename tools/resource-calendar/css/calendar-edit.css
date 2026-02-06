@@ -1,0 +1,247 @@
+/* ========== CALENDAR EDIT - Edit mode, modals, form elements ========== */
+
+/* ========== COLOR PICKER ========== */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+}
+
+.color-btn--selected {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary);
+}
+
+/* ========== WORKDAYS SELECTOR ========== */
+.workdays-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.workday-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.workday-checkbox:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.workday-checkbox:has(input:checked) {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent-bright);
+}
+
+.workday-checkbox input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+}
+
+/* ========== AVAILABILITY MEMBER NAME ========== */
+.availability-member-name {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.availability-member-name::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+}
+
+/* ========== AVAILABILITY TYPE SELECTOR ========== */
+.availability-type-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.availability-type-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.availability-type-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.availability-type-btn--selected {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent-bright);
+}
+
+.availability-type-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-xs);
+}
+
+/* Available */
+.availability-type-btn--available .availability-type-icon {
+  background: var(--status-success-subtle);
+  color: var(--status-success);
+}
+
+.availability-type-btn--available .availability-type-icon::before {
+  content: '✓';
+}
+
+/* Partial */
+.availability-type-btn--partial .availability-type-icon {
+  background: var(--status-warning-subtle);
+  color: var(--status-warning);
+}
+
+.availability-type-btn--partial .availability-type-icon::before {
+  content: '½';
+  font-weight: 700;
+}
+
+/* Unavailable */
+.availability-type-btn--unavailable .availability-type-icon {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.availability-type-btn--unavailable .availability-type-icon::before {
+  content: '×';
+}
+
+/* Holiday */
+.availability-type-btn--holiday .availability-type-icon {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.availability-type-btn--holiday .availability-type-icon::before {
+  content: '★';
+}
+
+/* ========== EDIT MODE CELL INTERACTIONS ========== */
+body.edit-mode .availability-cell {
+  position: relative;
+}
+
+body.edit-mode .availability-cell::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 2px dashed transparent;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+  transition: border-color var(--transition-fast);
+}
+
+body.edit-mode .availability-cell:hover::after {
+  border-color: var(--accent);
+}
+
+/* ========== MEMBER CARD EDIT STATE ========== */
+body.edit-mode .team-member {
+  position: relative;
+}
+
+body.edit-mode .team-member::after {
+  content: '✎';
+  position: absolute;
+  right: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+body.edit-mode .team-member:hover::after {
+  opacity: 1;
+}
+
+/* ========== DRAG SELECTION (future feature) ========== */
+.selection-box {
+  position: fixed;
+  border: 2px dashed var(--accent);
+  background: var(--accent-subtle);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ========== BULK ACTIONS BAR (future feature) ========== */
+.bulk-actions {
+  position: fixed;
+  bottom: var(--spacing-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+}
+
+.bulk-actions__count {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.bulk-actions__count strong {
+  color: var(--accent-bright);
+}

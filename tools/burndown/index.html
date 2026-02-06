@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/burndown/">
+  <title>Burndown Chart - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/edit-mode.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Burndown-specific CSS -->
+  <link rel="stylesheet" href="css/burndown-layout.css">
+  <link rel="stylesheet" href="css/burndown-chart.css">
+  <link rel="stylesheet" href="css/burndown-edit.css">
+  <link rel="stylesheet" href="css/burndown-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <nav class="nav-dropdown" data-current="burndown"></nav>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--remaining">
+          <span class="stat-item__value" id="remainingPoints">0</span>
+          <span class="stat-item__label">Remaining</span>
+        </div>
+        <div class="stat-item stat-item--days">
+          <span class="stat-item__value" id="daysRemaining">0</span>
+          <span class="stat-item__label">Days Left</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="mode-toggle">
+        <button class="mode-btn mode-btn--active" data-mode="points" id="modePoints">Points</button>
+        <button class="mode-btn" data-mode="tasks" id="modeTasks">Tasks</button>
+      </div>
+      <button class="btn btn--ghost" onclick="exportChart()">Export PNG</button>
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json" style="display: none;">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Chart Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Record Snapshot Modal -->
+  <div class="modal-overlay" id="snapshotModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Record Progress</h2>
+        <button class="modal-close" onclick="closeSnapshotModal()">&times;</button>
+      </div>
+      <div class="snapshot-info">
+        <p>Record today's progress for the current sprint. This creates a data point on the burndown chart.</p>
+        <div class="snapshot-preview" id="snapshotPreview">
+          <div class="snapshot-preview__row">
+            <span>Date:</span>
+            <span id="snapshotDate">-</span>
+          </div>
+          <div class="snapshot-preview__row">
+            <span>Remaining Points:</span>
+            <span id="snapshotPoints">-</span>
+          </div>
+          <div class="snapshot-preview__row">
+            <span>Remaining Tasks:</span>
+            <span id="snapshotTasks">-</span>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="recordSnapshot()">Record</button>
+        <button class="btn" onclick="closeSnapshotModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="burndown-container">
+    <!-- Left: Chart Panel -->
+    <section class="chart-panel">
+      <!-- Sprint Selector -->
+      <div class="sprint-selector" id="sprintSelector">
+        <!-- Sprint buttons rendered here -->
+      </div>
+
+      <!-- Chart Area -->
+      <div class="chart-wrapper">
+        <svg class="burndown-chart" id="burndownChart">
+          <!-- Chart rendered here -->
+        </svg>
+        <div class="chart-empty" id="chartEmpty">
+          <div class="empty-state">
+            <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3v18h18"/>
+              <path d="M18 9l-5 5-4-4-3 3"/>
+            </svg>
+            <h3 class="empty-state__title">No Sprint Data</h3>
+            <p class="empty-state__text">Create a sprint in the Sprint Planner to see burndown data here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-line legend-line--ideal"></span>
+          <span>Ideal</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-line legend-line--actual"></span>
+          <span>Actual</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-marker legend-marker--today"></span>
+          <span>Today</span>
+        </div>
+      </div>
+
+      <!-- Edit Actions -->
+      <div class="chart-actions edit-only">
+        <button class="btn btn--primary" onclick="openSnapshotModal()">Record Progress</button>
+        <button class="btn" onclick="openSettings()">Settings</button>
+      </div>
+    </section>
+
+    <!-- Right: Sidebar -->
+    <aside class="sidebar-panel">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Sprint Info</h3>
+        <div class="sprint-details" id="sprintDetails">
+          <div class="sprint-detail">
+            <span class="sprint-detail__label">Name</span>
+            <span class="sprint-detail__value" id="detailName">-</span>
+          </div>
+          <div class="sprint-detail">
+            <span class="sprint-detail__label">Status</span>
+            <span class="sprint-detail__value" id="detailStatus">-</span>
+          </div>
+          <div class="sprint-detail">
+            <span class="sprint-detail__label">Duration</span>
+            <span class="sprint-detail__value" id="detailDuration">-</span>
+          </div>
+          <div class="sprint-detail">
+            <span class="sprint-detail__label">Total Points</span>
+            <span class="sprint-detail__value" id="detailTotalPoints">-</span>
+          </div>
+          <div class="sprint-detail">
+            <span class="sprint-detail__label">Total Tasks</span>
+            <span class="sprint-detail__value" id="detailTotalTasks">-</span>
+          </div>
+          <div class="sprint-detail">
+            <span class="sprint-detail__label">Progress</span>
+            <span class="sprint-detail__value" id="detailProgress">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Historical Sprints</h3>
+        <div class="history-list" id="historyList">
+          <!-- Historical sprints rendered here -->
+        </div>
+        <div class="velocity-summary" id="velocitySummary">
+          <span class="velocity-label">Avg Velocity:</span>
+          <span class="velocity-value" id="avgVelocity">0 pts</span>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/burndown-app.js"></script>
+</body>
+</html>
