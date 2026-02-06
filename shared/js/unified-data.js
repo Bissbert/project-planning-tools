@@ -1,10 +1,10 @@
 /**
- * Unified Data Module - Shared data model for Gantt and Kanban
+ * Unified Data Module - Shared data model for Gantt, Kanban, Sprint, and Time Tracker
  * Provides data structure, migrations, and bidirectional sync
  */
 
-// Data format version (v6 adds sprint planning)
-export const DATA_VERSION = 6;
+// Data format version (v7 adds time tracking)
+export const DATA_VERSION = 7;
 
 // Storage key (shared between tools)
 export const STORAGE_KEY = 'ganttProject';
@@ -37,6 +37,14 @@ export function generateColumnId() {
  */
 export function generateSprintId() {
   return 'sprint_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+/**
+ * Generate a unique time entry ID
+ * @returns {string} - Unique ID
+ */
+export function generateTimeEntryId() {
+  return 'time_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
 
 /**
@@ -263,10 +271,218 @@ export function migrateToV6(data) {
     return task;
   });
 
+  // Update version to 6
+  data.version = 6;
+
+  return data;
+}
+
+/**
+ * Migrate project data to v7 format (adds time tracking)
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+export function migrateToV7(data) {
+  // First ensure v6 migration is complete
+  if (!data.version || data.version < 6) {
+    data = migrateToV6(data);
+  }
+
+  // Add timeEntries array if missing
+  if (!data.timeEntries) {
+    data.timeEntries = [];
+    console.log('Added timeEntries array');
+  }
+
   // Update version
   data.version = DATA_VERSION;
 
   return data;
+}
+
+// ========== TIME ENTRY HELPERS ==========
+
+/**
+ * Get time entries for a specific date
+ * @param {Array} entries - All time entries
+ * @param {string} date - ISO date string (YYYY-MM-DD)
+ * @returns {Array} - Entries for that date, sorted by start time
+ */
+export function getEntriesForDate(entries, date) {
+  return entries
+    .filter(e => e.date === date)
+    .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+}
+
+/**
+ * Get time entries for a date range
+ * @param {Array} entries - All time entries
+ * @param {string} startDate - Start date (inclusive)
+ * @param {string} endDate - End date (inclusive)
+ * @returns {Array} - Entries in range, sorted by date and start time
+ */
+export function getEntriesForDateRange(entries, startDate, endDate) {
+  return entries
+    .filter(e => e.date >= startDate && e.date <= endDate)
+    .sort((a, b) => {
+      const dateCompare = a.date.localeCompare(b.date);
+      if (dateCompare !== 0) return dateCompare;
+      return (a.startTime || '').localeCompare(b.startTime || '');
+    });
+}
+
+/**
+ * Get time entries for a specific task
+ * @param {Array} entries - All time entries
+ * @param {string} taskId - Task ID
+ * @returns {Array} - Entries for that task, sorted by date
+ */
+export function getEntriesForTask(entries, taskId) {
+  return entries
+    .filter(e => e.taskId === taskId)
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/**
+ * Calculate total minutes from an array of entries
+ * @param {Array} entries - Time entries
+ * @returns {number} - Total minutes
+ */
+export function calculateTotalMinutes(entries) {
+  return entries.reduce((sum, e) => sum + (e.durationMinutes || 0), 0);
+}
+
+/**
+ * Format minutes as hours and minutes string
+ * @param {number} totalMinutes - Total minutes
+ * @returns {string} - Formatted string like "2h 30m" or "45m"
+ */
+export function formatDuration(totalMinutes) {
+  if (totalMinutes === 0) return '0m';
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) return `${minutes}m`;
+  if (minutes === 0) return `${hours}h`;
+  return `${hours}h ${minutes}m`;
+}
+
+/**
+ * Format minutes as HH:MM:SS timer display
+ * @param {number} totalSeconds - Total seconds
+ * @returns {string} - Formatted string like "02:34:15"
+ */
+export function formatTimerDisplay(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return [hours, minutes, seconds]
+    .map(n => String(n).padStart(2, '0'))
+    .join(':');
+}
+
+/**
+ * Group time entries by task
+ * @param {Array} entries - Time entries
+ * @param {Array} tasks - All tasks
+ * @returns {Array} - Array of {task, totalMinutes, entries}
+ */
+export function groupEntriesByTask(entries, tasks) {
+  const taskMap = new Map();
+
+  // Initialize with null for entries without task
+  taskMap.set(null, { task: null, totalMinutes: 0, entries: [] });
+
+  entries.forEach(entry => {
+    const taskId = entry.taskId || null;
+    if (!taskMap.has(taskId)) {
+      const task = tasks.find(t => t.id === taskId);
+      taskMap.set(taskId, { task, totalMinutes: 0, entries: [] });
+    }
+    const group = taskMap.get(taskId);
+    group.totalMinutes += entry.durationMinutes || 0;
+    group.entries.push(entry);
+  });
+
+  // Convert to array and sort by total time (descending)
+  return Array.from(taskMap.values())
+    .filter(g => g.entries.length > 0)
+    .sort((a, b) => b.totalMinutes - a.totalMinutes);
+}
+
+/**
+ * Group time entries by category (via task)
+ * @param {Array} entries - Time entries
+ * @param {Array} tasks - All tasks
+ * @param {Object} categories - Category name to color map
+ * @returns {Array} - Array of {category, color, totalMinutes, entries}
+ */
+export function groupEntriesByCategory(entries, tasks, categories) {
+  const categoryMap = new Map();
+
+  // Initialize uncategorized
+  categoryMap.set('Uncategorized', {
+    category: 'Uncategorized',
+    color: '#7c7c8a',
+    totalMinutes: 0,
+    entries: []
+  });
+
+  entries.forEach(entry => {
+    let category = 'Uncategorized';
+    let color = '#7c7c8a';
+
+    if (entry.taskId) {
+      const task = tasks.find(t => t.id === entry.taskId);
+      if (task && task.category) {
+        category = task.category;
+        color = categories[category] || '#7c7c8a';
+      }
+    }
+
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, {
+        category,
+        color,
+        totalMinutes: 0,
+        entries: []
+      });
+    }
+
+    const group = categoryMap.get(category);
+    group.totalMinutes += entry.durationMinutes || 0;
+    group.entries.push(entry);
+  });
+
+  // Convert to array and sort by total time (descending)
+  return Array.from(categoryMap.values())
+    .filter(g => g.entries.length > 0)
+    .sort((a, b) => b.totalMinutes - a.totalMinutes);
+}
+
+/**
+ * Get the start of the week (Monday) for a given date
+ * @param {Date} date - Reference date
+ * @returns {Date} - Start of week
+ */
+export function getWeekStart(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+/**
+ * Get the end of the week (Sunday) for a given date
+ * @param {Date} date - Reference date
+ * @returns {Date} - End of week
+ */
+export function getWeekEnd(date) {
+  const start = getWeekStart(date);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return end;
 }
 
 /**

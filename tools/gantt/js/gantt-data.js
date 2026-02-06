@@ -10,11 +10,13 @@ export {
   BACKUP_KEY,
   generateTaskId,
   generateSprintId,
+  generateTimeEntryId,
   deriveColumnFromProgress,
   deriveStatus,
   migrateTaskToV5,
   migrateToV5,
   migrateToV6,
+  migrateToV7,
   syncGanttToKanban,
   syncKanbanToGantt,
   repositionColumn,
@@ -36,7 +38,7 @@ export {
 // Import what we need for local use
 import {
   DATA_VERSION,
-  migrateToV6 as migrateProjectToV6,
+  migrateToV7 as migrateProjectToV7,
   migrateTaskToV5,
   deriveStatus
 } from '../../../shared/js/unified-data.js';
@@ -69,6 +71,7 @@ export const defaultProjectData = {
     enableWipLimits: true
   },
   sprints: [],
+  timeEntries: [],
   tasks: [
     { id: "task_1", category: "Planning", name: "Plan game concept", planned: [1], reality: [], board: { columnId: "todo", position: 0 }, storyPoints: null, sprintId: null, backlogPosition: 0 },
     { id: "task_2", category: "Planning", name: "Create mood boards", planned: [1, 2], reality: [], board: { columnId: "todo", position: 1 }, storyPoints: null, sprintId: null, backlogPosition: 1 },
@@ -108,12 +111,12 @@ export const defaultProjectData = {
 
 /**
  * Migrate old data format to new format
- * Wrapper for migrateToV6 for backwards compatibility
+ * Wrapper for migrateToV7 for backwards compatibility
  * @param {Object} data - Data to migrate
  * @returns {Object} - Migrated data
  */
 export function migrateProjectData(data) {
-  return migrateProjectToV6(data);
+  return migrateProjectToV7(data);
 }
 
 /**

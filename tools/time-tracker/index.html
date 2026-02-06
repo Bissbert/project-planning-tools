@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/time-tracker/">
+  <title>Time Tracker - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Time Tracker CSS -->
+  <link rel="stylesheet" href="css/time-layout.css">
+  <link rel="stylesheet" href="css/time-cards.css">
+  <link rel="stylesheet" href="css/time-edit.css">
+  <link rel="stylesheet" href="css/time-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="station-badge">
+        <span class="station-badge__number">04</span>
+        <span class="station-badge__label">Time</span>
+      </div>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--today">
+          <span class="stat-item__value" id="todayTotal">0h</span>
+          <span class="stat-item__label">Today</span>
+        </div>
+        <div class="stat-item stat-item--week">
+          <span class="stat-item__value" id="weekTotal">0h</span>
+          <span class="stat-item__label">Week</span>
+        </div>
+        <div class="stat-item stat-item--entries">
+          <span class="stat-item__value" id="entryCount">0</span>
+          <span class="stat-item__label">Entries</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Time Tracker Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry Edit Modal -->
+  <div class="modal-overlay" id="entryEditModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="entryEditTitle">Edit Entry</h2>
+        <button class="modal-close" onclick="closeEntryEdit()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-input" id="entryEditDate">
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Start Time</label>
+          <input type="time" class="form-input" id="entryEditStartTime">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">End Time</label>
+          <input type="time" class="form-input" id="entryEditEndTime">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <div class="duration-display" id="entryEditDuration">0h 0m</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task (optional)</label>
+        <select class="form-input" id="entryEditTask">
+          <option value="">No task</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-input" id="entryEditNotes" rows="2" placeholder="Add notes..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="entryEditBillable">
+          <span>Billable</span>
+        </label>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+        <button class="btn btn--primary" onclick="saveEntryEdit()">Save</button>
+        <button class="btn btn--danger edit-only" onclick="deleteCurrentEntry()">Delete</button>
+        <button class="btn" onclick="closeEntryEdit()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="time-container">
+    <!-- Left Panel: Timer & Quick Add -->
+    <aside class="timer-panel">
+      <!-- Timer Section -->
+      <div class="timer-section">
+        <div class="timer-header">
+          <h2 class="timer-title">Timer</h2>
+          <div class="timer-status" id="timerStatus">Stopped</div>
+        </div>
+        <div class="timer-display" id="timerDisplay">00:00:00</div>
+        <div class="timer-task">
+          <label class="form-label">Task</label>
+          <select class="form-input" id="timerTaskSelect">
+            <option value="">No task</option>
+          </select>
+        </div>
+        <div class="timer-controls">
+          <button class="timer-btn timer-btn--start" id="timerStartBtn" onclick="startTimer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Start
+          </button>
+          <button class="timer-btn timer-btn--pause" id="timerPauseBtn" onclick="pauseTimer()" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16"/>
+              <rect x="14" y="4" width="4" height="16"/>
+            </svg>
+            Pause
+          </button>
+          <button class="timer-btn timer-btn--resume" id="timerResumeBtn" onclick="resumeTimer()" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Resume
+          </button>
+          <button class="timer-btn timer-btn--stop" id="timerStopBtn" onclick="stopTimer()" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="4" y="4" width="16" height="16"/>
+            </svg>
+            Stop
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Add Section -->
+      <div class="quick-add-section">
+        <div class="quick-add-header">
+          <h2 class="quick-add-title">Quick Add</h2>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Start</label>
+            <input type="time" class="form-input" id="quickAddStart">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">End</label>
+            <input type="time" class="form-input" id="quickAddEnd">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Task</label>
+          <select class="form-input" id="quickAddTask">
+            <option value="">No task</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input type="text" class="form-input" id="quickAddNotes" placeholder="Add notes...">
+        </div>
+        <button class="quick-add-btn edit-only" onclick="quickAddEntry()">+ Add Entry</button>
+      </div>
+    </aside>
+
+    <!-- Right Panel: Entries -->
+    <section class="entries-panel">
+      <!-- View Tabs -->
+      <div class="view-tabs">
+        <button class="view-tab view-tab--active" data-view="today" onclick="setView('today')">Today</button>
+        <button class="view-tab" data-view="week" onclick="setView('week')">Week</button>
+        <button class="view-tab" data-view="reports" onclick="setView('reports')">Reports</button>
+      </div>
+
+      <!-- Date Navigation -->
+      <div class="date-nav" id="dateNav">
+        <button class="date-nav-btn" onclick="navigatePrev()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <span class="date-nav-label" id="dateNavLabel">Today</span>
+        <button class="date-nav-btn" onclick="navigateNext()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+        <button class="date-nav-today" onclick="navigateToday()">Today</button>
+      </div>
+
+      <!-- Entries List -->
+      <div class="entries-content" id="entriesContent">
+        <!-- Entries rendered here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/time-app.js"></script>
+</body>
+</html>

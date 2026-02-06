@@ -1,0 +1,138 @@
+/* ========== TIME TRACKER PRINT STYLES ========== */
+
+@media print {
+  /* Hide non-essential elements */
+  .header-right,
+  .edit-mode-banner,
+  .timer-panel,
+  .view-tabs,
+  .date-nav-btn,
+  .date-nav-today,
+  .entry-card__actions,
+  .modal-overlay,
+  .status,
+  .quick-add-section,
+  .timer-controls {
+    display: none !important;
+  }
+
+  /* Reset layout for print */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .time-container {
+    display: block;
+    height: auto;
+  }
+
+  .entries-panel {
+    width: 100%;
+    padding: 0;
+  }
+
+  .entries-content {
+    padding: 0;
+  }
+
+  /* Header adjustments */
+  .header {
+    position: static;
+    background: white !important;
+    border-bottom: 2px solid #333;
+    padding: 20px 0;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    color: black !important;
+    font-size: 24px;
+  }
+
+  .station-badge {
+    display: none;
+  }
+
+  .stat-group {
+    background: none;
+  }
+
+  .stat-item {
+    background: none !important;
+    border: 1px solid #ccc;
+    margin-left: 8px;
+  }
+
+  .stat-item__value {
+    color: black !important;
+  }
+
+  /* Entry cards */
+  .day-group {
+    border: 1px solid #ccc;
+    margin-bottom: 16px;
+    break-inside: avoid;
+  }
+
+  .day-group__header {
+    background: #f5f5f5 !important;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .day-group__date,
+  .day-group__total {
+    color: black !important;
+  }
+
+  .entry-card {
+    border-bottom: 1px solid #eee;
+  }
+
+  .entry-card:hover {
+    background: transparent !important;
+  }
+
+  .entry-card__task,
+  .entry-card__time-range {
+    color: black !important;
+  }
+
+  .entry-card__notes,
+  .entry-card__duration,
+  .entry-card__category {
+    color: #666 !important;
+  }
+
+  /* Reports */
+  .reports-section {
+    border: 1px solid #ccc;
+    margin-bottom: 16px;
+    break-inside: avoid;
+  }
+
+  .reports-section__header {
+    background: #f5f5f5 !important;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .report-item__name,
+  .report-item__duration {
+    color: black !important;
+  }
+
+  .summary-card {
+    border: 1px solid #ccc;
+  }
+
+  .summary-card__value {
+    color: black !important;
+  }
+
+  /* Page break hints */
+  .day-group,
+  .reports-section,
+  .summary-cards {
+    page-break-inside: avoid;
+  }
+}
