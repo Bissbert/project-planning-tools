@@ -28,7 +28,7 @@ export function initStatus(elementId, options = {}) {
 /**
  * Show a status message
  * @param {string} message - Message to display
- * @param {boolean} success - Whether this is a success message
+ * @param {boolean|string} success - true for success, false for neutral, 'error' for error state
  * @param {Object} options - Configuration options
  * @param {number} options.duration - How long to show the message (default: 2000ms)
  * @param {string} options.readyText - Text to show when ready (default: 'Ready')
@@ -44,9 +44,17 @@ export function showStatus(message, success = false, options = {}) {
     clearTimeout(statusTimeout);
   }
 
+  // Determine class based on state
+  let stateClass = 'status';
+  if (success === 'error') {
+    stateClass = 'status status--error';
+  } else if (success) {
+    stateClass = 'status status--success';
+  }
+
   // Update status element
   statusElement.textContent = message;
-  statusElement.className = success ? 'status status--saved' : 'status';
+  statusElement.className = stateClass;
 
   // Reset after duration
   statusTimeout = setTimeout(() => {
@@ -96,8 +104,17 @@ export function createStatusManager(elementId, options = {}) {
   return {
     show(message, success = false) {
       if (timeout) clearTimeout(timeout);
+
+      // Determine class based on state
+      let stateClass = 'status';
+      if (success === 'error') {
+        stateClass = 'status status--error';
+      } else if (success) {
+        stateClass = 'status status--success';
+      }
+
       element.textContent = message;
-      element.className = success ? 'status status--saved' : 'status';
+      element.className = stateClass;
       timeout = setTimeout(() => {
         element.textContent = readyText;
         element.className = 'status';
