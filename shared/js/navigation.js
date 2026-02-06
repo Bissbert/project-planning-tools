@@ -16,7 +16,8 @@ const TOOLS = [
   { id: 'time-tracker', number: '04', label: 'Time Tracker', path: 'time-tracker' },
   { id: 'burndown', number: '05', label: 'Burndown', path: 'burndown' },
   { id: 'resource-calendar', number: '06', label: 'Resources', path: 'resource-calendar' },
-  { id: 'milestone-tracker', number: '07', label: 'Milestones', path: 'milestone-tracker' }
+  { id: 'milestone-tracker', number: '07', label: 'Milestones', path: 'milestone-tracker' },
+  { id: 'retrospective', number: '08', label: 'Retro Board', path: 'retrospective' }
 ];
 
 // SVG icons

@@ -3,8 +3,8 @@
  * Provides data structure, migrations, and bidirectional sync
  */
 
-// Data format version (v10 optimizes sprint dates and adds assigneeId)
-export const DATA_VERSION = 10;
+// Data format version (v11 adds retrospectives)
+export const DATA_VERSION = 11;
 
 // Storage key (shared between tools)
 export const STORAGE_KEY = 'ganttProject';
@@ -45,6 +45,22 @@ export function generateSprintId() {
  */
 export function generateTimeEntryId() {
   return 'time_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+/**
+ * Generate a unique retrospective ID
+ * @returns {string} - Unique ID
+ */
+export function generateRetroId() {
+  return 'retro_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+/**
+ * Generate a unique retrospective item ID
+ * @returns {string} - Unique ID
+ */
+export function generateItemId() {
+  return 'item_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
 
 /**
@@ -425,6 +441,20 @@ function migrateV9ToV10(data) {
   return data;
 }
 
+/**
+ * Migrate project data from v10 to v11 format (adds retrospectives)
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+function migrateV10ToV11(data) {
+  // Add retrospectives array if missing
+  if (!data.retrospectives) {
+    data.retrospectives = [];
+  }
+
+  return data;
+}
+
 // ========== MIGRATION REGISTRY ==========
 
 /**
@@ -437,7 +467,8 @@ const migrations = {
   7: migrateV6ToV7,
   8: migrateV7ToV8,
   9: migrateV8ToV9,
-  10: migrateV9ToV10
+  10: migrateV9ToV10,
+  11: migrateV10ToV11
 };
 
 /**

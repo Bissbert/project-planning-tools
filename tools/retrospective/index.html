@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/retrospective/">
+  <title>Retrospective Board - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/edit-mode.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Retrospective-specific CSS -->
+  <link rel="stylesheet" href="css/retro-layout.css">
+  <link rel="stylesheet" href="css/retro-cards.css">
+  <link rel="stylesheet" href="css/retro-edit.css">
+  <link rel="stylesheet" href="css/retro-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <nav class="nav-dropdown" data-current="retrospective"></nav>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--retros">
+          <span class="stat-item__value" id="retroCount">0</span>
+          <span class="stat-item__label">Retros</span>
+        </div>
+        <div class="stat-item stat-item--items">
+          <span class="stat-item__value" id="itemCount">0</span>
+          <span class="stat-item__label">Items</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <select class="retro-selector" id="retroSelector">
+        <option value="">No retrospectives</option>
+      </select>
+      <button class="btn edit-only" onclick="openNewRetro()">+ New Retro</button>
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+        <button class="btn btn--ghost" onclick="exportActionItems()">Actions</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Retrospective Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Retrospective Modal -->
+  <div class="modal-overlay" id="newRetroModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>New Retrospective</h2>
+        <button class="modal-close" onclick="closeNewRetro()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Retrospective Name</label>
+        <input type="text" class="form-input" id="newRetroName" placeholder="Sprint 5 Retrospective">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link to Sprint (optional)</label>
+        <select class="form-input" id="newRetroSprintId">
+          <option value="">No sprint link</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" id="newRetroAnonymous" checked>
+          Anonymous Mode
+        </label>
+        <span class="form-hint">When enabled, item authors won't be displayed</span>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="createNewRetro()">Create</button>
+        <button class="btn" onclick="closeNewRetro()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Retrospective Modal -->
+  <div class="modal-overlay" id="editRetroModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="editRetroTitle">Edit Retrospective</h2>
+        <button class="modal-close" onclick="closeEditRetro()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Retrospective Name</label>
+        <input type="text" class="form-input" id="editRetroName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link to Sprint (optional)</label>
+        <select class="form-input" id="editRetroSprintId">
+          <option value="">No sprint link</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" id="editRetroAnonymous">
+          Anonymous Mode
+        </label>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveEditRetro()">Save</button>
+        <button class="btn btn--danger edit-only" onclick="deleteCurrentRetro()">Delete</button>
+        <button class="btn" onclick="closeEditRetro()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Item Modal -->
+  <div class="modal-overlay" id="newItemModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="newItemTitle">Add Item</h2>
+        <button class="modal-close" onclick="closeNewItem()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What's on your mind?</label>
+        <textarea class="form-input" id="newItemText" rows="4" placeholder="Share your thought..."></textarea>
+      </div>
+      <div class="form-group" id="newItemAuthorGroup">
+        <label class="form-label">Your Name (optional)</label>
+        <input type="text" class="form-input" id="newItemAuthor" placeholder="Anonymous">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="createNewItem()">Add</button>
+        <button class="btn" onclick="closeNewItem()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Item Modal -->
+  <div class="modal-overlay" id="editItemModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Edit Item</h2>
+        <button class="modal-close" onclick="closeEditItem()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Text</label>
+        <textarea class="form-input" id="editItemText" rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Move to Column</label>
+        <select class="form-input" id="editItemColumn">
+          <option value="went-well">Went Well</option>
+          <option value="went-poorly">Didn't Go Well</option>
+          <option value="action-items">Action Items</option>
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveEditItem()">Save</button>
+        <button class="btn btn--danger edit-only" onclick="deleteCurrentItem()">Delete</button>
+        <button class="btn" onclick="closeEditItem()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="retro-container" id="retroContainer">
+    <!-- Empty state -->
+    <div class="retro-empty" id="retroEmpty" style="display: none;">
+      <svg class="retro-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <h3 class="retro-empty__title">No Retrospectives Yet</h3>
+      <p class="retro-empty__text">Create your first retrospective to start gathering team feedback.</p>
+      <button class="btn btn--primary edit-only" onclick="openNewRetro()">+ New Retrospective</button>
+    </div>
+
+    <!-- Board view -->
+    <div class="retro-board" id="retroBoard">
+      <!-- Went Well Column -->
+      <section class="retro-column retro-column--went-well" data-column="went-well">
+        <div class="retro-column__header">
+          <span class="retro-column__emoji">&#128522;</span>
+          <h2 class="retro-column__title">Went Well</h2>
+          <span class="retro-column__count" id="wentWellCount">0</span>
+        </div>
+        <div class="retro-column__body" id="wentWellItems">
+          <!-- Items rendered here -->
+        </div>
+        <button class="retro-add-btn edit-only" onclick="openNewItem('went-well')">+ Add Item</button>
+      </section>
+
+      <!-- Didn't Go Well Column -->
+      <section class="retro-column retro-column--went-poorly" data-column="went-poorly">
+        <div class="retro-column__header">
+          <span class="retro-column__emoji">&#128542;</span>
+          <h2 class="retro-column__title">Didn't Go Well</h2>
+          <span class="retro-column__count" id="wentPoorlyCount">0</span>
+        </div>
+        <div class="retro-column__body" id="wentPoorlyItems">
+          <!-- Items rendered here -->
+        </div>
+        <button class="retro-add-btn edit-only" onclick="openNewItem('went-poorly')">+ Add Item</button>
+      </section>
+
+      <!-- Action Items Column -->
+      <section class="retro-column retro-column--action-items" data-column="action-items">
+        <div class="retro-column__header">
+          <span class="retro-column__emoji">&#9989;</span>
+          <h2 class="retro-column__title">Action Items</h2>
+          <span class="retro-column__count" id="actionItemsCount">0</span>
+        </div>
+        <div class="retro-column__body" id="actionItemsItems">
+          <!-- Items rendered here -->
+        </div>
+        <button class="retro-add-btn edit-only" onclick="openNewItem('action-items')">+ Add Item</button>
+      </section>
+    </div>
+  </main>
+
+  <!-- Anonymous mode indicator -->
+  <div class="anonymous-indicator" id="anonymousIndicator" style="display: none;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+    Anonymous Mode
+  </div>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/retro-app.js"></script>
+</body>
+</html>
