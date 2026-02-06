@@ -6,7 +6,10 @@ import {
   generateTaskId,
   generateSprintId,
   getProductBacklog,
-  getSprintTasks
+  getSprintTasks,
+  syncKanbanToGantt,
+  getCurrentWeek,
+  getSprintWeekNumber
 } from '../../../shared/js/unified-data.js';
 
 // ========== TASK CRUD ==========
@@ -73,9 +76,10 @@ export function updateTask(projectData, taskId, updates) {
   if (updates.notes !== undefined) task.notes = updates.notes;
   if (updates.storyPoints !== undefined) task.storyPoints = updates.storyPoints;
 
-  // Handle Kanban column update
+  // Handle Kanban column update (use sync to track completedAt for burndown)
   if (updates.columnId !== undefined && task.board) {
-    task.board.columnId = updates.columnId;
+    const currentWeek = getCurrentWeek(projectData.project);
+    syncKanbanToGantt(task, updates.columnId, currentWeek);
   }
 
   return true;
@@ -100,18 +104,44 @@ export function deleteTask(projectData, taskId) {
 /**
  * Create a new sprint
  * @param {Object} projectData - Project data
- * @param {Object} sprintData - Sprint data
+ * @param {Object} sprintData - Sprint data (startDate/endDate as ISO strings, or startWeek/endWeek for backwards compat)
  * @returns {Object} - Created sprint
  */
 export function createSprint(projectData, sprintData) {
-  const { name, goal, startWeek, endWeek, status } = sprintData;
+  const { name, goal, startDate, endDate, startWeek, endWeek, status } = sprintData;
+
+  // Calculate dates from weeks if not provided directly
+  let finalStartDate = startDate;
+  let finalEndDate = endDate;
+
+  if (!finalStartDate && startWeek && projectData.project?.startDate) {
+    const projStart = new Date(projectData.project.startDate);
+    projStart.setDate(projStart.getDate() + (startWeek - 1) * 7);
+    finalStartDate = projStart.toISOString().split('T')[0];
+  }
+
+  if (!finalEndDate && endWeek && projectData.project?.startDate) {
+    const projStart = new Date(projectData.project.startDate);
+    projStart.setDate(projStart.getDate() + (endWeek * 7) - 1);
+    finalEndDate = projStart.toISOString().split('T')[0];
+  }
+
+  // Default to 2-week sprint starting from today if nothing provided
+  if (!finalStartDate) {
+    finalStartDate = new Date().toISOString().split('T')[0];
+  }
+  if (!finalEndDate) {
+    const end = new Date(finalStartDate);
+    end.setDate(end.getDate() + 13); // 2 weeks
+    finalEndDate = end.toISOString().split('T')[0];
+  }
 
   const newSprint = {
     id: generateSprintId(),
     name: name || `Sprint ${projectData.sprints.length + 1}`,
     goal: goal || '',
-    startWeek: startWeek || 1,
-    endWeek: endWeek || 2,
+    startDate: finalStartDate,
+    endDate: finalEndDate,
     status: status || 'planning'
   };
 
@@ -123,7 +153,7 @@ export function createSprint(projectData, sprintData) {
  * Update an existing sprint
  * @param {Object} projectData - Project data
  * @param {string} sprintId - Sprint ID
- * @param {Object} updates - Fields to update
+ * @param {Object} updates - Fields to update (startDate/endDate or startWeek/endWeek for backwards compat)
  * @returns {boolean} - Success
  */
 export function updateSprint(projectData, sprintId, updates) {
@@ -132,9 +162,26 @@ export function updateSprint(projectData, sprintId, updates) {
 
   if (updates.name !== undefined) sprint.name = updates.name.trim();
   if (updates.goal !== undefined) sprint.goal = updates.goal;
-  if (updates.startWeek !== undefined) sprint.startWeek = updates.startWeek;
-  if (updates.endWeek !== undefined) sprint.endWeek = updates.endWeek;
   if (updates.status !== undefined) sprint.status = updates.status;
+
+  // Handle date updates (prefer startDate/endDate over startWeek/endWeek)
+  if (updates.startDate !== undefined) {
+    sprint.startDate = updates.startDate;
+  } else if (updates.startWeek !== undefined && projectData.project?.startDate) {
+    // Convert week to date for backwards compatibility
+    const projStart = new Date(projectData.project.startDate);
+    projStart.setDate(projStart.getDate() + (updates.startWeek - 1) * 7);
+    sprint.startDate = projStart.toISOString().split('T')[0];
+  }
+
+  if (updates.endDate !== undefined) {
+    sprint.endDate = updates.endDate;
+  } else if (updates.endWeek !== undefined && projectData.project?.startDate) {
+    // Convert week to date for backwards compatibility
+    const projStart = new Date(projectData.project.startDate);
+    projStart.setDate(projStart.getDate() + (updates.endWeek * 7) - 1);
+    sprint.endDate = projStart.toISOString().split('T')[0];
+  }
 
   return true;
 }
@@ -185,12 +232,22 @@ export function moveTaskToSprint(projectData, taskId, sprintId, position = 0) {
   task.sprintId = sprintId;
   task.backlogPosition = position;
 
-  // Optionally sync planned weeks to sprint weeks
-  if (sprint.startWeek && sprint.endWeek) {
+  // Optionally sync planned weeks to sprint dates
+  if (sprint.startDate && sprint.endDate && projectData.project?.startDate) {
     // Only set planned if it's empty
     if (!task.planned || task.planned.length === 0) {
+      const projectStart = new Date(projectData.project.startDate);
+      const sprintStart = new Date(sprint.startDate);
+      const sprintEnd = new Date(sprint.endDate);
+
+      // Calculate start and end weeks relative to project
+      const startDiffDays = Math.floor((sprintStart - projectStart) / (1000 * 60 * 60 * 24));
+      const endDiffDays = Math.floor((sprintEnd - projectStart) / (1000 * 60 * 60 * 24));
+      const startWeek = Math.floor(startDiffDays / 7) + 1;
+      const endWeek = Math.floor(endDiffDays / 7) + 1;
+
       task.planned = [];
-      for (let w = sprint.startWeek; w <= sprint.endWeek; w++) {
+      for (let w = startWeek; w <= endWeek; w++) {
         task.planned.push(w);
       }
     }

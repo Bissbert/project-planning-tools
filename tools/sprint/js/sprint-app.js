@@ -16,7 +16,7 @@ import {
   DATA_VERSION,
   STORAGE_KEY,
   BACKUP_KEY,
-  migrateToV9,
+  migrateToLatest,
   cloneProjectData,
   defaultWorkflow,
   getCurrentWeek,
@@ -25,7 +25,8 @@ import {
   getProductBacklog,
   getSprintTasks,
   calculateSprintPoints,
-  calculateVelocity
+  calculateVelocity,
+  getSprintWeekNumber
 } from '../../../shared/js/unified-data.js';
 
 // Import sprint modules
@@ -99,8 +100,7 @@ function loadData() {
     try {
       // Migrate if needed
       if (!saved.version || saved.version < DATA_VERSION) {
-        console.log('Migrating data to v9 format...');
-        projectData = migrateToV9(saved);
+        projectData = migrateToLatest(saved);
       } else {
         projectData = saved;
       }
@@ -522,9 +522,16 @@ window.openNewSprint = function() {
   document.getElementById('sprintEditGoal').value = '';
   document.getElementById('sprintEditStatus').value = 'planning';
 
-  // Calculate default weeks
+  // Calculate default weeks based on last sprint's end date
   const lastSprint = projectData.sprints[projectData.sprints.length - 1];
-  const defaultStartWeek = lastSprint ? lastSprint.endWeek + 1 : 1;
+  let defaultStartWeek = 1;
+  if (lastSprint && lastSprint.endDate && projectData.project?.startDate) {
+    // Calculate week from last sprint's end date
+    const projStart = new Date(projectData.project.startDate);
+    const lastEnd = new Date(lastSprint.endDate);
+    const diffDays = Math.floor((lastEnd - projStart) / (1000 * 60 * 60 * 24));
+    defaultStartWeek = Math.floor(diffDays / 7) + 2; // +2 to start after end week
+  }
   document.getElementById('sprintEditStartWeek').value = defaultStartWeek;
   document.getElementById('sprintEditEndWeek').value = defaultStartWeek + 1;
 
@@ -548,9 +555,22 @@ function openSprintEdit(sprintId) {
   document.getElementById('sprintEditTitle').textContent = 'Edit Sprint';
   document.getElementById('sprintEditName').value = sprint.name;
   document.getElementById('sprintEditGoal').value = sprint.goal || '';
-  document.getElementById('sprintEditStartWeek').value = sprint.startWeek || '';
-  document.getElementById('sprintEditEndWeek').value = sprint.endWeek || '';
   document.getElementById('sprintEditStatus').value = sprint.status;
+
+  // Convert sprint dates to week numbers for display
+  let startWeek = 1;
+  let endWeek = 2;
+  if (sprint.startDate && projectData.project?.startDate) {
+    startWeek = getSprintWeekNumber(sprint, projectData.project);
+  }
+  if (sprint.endDate && projectData.project?.startDate) {
+    const projStart = new Date(projectData.project.startDate);
+    const sprintEnd = new Date(sprint.endDate);
+    const diffDays = Math.floor((sprintEnd - projStart) / (1000 * 60 * 60 * 24));
+    endWeek = Math.floor(diffDays / 7) + 1;
+  }
+  document.getElementById('sprintEditStartWeek').value = startWeek;
+  document.getElementById('sprintEditEndWeek').value = endWeek;
 
   // Show/hide action buttons based on status
   document.getElementById('startSprintBtn').style.display = sprint.status === 'planning' ? '' : 'none';
@@ -785,7 +805,7 @@ async function handleFileImport(e) {
     }
 
     // Migrate to v9 if needed
-    const migrated = migrateToV9(imported);
+    const migrated = migrateToLatest(imported);
     migrated.version = DATA_VERSION;
 
     projectData = migrated;

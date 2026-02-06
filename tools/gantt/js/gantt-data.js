@@ -14,11 +14,8 @@ export {
   deriveColumnFromProgress,
   deriveStatus,
   migrateTaskToV5,
-  migrateToV5,
-  migrateToV6,
-  migrateToV7,
-  migrateToV8,
-  migrateToV9,
+  migrateToLatest,
+  migrateToV9, // deprecated alias
   syncGanttToKanban,
   syncKanbanToGantt,
   repositionColumn,
@@ -34,13 +31,15 @@ export {
   getWeekDateRange,
   calculateProgress,
   calculateVariance,
-  cloneProjectData
+  cloneProjectData,
+  getSprintWeekNumber,
+  getTaskAssignee
 } from '../../../shared/js/unified-data.js';
 
 // Import what we need for local use
 import {
   DATA_VERSION,
-  migrateToV9 as migrateProjectToV9,
+  migrateToLatest,
   migrateTaskToV5,
   deriveStatus
 } from '../../../shared/js/unified-data.js';
@@ -112,13 +111,13 @@ export const defaultProjectData = {
 };
 
 /**
- * Migrate old data format to new format
- * Wrapper for migrateToV9 for backwards compatibility
+ * Migrate old data format to latest format
+ * Wrapper for migrateToLatest for backwards compatibility
  * @param {Object} data - Data to migrate
  * @returns {Object} - Migrated data
  */
 export function migrateProjectData(data) {
-  return migrateProjectToV9(data);
+  return migrateToLatest(data);
 }
 
 /**
