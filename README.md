@@ -75,7 +75,8 @@ project-planning-tools/
 │       ├── backup.js       # Backup/restore functionality
 │       ├── undo.js         # Undo/redo manager
 │       ├── export.js       # File download utilities
-│       └── status.js       # Status message display
+│       ├── status.js       # Status message display
+│       └── navigation.js   # Inter-tool navigation dropdown
 └── tools/
     ├── gantt/              # Gantt Chart tool
     │   ├── index.html
@@ -176,6 +177,7 @@ Agile sprint planning with backlog management and velocity tracking.
 | `forms.css` | Input fields, labels, textareas, selects |
 | `modals.css` | Modal overlays and panels |
 | `status.css` | Status message styling |
+| `navigation.css` | Inter-tool navigation dropdown |
 | `print.css` | Print media query styles |
 
 ### JavaScript Modules
@@ -188,6 +190,7 @@ Agile sprint planning with backlog management and velocity tracking.
 | `status.js` | Status messages | `initStatus()`, `showStatus()`, `createStatusManager()` |
 | `backup.js` | Backup utilities | Backup/restore functionality |
 | `unified-data.js` | Cross-tool data sync | `migrateToV6()`, `getProductBacklog()`, `getSprintTasks()`, `calculateVelocity()` |
+| `navigation.js` | Inter-tool navigation | `initNavigation()` |
 
 ## Creating New Tools
 
@@ -202,23 +205,52 @@ Agile sprint planning with backlog management and velocity tracking.
            └── my-tool-app.js
    ```
 
-2. In your `index.html`, import shared CSS:
+2. **Register the tool** in `shared/js/navigation.js` by adding to the `TOOLS` array:
+   ```javascript
+   const TOOLS = [
+     { id: 'gantt', number: '01', label: 'Gantt', path: 'gantt' },
+     { id: 'kanban', number: '02', label: 'Kanban', path: 'kanban' },
+     // ... existing tools ...
+     { id: 'my-tool', number: '05', label: 'My Tool', path: 'my-tool' }  // Add here
+   ];
+   ```
+   This single change makes the tool appear in all other tools' navigation dropdowns.
+
+3. In your `index.html`, import shared CSS (order matters):
    ```html
    <link rel="stylesheet" href="../../shared/css/tokens.css">
    <link rel="stylesheet" href="../../shared/css/base.css">
    <link rel="stylesheet" href="../../shared/css/buttons.css">
-   <!-- Add other shared CSS as needed -->
+   <link rel="stylesheet" href="../../shared/css/forms.css">
+   <link rel="stylesheet" href="../../shared/css/modals.css">
+   <link rel="stylesheet" href="../../shared/css/status.css">
+   <link rel="stylesheet" href="../../shared/css/navigation.css">
+   <link rel="stylesheet" href="../../shared/css/print.css">
    ```
 
-3. In your JavaScript, import shared modules:
+4. Add the navigation placeholder in your header:
+   ```html
+   <header class="header">
+     <div class="header-left">
+       <nav class="nav-dropdown" data-current="my-tool"></nav>
+       <!-- rest of header -->
+     </div>
+   </header>
+   ```
+
+5. In your JavaScript, import and initialize navigation:
    ```javascript
-   import { saveToStorage, loadFromStorage } from '../../shared/js/storage.js';
-   import { createUndoManager } from '../../shared/js/undo.js';
-   import { downloadJSON, readJSONFile } from '../../shared/js/export.js';
-   import { initStatus } from '../../shared/js/status.js';
+   import { saveToStorage, loadFromStorage } from '../../../shared/js/storage.js';
+   import { initNavigation } from '../../../shared/js/navigation.js';
+   // ... other imports ...
+
+   function init() {
+     initNavigation();  // Initialize navigation dropdown
+     // ... rest of initialization ...
+   }
    ```
 
-4. Add a card to the landing page `index.html`
+6. Add a card to the landing page `index.html`
 
 ## Browser Support
 
