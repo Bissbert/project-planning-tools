@@ -17,7 +17,8 @@ const TOOLS = [
   { id: 'burndown', number: '05', label: 'Burndown', path: 'burndown' },
   { id: 'resource-calendar', number: '06', label: 'Resources', path: 'resource-calendar' },
   { id: 'milestone-tracker', number: '07', label: 'Milestones', path: 'milestone-tracker' },
-  { id: 'retrospective', number: '08', label: 'Retro Board', path: 'retrospective' }
+  { id: 'retrospective', number: '08', label: 'Retro Board', path: 'retrospective' },
+  { id: 'pert', number: '09', label: 'PERT Chart', path: 'pert' }
 ];
 
 // SVG icons

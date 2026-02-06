@@ -1,0 +1,737 @@
+/**
+ * PERT Layout CSS
+ * Main layout, header, sidebar
+ */
+
+/* ========== HEADER LAYOUT ========== */
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* ========== VIEW TOGGLE ========== */
+.view-toggle-group {
+  display: flex;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.view-toggle-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.view-toggle-btn--active {
+  background: var(--accent-subtle);
+  color: var(--accent-bright);
+}
+
+.view-toggle-btn--active:hover {
+  background: var(--accent-subtle);
+  color: var(--accent-bright);
+}
+
+/* ========== HEADER EXTENSIONS ========== */
+
+.stat-item--tasks .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--duration .stat-item__value {
+  color: var(--status-info);
+}
+
+.stat-item--critical .stat-item__value {
+  color: var(--status-warning);
+}
+
+/* Scope toggle group */
+.scope-toggle-group {
+  display: flex;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.scope-toggle-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s var(--ease-step-out), color 0.1s var(--ease-step-out);
+}
+
+.scope-toggle-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.scope-toggle-btn--active {
+  background: var(--accent);
+  color: var(--bg-primary);
+}
+
+.scope-toggle-btn--active:hover {
+  background: var(--accent-bright);
+  color: var(--bg-primary);
+}
+
+/* ========== MAIN CONTAINER ========== */
+
+.pert-container {
+  display: flex;
+  flex: 1;
+  min-height: 0; /* Allow flex shrinking */
+  overflow: hidden;
+  position: relative;
+}
+
+/* Make body a flex container so pert-container fills remaining space */
+body:has(.pert-container) {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Header should not shrink */
+body:has(.pert-container) .header {
+  flex-shrink: 0;
+}
+
+/* Edit mode banner adjustment */
+body.edit-mode:has(.pert-container) {
+  padding-top: 24px; /* Space for the fixed banner */
+}
+
+/* ========== DIAGRAM VIEW ========== */
+
+.diagram-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-height: 0; /* Allow flex shrinking */
+}
+
+/* ========== FLOATING CONTROLS ========== */
+
+/* Base floating panel style - glass-like industrial HUD */
+.floating-controls,
+.floating-notice {
+  position: absolute;
+  z-index: 100;
+  background: rgba(16, 16, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Zoom controls - bottom left, vertical stack */
+.floating-controls--zoom {
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+}
+
+.floating-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.floating-btn:hover {
+  background: rgba(167, 139, 250, 0.15);
+  color: var(--accent-bright);
+}
+
+.floating-btn:active {
+  transform: scale(0.92);
+  background: rgba(167, 139, 250, 0.25);
+}
+
+.floating-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Edit mode notice - top right */
+.floating-notice {
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.floating-notice svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.floating-notice span {
+  letter-spacing: 0.02em;
+}
+
+/* Show notice only in edit mode */
+.edit-mode .floating-notice {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Subtle pulse animation for the icon in edit mode */
+.edit-mode .floating-notice svg {
+  animation: subtlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Canvas */
+.diagram-canvas {
+  flex: 1;
+  min-height: 0; /* Critical: allows flex item to shrink below content size */
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-primary);
+}
+
+/* vis-network container */
+#networkContainer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+/* vis-network overrides for dark theme */
+#networkContainer canvas {
+  outline: none;
+}
+
+/* Hide vis-network manipulation toolbar and all its elements completely */
+.vis-manipulation,
+.vis-close,
+.vis-edit-mode,
+.vis-button,
+.vis-back,
+.vis-none,
+.vis-separator-line,
+div.vis-network div.vis-manipulation {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* vis-network tooltip styling */
+div.vis-tooltip {
+  font-family: 'JetBrains Mono', monospace !important;
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  padding: 0 !important;
+}
+
+/* Empty state */
+.diagram-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--spacing-2xl);
+}
+
+.diagram-empty__icon {
+  width: 64px;
+  height: 64px;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.5;
+}
+
+.diagram-empty__title {
+  font-size: var(--font-xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+.diagram-empty__text {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  max-width: 400px;
+}
+
+.diagram-empty__hint {
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  max-width: 400px;
+}
+
+/* Legend */
+.diagram-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0; /* Don't shrink, stay at bottom */
+}
+
+/* Move status indicator to avoid overlap with zoom controls and legend */
+/* Status is at body level, so use :has() to scope to PERT pages */
+body:has(.pert-container) .status {
+  bottom: 54px; /* Above the ~40px legend */
+  left: 72px;   /* Right of zoom controls (~44px + gap) */
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+}
+
+.legend-color--critical {
+  background: var(--accent);
+}
+
+.legend-color--normal {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+}
+
+.legend-color--complete {
+  background: var(--status-success);
+}
+
+/* ========== TABLE VIEW ========== */
+
+.table-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: var(--spacing-lg);
+}
+
+.table-container {
+  flex: 1;
+  overflow: auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.table-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+/* ========== SIDEBAR ========== */
+
+.pert-sidebar {
+  width: 320px;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.15s var(--ease-snap);
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.pert-sidebar--open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h2 {
+  font-size: var(--font-lg);
+  font-weight: 600;
+}
+
+.sidebar-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--font-xl);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s var(--ease-step-out), color 0.1s var(--ease-step-out);
+}
+
+.sidebar-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+}
+
+/* Sidebar sections */
+.sidebar-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.sidebar-section__title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.sidebar-task-name {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+.sidebar-task-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.sidebar-task-status--critical {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.sidebar-task-status--complete {
+  background: var(--status-success-subtle);
+  color: var(--status-success);
+}
+
+/* PERT values grid in sidebar */
+.sidebar-pert-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.sidebar-pert-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.sidebar-pert-item__label {
+  font-size: var(--font-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+}
+
+.sidebar-pert-item__value {
+  font-size: var(--font-lg);
+  font-weight: 600;
+}
+
+/* Dependency list in sidebar */
+.sidebar-dep-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.sidebar-dep-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+}
+
+.sidebar-dep-item__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-dep-item__remove {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.sidebar-dep-item:hover .sidebar-dep-item__remove {
+  opacity: 1;
+}
+
+.sidebar-dep-item__remove:hover {
+  background: var(--status-error-subtle);
+  color: var(--status-error);
+}
+
+.sidebar-dep-empty {
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  font-style: italic;
+}
+
+/* ========== TASK MODAL ========== */
+
+.task-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.task-modal-section h3 {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.pert-values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.pert-value-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.pert-value-card__label {
+  font-size: var(--font-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-xs);
+}
+
+.pert-value-card__value {
+  font-size: var(--font-xl);
+  font-weight: 600;
+}
+
+.pert-value-card--highlight {
+  background: var(--accent-subtle);
+}
+
+.pert-value-card--highlight .pert-value-card__value {
+  color: var(--accent);
+}
+
+.dependency-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dependency-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.dependency-item__info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.dependency-item__name {
+  font-size: var(--font-sm);
+}
+
+.dependency-item__badge {
+  font-size: var(--font-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+}
+
+.dependency-item__badge--critical {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.dependency-item__remove {
+  padding: var(--spacing-xs);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.dependency-item__remove:hover {
+  background: var(--status-error-subtle);
+  color: var(--status-error);
+}
+
+.dependency-empty {
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  font-style: italic;
+  padding: var(--spacing-md);
+}
+
+.add-dependency-form {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.add-dependency-form .form-input {
+  flex: 1;
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 900px) {
+  .pert-sidebar {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .scope-toggle-group {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .diagram-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .diagram-legend {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .pert-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

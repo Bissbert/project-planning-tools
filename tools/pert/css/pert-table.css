@@ -1,0 +1,247 @@
+/**
+ * PERT Table CSS
+ * Table view styling
+ */
+
+/* ========== TABLE ========== */
+
+.pert-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-sm);
+}
+
+.pert-table th,
+.pert-table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.pert-table th {
+  background: var(--bg-tertiary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: var(--font-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.pert-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s var(--ease-step-out);
+}
+
+.pert-table th.sortable:hover {
+  background: var(--bg-elevated);
+}
+
+.pert-table th.sorted-asc .sort-icon::after {
+  content: ' \25B2';
+  font-size: 8px;
+}
+
+.pert-table th.sorted-desc .sort-icon::after {
+  content: ' \25BC';
+  font-size: 8px;
+}
+
+.pert-table tbody tr {
+  transition: background 0.1s var(--ease-step-out);
+}
+
+.pert-table tbody tr:hover {
+  background: var(--bg-tertiary);
+}
+
+.pert-table tbody tr.selected {
+  background: var(--accent-subtle);
+}
+
+.pert-table tbody tr.critical {
+  background: var(--accent-subtle);
+}
+
+.pert-table tbody tr.critical:hover {
+  background: color-mix(in srgb, var(--accent-subtle) 80%, var(--bg-tertiary) 20%);
+}
+
+/* Task name column */
+.pert-table__task-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pert-table__task-name--milestone::before {
+  content: '\2605';
+  color: var(--accent);
+  margin-right: var(--spacing-xs);
+}
+
+/* Duration column */
+.pert-table__duration {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+/* PERT value columns */
+.pert-table__value {
+  font-family: var(--font-mono);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.pert-table__value--zero {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Slack column */
+.pert-table__slack {
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+.pert-table__slack--zero {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.pert-table__slack--positive {
+  color: var(--status-success);
+}
+
+/* Critical indicator */
+.pert-table__critical {
+  text-align: center;
+}
+
+.pert-table__critical-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.pert-table__critical-badge--yes {
+  background: var(--accent);
+  color: var(--bg-primary);
+}
+
+.pert-table__critical-badge--yes::after {
+  content: '\2713';
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.pert-table__critical-badge--no {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+.pert-table__critical-badge--no::after {
+  content: '-';
+}
+
+/* Status column */
+.pert-table__status {
+  text-align: center;
+}
+
+.pert-table__status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 500;
+}
+
+.pert-table__status-badge--complete {
+  background: var(--status-success-subtle);
+  color: var(--status-success);
+}
+
+.pert-table__status-badge--in-progress {
+  background: var(--status-warning-subtle);
+  color: var(--status-warning);
+}
+
+.pert-table__status-badge--not-started {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+/* Row actions */
+.pert-table__actions {
+  width: 40px;
+  text-align: center;
+}
+
+.pert-table__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity 0.1s, background 0.1s, color 0.1s;
+}
+
+.pert-table tbody tr:hover .pert-table__action-btn {
+  opacity: 1;
+}
+
+.pert-table__action-btn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* Empty state */
+.pert-table__empty {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-muted);
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 900px) {
+  .pert-table th,
+  .pert-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  /* Hide some columns on smaller screens */
+  .pert-table th:nth-child(3),
+  .pert-table td:nth-child(3),
+  .pert-table th:nth-child(4),
+  .pert-table td:nth-child(4),
+  .pert-table th:nth-child(5),
+  .pert-table td:nth-child(5),
+  .pert-table th:nth-child(6),
+  .pert-table td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .pert-table__task-name {
+    max-width: 120px;
+  }
+}

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/pert/">
+  <title>PERT Chart - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/edit-mode.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- PERT-specific CSS -->
+  <link rel="stylesheet" href="css/pert-layout.css">
+  <link rel="stylesheet" href="css/pert-diagram.css">
+  <link rel="stylesheet" href="css/pert-table.css">
+  <link rel="stylesheet" href="css/pert-print.css">
+
+  <!-- vis-network library -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <nav class="nav-dropdown" data-current="pert"></nav>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--tasks">
+          <span class="stat-item__value" id="nodeCount">0</span>
+          <span class="stat-item__label">Nodes</span>
+        </div>
+        <div class="stat-item stat-item--duration">
+          <span class="stat-item__value" id="projectDuration">0w</span>
+          <span class="stat-item__label">Duration</span>
+        </div>
+        <div class="stat-item stat-item--critical">
+          <span class="stat-item__value" id="criticalCount">0</span>
+          <span class="stat-item__label">Critical</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="view-toggle-group">
+        <button class="view-toggle-btn view-toggle-btn--active" id="diagramViewBtn" onclick="setView('diagram')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Diagram
+        </button>
+        <button class="view-toggle-btn" id="tableViewBtn" onclick="setView('table')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          Table
+        </button>
+      </div>
+      <div class="scope-toggle-group">
+        <button class="scope-toggle-btn scope-toggle-btn--active" id="milestonesOnlyBtn" onclick="setDataScope('milestones')">
+          Milestones
+        </button>
+        <button class="scope-toggle-btn" id="allTasksBtn" onclick="setDataScope('all')">
+          All Tasks
+        </button>
+      </div>
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+        <button class="btn btn--ghost" onclick="exportToPNG()">PNG</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>PERT Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Details Modal -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2 id="taskModalTitle">Task Details</h2>
+        <button class="modal-close" onclick="closeTaskModal()">&times;</button>
+      </div>
+      <div class="task-modal-content">
+        <div class="task-modal-section">
+          <h3>PERT Values</h3>
+          <div class="pert-values-grid" id="taskPertValues">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="task-modal-section">
+          <h3>Predecessors</h3>
+          <div class="dependency-list" id="taskPredecessors">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="task-modal-section">
+          <h3>Successors</h3>
+          <div class="dependency-list" id="taskSuccessors">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="task-modal-section edit-only">
+          <h3>Add Dependency</h3>
+          <div class="add-dependency-form">
+            <select class="form-input" id="addDependencySelect">
+              <option value="">Select a predecessor...</option>
+            </select>
+            <button class="btn btn--primary" onclick="addDependencyFromModal()">Add</button>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn" onclick="closeTaskModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="pert-container">
+    <!-- Diagram View -->
+    <section class="diagram-view" id="diagramView">
+      <div class="diagram-canvas" id="diagramCanvas">
+        <!-- vis-network container -->
+        <div id="networkContainer"></div>
+
+        <!-- Floating zoom controls (bottom-left) -->
+        <div class="floating-controls floating-controls--zoom">
+          <button class="floating-btn" onclick="zoomIn()" title="Zoom In (+)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <button class="floating-btn" onclick="zoomOut()" title="Zoom Out (-)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <button class="floating-btn" onclick="resetZoom()" title="Fit All (0)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Floating edit mode notice (top-right) -->
+        <div class="floating-notice edit-only" id="editModeNotice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+            <path d="M2 2l7.586 7.586"/>
+            <circle cx="11" cy="11" r="2"/>
+          </svg>
+          <span>Click and drag between nodes to connect</span>
+        </div>
+      </div>
+      <div class="diagram-empty" id="diagramEmpty" style="display: none;">
+        <svg class="diagram-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        <h3 class="diagram-empty__title">No Dependencies Yet</h3>
+        <p class="diagram-empty__text">Add dependencies between tasks to build your PERT network diagram.</p>
+        <p class="diagram-empty__hint">Switch to "All Tasks" to see all tasks, or add dependencies in the Gantt/Milestone tools.</p>
+      </div>
+      <div class="diagram-legend">
+        <div class="legend-item">
+          <span class="legend-color legend-color--critical"></span>
+          <span class="legend-label">Critical Path</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-color--normal"></span>
+          <span class="legend-label">Has Slack</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-color--complete"></span>
+          <span class="legend-label">Complete</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table View -->
+    <section class="table-view" id="tableView" style="display: none;">
+      <div class="table-container">
+        <table class="pert-table" id="pertTable">
+          <thead>
+            <tr>
+              <th class="sortable" data-sort="name">Task <span class="sort-icon"></span></th>
+              <th class="sortable" data-sort="duration">Duration <span class="sort-icon"></span></th>
+              <th class="sortable" data-sort="es">ES <span class="sort-icon"></span></th>
+              <th class="sortable" data-sort="ef">EF <span class="sort-icon"></span></th>
+              <th class="sortable" data-sort="ls">LS <span class="sort-icon"></span></th>
+              <th class="sortable" data-sort="lf">LF <span class="sort-icon"></span></th>
+              <th class="sortable" data-sort="slack">Slack <span class="sort-icon"></span></th>
+              <th>Critical</th>
+            </tr>
+          </thead>
+          <tbody id="pertTableBody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+      <div class="table-empty" id="tableEmpty" style="display: none;">
+        <p>No tasks to display. Switch to "All Tasks" to see all project tasks.</p>
+      </div>
+    </section>
+
+    <!-- Sidebar (collapsed by default) -->
+    <aside class="pert-sidebar" id="pertSidebar">
+      <div class="sidebar-header">
+        <h2>Details</h2>
+        <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
+      </div>
+      <div class="sidebar-content" id="sidebarContent">
+        <!-- Populated when a node is selected -->
+      </div>
+    </aside>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/pert-app.js"></script>
+</body>
+</html>
