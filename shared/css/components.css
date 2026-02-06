@@ -148,6 +148,24 @@
   color: var(--status-warning);
 }
 
+/* Resource Calendar */
+.stat-item--members .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--capacity .stat-item__value {
+  color: var(--status-success);
+}
+
+/* Milestone Tracker */
+.stat-item--milestones .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--ontrack .stat-item__value {
+  color: var(--status-success);
+}
+
 /* ========== SEARCH INPUT ========== */
 .search-input {
   width: 120px;

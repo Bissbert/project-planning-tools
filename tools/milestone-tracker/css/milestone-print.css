@@ -1,0 +1,249 @@
+/* ========== MILESTONE PRINT STYLES ========== */
+
+@media print {
+  /* Hide UI elements */
+  .header,
+  .edit-mode-banner,
+  .fab,
+  .status,
+  .modal-overlay,
+  .view-toggle-group,
+  .search-input,
+  .btn,
+  .edit-action,
+  .drag-handle,
+  .milestone-add-btn,
+  .milestone-panel__footer {
+    display: none !important;
+  }
+
+  /* Reset page */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .milestone-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Timeline view print */
+  .timeline-view {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .timeline-body {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .timeline-header {
+    background: #f5f5f5 !important;
+    border-bottom: 2px solid #333 !important;
+  }
+
+  .timeline-month {
+    color: #333 !important;
+    border-color: #ccc !important;
+  }
+
+  .milestone-lane {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .milestone-lane__name {
+    color: black !important;
+  }
+
+  .milestone-lane__meta {
+    color: #666 !important;
+  }
+
+  /* Status colors for print */
+  .milestone-lane--complete .milestone-lane__diamond,
+  .milestone-lane--on-track .milestone-lane__diamond {
+    color: #22c55e !important;
+  }
+
+  .milestone-lane--at-risk .milestone-lane__diamond {
+    color: #fbbf24 !important;
+  }
+
+  .milestone-lane--delayed .milestone-lane__diamond {
+    color: #ef4444 !important;
+  }
+
+  .milestone-lane--not-started .milestone-lane__diamond {
+    color: #666 !important;
+  }
+
+  .milestone-lane__status {
+    border: 1px solid currentColor !important;
+    background: transparent !important;
+  }
+
+  /* Timeline bar print */
+  .timeline-bar {
+    background: #f0f0f0 !important;
+  }
+
+  .timeline-bar__segment--done {
+    background: #22c55e !important;
+  }
+
+  .timeline-bar__segment--in-progress {
+    background: #fbbf24 !important;
+  }
+
+  .timeline-bar__segment--todo {
+    background: #999 !important;
+  }
+
+  .timeline-bar__today {
+    background: #333 !important;
+  }
+
+  /* List view print */
+  .list-view {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .milestone-panel {
+    width: 100% !important;
+    max-width: none !important;
+    border-right: none !important;
+    border-bottom: 2px solid #333 !important;
+    margin-bottom: 20px;
+    page-break-after: always;
+  }
+
+  .milestone-list {
+    overflow: visible !important;
+  }
+
+  .milestone-item {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .milestone-item__name {
+    color: black !important;
+  }
+
+  .milestone-item__deadline {
+    color: #666 !important;
+  }
+
+  /* Detail panel print */
+  .detail-panel {
+    width: 100% !important;
+  }
+
+  .detail-panel__content {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .detail-header__title {
+    color: black !important;
+  }
+
+  .detail-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .detail-section__title {
+    color: #333 !important;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+  }
+
+  .detail-deadline,
+  .detail-progress,
+  .detail-notes {
+    background: #f9f9f9 !important;
+    border: 1px solid #ccc !important;
+  }
+
+  .detail-deadline__date {
+    color: black !important;
+  }
+
+  .detail-progress__value {
+    color: black !important;
+  }
+
+  /* Segmented progress bar print */
+  .segmented-progress {
+    background: #e0e0e0 !important;
+    height: 16px !important;
+  }
+
+  .segmented-progress__segment--done {
+    background: #22c55e !important;
+  }
+
+  .segmented-progress__segment--in-progress {
+    background: #fbbf24 !important;
+  }
+
+  /* Dependencies print */
+  .dependency-chip {
+    background: #f5f5f5 !important;
+    border: 1px solid #ccc !important;
+    color: #333 !important;
+  }
+
+  /* Notes print */
+  .detail-notes {
+    color: #333 !important;
+  }
+
+  /* Stats print */
+  .milestone-stats {
+    background: #f5f5f5 !important;
+    border-top: 1px solid #ccc !important;
+  }
+
+  .milestone-stats__count {
+    color: black !important;
+  }
+
+  .milestone-stats__label {
+    color: #666 !important;
+  }
+
+  /* Legend print */
+  .timeline-legend {
+    background: white !important;
+    border: 1px solid #ccc !important;
+  }
+
+  /* Page title */
+  .timeline-view::before,
+  .list-view::before {
+    content: 'Milestone Tracker';
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+  }
+}
+
+/* Print-specific page settings */
+@page {
+  size: A4 landscape;
+  margin: 15mm;
+}

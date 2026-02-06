@@ -99,17 +99,28 @@ project-planning-tools/
     │   │   └── kanban-print.css
     │   └── js/
     │       └── kanban-app.js
-    └── sprint/             # Sprint Planner tool
+    ├── sprint/             # Sprint Planner tool
+    │   ├── index.html
+    │   ├── css/
+    │   │   ├── sprint-layout.css
+    │   │   ├── sprint-cards.css
+    │   │   ├── sprint-edit.css
+    │   │   └── sprint-print.css
+    │   └── js/
+    │       ├── sprint-app.js
+    │       ├── sprint-render.js
+    │       └── sprint-edit.js
+    └── burndown/           # Burndown Chart tool
         ├── index.html
         ├── css/
-        │   ├── sprint-layout.css
-        │   ├── sprint-cards.css
-        │   ├── sprint-edit.css
-        │   └── sprint-print.css
+        │   ├── burndown-layout.css
+        │   ├── burndown-chart.css
+        │   ├── burndown-edit.css
+        │   └── burndown-print.css
         └── js/
-            ├── sprint-app.js
-            ├── sprint-render.js
-            └── sprint-edit.js
+            ├── burndown-app.js
+            ├── burndown-render.js
+            └── burndown-chart.js
 ```
 
 ## Available Tools
@@ -164,6 +175,24 @@ Agile sprint planning with backlog management and velocity tracking.
 - Two-panel layout (backlog + sprint board)
 - Bidirectional sync with Gantt and Kanban
 - Edit mode for modifications
+
+### Burndown Chart
+
+Visual sprint progress tracking with ideal vs. actual burndown lines.
+
+**Features:**
+- Ideal burndown line showing linear progress
+- Actual burndown line from recorded snapshots
+- Story points or task count display modes
+- Sprint selector for viewing different sprints
+- Automatic snapshot recording on load
+- Manual progress recording in edit mode
+- Today marker showing current position
+- Historical sprint comparison in sidebar
+- Average velocity calculation
+- Export chart as PNG image
+- Cross-tab sync with Sprint Planner
+- Keyboard shortcuts
 
 ## Shared Modules
 
