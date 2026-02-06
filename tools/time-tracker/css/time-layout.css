@@ -318,20 +318,20 @@
 .quick-add-btn {
   width: 100%;
   margin-top: var(--spacing-md);
-  padding: var(--spacing-sm);
-  background: transparent;
-  border: 1px dashed var(--border);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--accent);
+  border: 1px solid var(--accent);
   border-radius: var(--radius-md);
-  color: var(--text-muted);
+  color: var(--bg-primary);
   font-size: var(--font-sm);
+  font-weight: 500;
   cursor: pointer;
-  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .quick-add-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-subtle);
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
 }
 
 /* ========== ENTRIES PANEL ========== */

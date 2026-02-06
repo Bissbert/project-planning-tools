@@ -27,11 +27,16 @@ body.edit-mode .edit-only {
   display: inline-flex;
 }
 
-/* Quick add button shows only in edit mode */
-.quick-add-btn {
+/* Quick add section shows only in edit mode */
+.quick-add-section {
   display: none;
 }
 
+body.edit-mode .quick-add-section {
+  display: block;
+}
+
+/* Button styling when visible */
 body.edit-mode .quick-add-btn {
   display: block;
 }
