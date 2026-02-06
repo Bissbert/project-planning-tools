@@ -1,0 +1,473 @@
+/* ========== CALENDAR GRID - Cells, rows, indicators ========== */
+
+/* ========== TEAM MEMBER ROW (in sidebar) ========== */
+.team-member {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.team-member:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.team-member__color {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.team-member__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.team-member__name {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-member__role {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-member__hours {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ========== WEEK VIEW GRID ========== */
+.week-grid {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Header row with day names */
+.week-grid__header {
+  display: grid;
+  grid-template-columns: 140px repeat(7, 1fr);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+}
+
+.week-grid__corner {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+}
+
+.week-grid__day-header {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: center;
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+}
+
+.week-grid__day-header:last-child {
+  border-right: none;
+}
+
+.week-grid__day-header--today {
+  background: var(--accent-subtle);
+  color: var(--accent-bright);
+  font-weight: 600;
+}
+
+.week-grid__day-header--weekend {
+  background: var(--bg-tertiary);
+  opacity: 0.7;
+}
+
+.day-header__name {
+  display: block;
+  font-weight: 500;
+}
+
+.day-header__date {
+  display: block;
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.week-grid__day-header--today .day-header__date {
+  color: var(--accent-bright);
+}
+
+/* Member rows */
+.week-grid__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.week-grid__row {
+  display: grid;
+  grid-template-columns: 140px repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.week-grid__row:last-child {
+  border-bottom: none;
+}
+
+.week-grid__member {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  min-height: 48px;
+}
+
+.week-grid__member-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.week-grid__member-name {
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========== AVAILABILITY CELLS ========== */
+.availability-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  border-right: 1px solid var(--border);
+  min-height: 48px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  position: relative;
+}
+
+.availability-cell:last-child {
+  border-right: none;
+}
+
+.availability-cell:hover {
+  background: var(--bg-hover);
+}
+
+/* Cell indicator */
+.availability-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  transition: transform var(--transition-fast);
+}
+
+.availability-cell:hover .availability-indicator {
+  transform: scale(1.1);
+}
+
+/* Available (full hours) */
+.availability-indicator--available {
+  background: var(--status-success-subtle);
+  color: var(--status-success);
+}
+
+/* Partial availability */
+.availability-indicator--partial {
+  background: var(--status-warning-subtle);
+  color: var(--status-warning);
+  position: relative;
+}
+
+.availability-indicator--partial::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.1) 2px,
+    rgba(0,0,0,0.1) 4px
+  );
+  border-radius: var(--radius-md);
+  pointer-events: none;
+}
+
+/* Unavailable */
+.availability-indicator--unavailable {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+.availability-indicator--unavailable::before {
+  content: '×';
+  font-size: var(--font-lg);
+}
+
+/* Holiday */
+.availability-indicator--holiday {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.availability-indicator--holiday::before {
+  content: '★';
+  font-size: var(--font-md);
+}
+
+/* Weekend */
+.availability-cell--weekend {
+  background: var(--bg-tertiary);
+  opacity: 0.6;
+}
+
+.availability-cell--weekend .availability-indicator {
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+}
+
+/* Today column highlight */
+.availability-cell--today {
+  background: var(--accent-subtle);
+}
+
+/* Edit mode - show all cells as clickable */
+body.edit-mode .availability-cell {
+  cursor: pointer;
+}
+
+body.edit-mode .availability-cell:hover {
+  background: var(--accent-subtle);
+}
+
+body.edit-mode .availability-cell:hover .availability-indicator {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* ========== MONTH VIEW GRID ========== */
+.month-grid {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.month-grid__header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+}
+
+.month-grid__day-name {
+  padding: var(--spacing-sm);
+  text-align: center;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+}
+
+.month-grid__day-name:last-child {
+  border-right: none;
+}
+
+.month-grid__day-name--weekend {
+  opacity: 0.6;
+}
+
+.month-grid__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.month-grid__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.month-grid__week:last-child {
+  border-bottom: none;
+}
+
+.month-grid__day {
+  min-height: 80px;
+  padding: var(--spacing-xs);
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.month-grid__day:last-child {
+  border-right: none;
+}
+
+.month-grid__day:hover {
+  background: var(--bg-hover);
+}
+
+.month-grid__day--outside {
+  background: var(--bg-tertiary);
+  opacity: 0.5;
+}
+
+.month-grid__day--weekend {
+  background: var(--bg-tertiary);
+  opacity: 0.7;
+}
+
+.month-grid__day--today {
+  background: var(--accent-subtle);
+}
+
+.month-grid__day-number {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.month-grid__day--today .month-grid__day-number {
+  color: var(--accent-bright);
+  font-weight: 700;
+}
+
+/* Mini availability indicators for month view */
+.month-availability {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.month-availability__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.month-availability__dot--available {
+  background: var(--status-success);
+}
+
+.month-availability__dot--partial {
+  background: var(--status-warning);
+}
+
+.month-availability__dot--unavailable {
+  background: var(--text-muted);
+}
+
+.month-availability__dot--holiday {
+  background: var(--accent);
+}
+
+/* ========== TOTALS ROW ========== */
+.week-grid__totals {
+  display: grid;
+  grid-template-columns: 140px repeat(7, 1fr);
+  background: var(--bg-tertiary);
+  border-top: 2px solid var(--border);
+}
+
+.week-grid__totals-label {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+}
+
+.week-grid__totals-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  border-right: 1px solid var(--border);
+}
+
+.week-grid__totals-cell:last-child {
+  border-right: none;
+}
+
+.week-grid__totals-cell--weekend {
+  opacity: 0.5;
+}
+
+/* ========== NO TEAM MESSAGE ========== */
+.no-team-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3xl);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.no-team-message__icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.5;
+}
+
+.no-team-message__title {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.no-team-message__text {
+  font-size: var(--font-sm);
+  max-width: 280px;
+  line-height: var(--leading-relaxed);
+}

@@ -36,9 +36,9 @@ Build a comprehensive, offline-first suite of project planning tools that:
 - [x] Time Tracker (with timer, quick add, and task linking)
 
 ### Phase 3: Supporting Tools
-- [ ] Resource Calendar
+- [x] Resource Calendar
 - [ ] Milestone Tracker
-- [ ] Burndown Chart
+- [x] Burndown Chart
 
 ### Phase 4: Advanced Tools
 - [ ] PERT Chart
@@ -131,18 +131,30 @@ Track time spent on tasks and projects.
 
 Medium priority - enhance project visibility and team coordination.
 
-#### Resource Calendar
+#### Resource Calendar (Complete)
 
 Team availability and capacity planning.
 
-**Features:**
-- Calendar view of team members
-- Mark holidays, time off, and availability
-- Capacity visualization
-- Integration with sprint planning
-- Week/month view toggle
+**Implemented Features:**
+- [x] Week and month view toggle
+- [x] Calendar grid with team member rows
+- [x] Mark days as available, partial, unavailable, or holiday
+- [x] Set availability for date ranges
+- [x] Team member management (add, edit, delete)
+- [x] Member color coding
+- [x] Weekly hours configuration per member
+- [x] Configurable work days
+- [x] Capacity calculation and visualization
+- [x] Search/filter team members
+- [x] Edit mode toggle for modifications
+- [x] Keyboard shortcuts (E, F, W, M, T, arrows)
+- [x] Cross-tab sync
 
-**Shared modules:** storage, export, status
+**Not Implemented:**
+- Sprint capacity integration (future enhancement)
+- Task allocation tracking
+
+**Shared modules:** storage, undo, unified-data, navigation, status
 
 #### Milestone Tracker
 
@@ -158,19 +170,25 @@ High-level view of project milestones.
 
 **Shared modules:** storage, export, status
 
-#### Burndown Chart
+#### Burndown Chart (Complete)
 
 Visual sprint progress over time.
 
-**Features:**
-- Ideal burndown line
-- Actual work remaining line
-- Story points or task count modes
-- Sprint selector
-- Export chart as image
-- Historical sprint comparison
+**Implemented Features:**
+- [x] Ideal burndown line (linear from total to zero)
+- [x] Actual work remaining line from recorded snapshots
+- [x] Story points or task count modes toggle
+- [x] Sprint selector with status indicators
+- [x] Export chart as PNG image
+- [x] Historical sprint comparison in sidebar
+- [x] Automatic snapshot recording on load for active sprint
+- [x] Manual snapshot recording in edit mode
+- [x] Today marker on chart
+- [x] Average velocity calculation
+- [x] Cross-tab sync with Sprint Planner
+- [x] Keyboard shortcuts (E, S, P, T, R, Ctrl+Z)
 
-**Shared modules:** storage, export
+**Shared modules:** storage, undo, unified-data, navigation, status
 
 ---
 
@@ -329,6 +347,8 @@ Automatic deployment via GitHub Actions (`.github/workflows/deploy.yml`):
 | Kanban Board | https://project.bissbert.ch/tools/kanban/ | Active |
 | Sprint Planner | https://project.bissbert.ch/tools/sprint/ | Active |
 | Time Tracker | https://project.bissbert.ch/tools/time-tracker/ | Active |
+| Burndown Chart | https://project.bissbert.ch/tools/burndown/ | Active |
+| Resource Calendar | https://project.bissbert.ch/tools/resource-calendar/ | Active |
 
 ### Benefits
 

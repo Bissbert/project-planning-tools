@@ -1,0 +1,126 @@
+/* ========== CALENDAR PRINT - Print media queries ========== */
+
+@media print {
+  /* Hide interactive elements */
+  .header-right,
+  .team-footer,
+  .calendar-controls .nav-controls,
+  .calendar-controls .view-toggle,
+  .edit-mode-banner,
+  .modal-overlay,
+  #status {
+    display: none !important;
+  }
+
+  /* Reset layout */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .calendar-container {
+    height: auto;
+    overflow: visible;
+  }
+
+  .team-panel {
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+    max-height: none;
+  }
+
+  .calendar-panel {
+    border: 1px solid #ccc;
+    page-break-before: always;
+  }
+
+  .calendar-grid {
+    overflow: visible;
+  }
+
+  /* Grid styles */
+  .week-grid,
+  .month-grid {
+    border: 1px solid #333;
+  }
+
+  .week-grid__header,
+  .month-grid__header {
+    background: #f0f0f0 !important;
+  }
+
+  .week-grid__day-header,
+  .month-grid__day-name {
+    border-color: #ccc;
+    color: #333;
+  }
+
+  .week-grid__row {
+    border-color: #ccc;
+  }
+
+  .availability-cell {
+    border-color: #ccc;
+  }
+
+  /* Availability indicators */
+  .availability-indicator--available {
+    background: #e8f5e9 !important;
+    color: #2e7d32 !important;
+  }
+
+  .availability-indicator--partial {
+    background: #fff3e0 !important;
+    color: #ef6c00 !important;
+  }
+
+  .availability-indicator--unavailable {
+    background: #f5f5f5 !important;
+    color: #757575 !important;
+  }
+
+  .availability-indicator--holiday {
+    background: #ede7f6 !important;
+    color: #7c4dff !important;
+  }
+
+  /* Team member list */
+  .team-member {
+    border-color: #ccc;
+    background: white !important;
+  }
+
+  .team-member__name {
+    color: black;
+  }
+
+  .team-member__role,
+  .team-member__hours {
+    color: #666;
+  }
+
+  /* Capacity summary */
+  .capacity-summary {
+    background: #f5f5f5 !important;
+    border-color: #ccc;
+  }
+
+  .capacity-stat__value {
+    color: black;
+  }
+
+  /* Date range header */
+  .date-range {
+    font-size: 14pt;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0;
+    border-bottom: 2px solid #333;
+  }
+
+  /* Page setup */
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+}

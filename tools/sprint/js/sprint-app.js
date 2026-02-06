@@ -16,7 +16,7 @@ import {
   DATA_VERSION,
   STORAGE_KEY,
   BACKUP_KEY,
-  migrateToV7,
+  migrateToV9,
   cloneProjectData,
   defaultWorkflow,
   getCurrentWeek,
@@ -99,8 +99,8 @@ function loadData() {
     try {
       // Migrate if needed
       if (!saved.version || saved.version < DATA_VERSION) {
-        console.log('Migrating data to v6 format...');
-        projectData = migrateToV7(saved);
+        console.log('Migrating data to v9 format...');
+        projectData = migrateToV9(saved);
       } else {
         projectData = saved;
       }
@@ -784,8 +784,8 @@ async function handleFileImport(e) {
       throw new Error('Invalid project file structure');
     }
 
-    // Migrate to v6 if needed
-    const migrated = migrateToV6(imported);
+    // Migrate to v9 if needed
+    const migrated = migrateToV9(imported);
     migrated.version = DATA_VERSION;
 
     projectData = migrated;
