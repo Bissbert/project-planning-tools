@@ -124,6 +124,11 @@ IMPORTANT: Always use specialized agents when available:
 - **code-reviewer**: Code quality reviews
 - **documentation-architect**: Documentation updates
 
+## Git Commit Rules
+
+- **No AI attribution**: Never include "Claude", "Anthropic", "Co-Authored-By", or any AI tool references in commit messages, PR descriptions, or code comments
+- Keep commits clean and appear human-authored
+
 ## Key Files
 
 - `README.md` - User documentation
