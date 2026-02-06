@@ -47,8 +47,9 @@ Build a comprehensive, offline-first suite of project planning tools that:
 - [ ] Decision Log
 
 ### Phase 5: Integration (In Progress)
-- [x] Cross-tool data sharing (unified-data.js, v6 data model with sprint support)
+- [x] Cross-tool data sharing (unified-data.js, v10 data model)
 - [x] Inter-tool navigation (navigation.js - dropdown with centralized tool registry)
+- [x] Version-agnostic migration system (migrateToLatest with registry pattern)
 - [ ] Unified dashboard
 - [ ] Project-level data management
 
@@ -187,17 +188,17 @@ Visual sprint progress over time.
 
 **Implemented Features:**
 - [x] Ideal burndown line (linear from total to zero)
-- [x] Actual work remaining line from recorded snapshots
+- [x] Actual work remaining line calculated dynamically from task.completedAt timestamps
 - [x] Story points or task count modes toggle
 - [x] Sprint selector with status indicators
 - [x] Export chart as PNG image
 - [x] Historical sprint comparison in sidebar
-- [x] Automatic snapshot recording on load for active sprint
-- [x] Manual snapshot recording in edit mode
 - [x] Today marker on chart
 - [x] Average velocity calculation
 - [x] Cross-tab sync with Sprint Planner
 - [x] Keyboard shortcuts (E, S, P, T, R, Ctrl+Z)
+
+**Note:** As of v10, burndown is calculated dynamically from `task.completedAt` timestamps rather than stored snapshots, ensuring data is always current.
 
 **Shared modules:** storage, undo, unified-data, navigation, status
 
@@ -281,8 +282,26 @@ Enhancements to shared modules for future tools:
 - [ ] `keyboard.js` - Keyboard shortcut manager
 - [ ] `dates.js` - Date formatting and calculations
 - [ ] `charts.js` - Simple chart rendering
-- [x] `unified-data.js` - Cross-tool data synchronization and model
+- [x] `unified-data.js` - Cross-tool data synchronization, model, and migrations (v10)
 - [x] `navigation.js` - Inter-tool navigation with centralized tool registry
+
+### Data Model (v10)
+
+The unified data model uses a version-agnostic migration system:
+
+**Migration Registry Pattern:**
+- `migrateToLatest()` - Automatically chains through all necessary migrations
+- New versions only require adding a migration function to the registry
+- Tools never need updating when data version changes
+
+**Key v10 Changes:**
+- Sprint dates use ISO format (`startDate`/`endDate`) instead of week numbers
+- Burndown calculated dynamically from `task.completedAt` timestamps
+- Tasks have `assigneeId` linking to team member IDs (with name fallback)
+
+**Helper Functions:**
+- `getSprintWeekNumber(sprint, project)` - Calculate week number from dates
+- `getTaskAssignee(task, team)` - Get assignee object with ID or name fallback
 
 ---
 
