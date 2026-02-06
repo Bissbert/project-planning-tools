@@ -1245,3 +1245,136 @@ export function formatDateRange(start, end) {
   const year = end.getFullYear();
   return `${startStr} - ${endStr}, ${year}`;
 }
+
+// ========== MILESTONE HELPERS ==========
+
+/**
+ * Get all milestones from tasks
+ * @param {Array} tasks - All tasks
+ * @returns {Array} - Tasks with isMilestone=true, sorted by deadline
+ */
+export function getMilestones(tasks) {
+  return (tasks || [])
+    .filter(t => t.isMilestone === true)
+    .sort((a, b) => {
+      const deadlineA = a.milestoneDeadline || '9999-12-31';
+      const deadlineB = b.milestoneDeadline || '9999-12-31';
+      return deadlineA.localeCompare(deadlineB);
+    });
+}
+
+/**
+ * Calculate milestone progress from dependency completion
+ * @param {Object} milestone - Milestone task
+ * @param {Array} tasks - All tasks
+ * @returns {Object} - {percent, completed, total}
+ */
+export function calculateMilestoneProgress(milestone, tasks) {
+  // If progress override is set, use it
+  if (milestone.milestoneProgressOverride !== null && milestone.milestoneProgressOverride !== undefined) {
+    const deps = getMilestoneDependencies(milestone, tasks);
+    const completed = deps.filter(t => t.board?.columnId === 'done').length;
+    return {
+      percent: milestone.milestoneProgressOverride,
+      completed,
+      total: deps.length
+    };
+  }
+
+  const deps = getMilestoneDependencies(milestone, tasks);
+
+  if (deps.length === 0) {
+    return { percent: 0, completed: 0, total: 0 };
+  }
+
+  const completed = deps.filter(t => t.board?.columnId === 'done').length;
+  const percent = Math.round((completed / deps.length) * 100);
+
+  return { percent, completed, total: deps.length };
+}
+
+/**
+ * Calculate milestone status based on deadline and progress
+ * @param {Object} milestone - Milestone task
+ * @param {Array} tasks - All tasks
+ * @param {Object} project - Project data
+ * @returns {string} - Status: 'complete', 'on-track', 'at-risk', 'delayed', 'not-started'
+ */
+export function calculateMilestoneStatus(milestone, tasks, project) {
+  // If status override is set, use it
+  if (milestone.milestoneStatusOverride) {
+    return milestone.milestoneStatusOverride;
+  }
+
+  const progress = calculateMilestoneProgress(milestone, tasks);
+  const deps = getMilestoneDependencies(milestone, tasks);
+
+  // All dependencies done = complete
+  if (deps.length > 0 && progress.completed === deps.length) {
+    return 'complete';
+  }
+
+  // No dependencies completed yet = not started
+  if (progress.completed === 0 && deps.length > 0) {
+    return 'not-started';
+  }
+
+  // No dependencies at all = not started
+  if (deps.length === 0) {
+    return 'not-started';
+  }
+
+  // Check deadline proximity
+  if (!milestone.milestoneDeadline) {
+    // No deadline set, base on progress only
+    if (progress.percent >= 50) return 'on-track';
+    return 'at-risk';
+  }
+
+  const deadline = new Date(milestone.milestoneDeadline);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysUntil = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+
+  // Calculate expected progress based on time elapsed
+  let expectedProgress = 100;
+  if (project && project.startDate) {
+    const projectStart = new Date(project.startDate);
+    const totalDays = Math.ceil((deadline - projectStart) / (1000 * 60 * 60 * 24));
+    const elapsedDays = Math.ceil((today - projectStart) / (1000 * 60 * 60 * 24));
+
+    if (totalDays > 0) {
+      expectedProgress = Math.min(100, Math.round((elapsedDays / totalDays) * 100));
+    }
+  }
+
+  // Deadline passed
+  if (daysUntil < 0) {
+    return 'delayed';
+  }
+
+  // Very behind (progress < expected by >25%)
+  if (progress.percent < expectedProgress - 25) {
+    return 'delayed';
+  }
+
+  // Somewhat behind (progress < expected by >10%) OR deadline within 3-7 days
+  if (progress.percent < expectedProgress - 10 || (daysUntil <= 7 && daysUntil > 0)) {
+    return 'at-risk';
+  }
+
+  return 'on-track';
+}
+
+/**
+ * Get dependency task objects for a milestone
+ * @param {Object} milestone - Milestone task
+ * @param {Array} tasks - All tasks
+ * @returns {Array} - Array of task objects
+ */
+export function getMilestoneDependencies(milestone, tasks) {
+  const depIds = milestone.milestoneDependencies || [];
+  return depIds
+    .map(id => tasks.find(t => t.id === id))
+    .filter(t => t !== undefined);
+}

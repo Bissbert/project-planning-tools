@@ -1,0 +1,307 @@
+/* ========== MILESTONE EDIT - Edit mode, modals ========== */
+
+/* Form hint text */
+.form-hint {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+/* ========== EDIT MODE ENHANCEMENTS ========== */
+.edit-mode .milestone-lane {
+  cursor: pointer;
+}
+
+.edit-mode .milestone-lane:hover {
+  border-color: var(--accent);
+}
+
+.edit-mode .milestone-item:hover {
+  border-color: var(--accent);
+}
+
+/* ========== DEPENDENCY PICKER ENHANCEMENTS ========== */
+.dependency-picker__item--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dependency-picker__item--disabled:hover {
+  background: transparent;
+}
+
+/* Checked state styling */
+.dependency-picker__item--checked {
+  background: var(--accent-subtle);
+}
+
+.dependency-picker__item--checked .dependency-picker__name {
+  color: var(--accent-bright);
+}
+
+/* ========== TASK PICKER ENHANCEMENTS ========== */
+.task-picker-item--milestone {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.task-picker-item--milestone::after {
+  content: 'Already milestone';
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.task-picker-item--milestone:hover {
+  background: transparent;
+}
+
+/* ========== DELETE CONFIRMATION ========== */
+.delete-confirm {
+  padding: var(--spacing-lg);
+  background: var(--status-error-subtle);
+  border: 1px solid var(--status-error);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.delete-confirm__message {
+  color: var(--status-error);
+  font-size: var(--font-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.delete-confirm__actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* ========== INLINE EDIT ========== */
+.inline-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.inline-edit__input {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+}
+
+.inline-edit__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.inline-edit__btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--bg-primary);
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.inline-edit__btn:hover {
+  background: var(--accent-dim);
+}
+
+.inline-edit__btn--cancel {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.inline-edit__btn--cancel:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ========== QUICK ADD FORM ========== */
+.quick-add {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--bg-tertiary);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.quick-add__input {
+  flex: 1;
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+}
+
+.quick-add__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.quick-add__input::placeholder {
+  color: var(--text-muted);
+}
+
+.quick-add__btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--bg-primary);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.quick-add__btn:hover {
+  background: var(--accent-dim);
+}
+
+/* ========== EDIT ACTION BUTTONS ========== */
+.edit-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.edit-action:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.edit-action--danger:hover {
+  background: var(--status-error-subtle);
+  border-color: var(--status-error);
+  color: var(--status-error);
+}
+
+.edit-action svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ========== DRAG HANDLE ========== */
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--text-muted);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.edit-mode .drag-handle {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ========== STATUS OVERRIDE INDICATOR ========== */
+.override-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-xs);
+  color: var(--accent);
+  background: var(--accent-subtle);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.override-indicator svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* ========== EDIT BADGE ========== */
+.edit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--accent-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  color: var(--accent);
+}
+
+.edit-badge svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* ========== MODAL WIDE VARIANT ========== */
+.modal-panel--wide {
+  max-width: 600px;
+}
+
+/* ========== CHECKBOX IN MODALS ========== */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.checkbox-item:hover {
+  background: var(--bg-hover);
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.checkbox-item__label {
+  flex: 1;
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+}
+
+.checkbox-item__meta {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}

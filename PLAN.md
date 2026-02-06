@@ -37,7 +37,7 @@ Build a comprehensive, offline-first suite of project planning tools that:
 
 ### Phase 3: Supporting Tools
 - [x] Resource Calendar
-- [ ] Milestone Tracker
+- [x] Milestone Tracker
 - [x] Burndown Chart
 
 ### Phase 4: Advanced Tools
@@ -156,19 +156,30 @@ Team availability and capacity planning.
 
 **Shared modules:** storage, undo, unified-data, navigation, status
 
-#### Milestone Tracker
+#### Milestone Tracker (Complete)
 
-High-level view of project milestones.
+High-level view of project milestones with deadline and dependency tracking.
 
-**Features:**
-- Timeline view of milestones
-- Status indicators (on track, at risk, delayed, complete)
-- Deadline tracking
-- Dependencies between milestones
-- Progress percentage
-- Notes and attachments
+**Implemented Features:**
+- [x] Timeline view with horizontal month headers
+- [x] Card/list view with two-panel layout
+- [x] Status indicators (on track, at risk, delayed, complete, not started)
+- [x] Auto-calculated status based on deadline proximity and progress
+- [x] Status override option for manual control
+- [x] Deadline tracking with days remaining
+- [x] Dependencies between milestones and tasks
+- [x] Progress percentage (auto-calculated from dependency completion)
+- [x] Progress override option for manual control
+- [x] Segmented progress bar showing task status breakdown
+- [x] Notes field for milestone description
+- [x] View toggle between timeline and list views
+- [x] Convert existing tasks to milestones
+- [x] Search/filter milestones
+- [x] Edit mode toggle for modifications
+- [x] Keyboard shortcuts (E, F, T, L, N, arrows, Delete)
+- [x] Cross-tab sync
 
-**Shared modules:** storage, export, status
+**Shared modules:** storage, undo, unified-data, navigation, status
 
 #### Burndown Chart (Complete)
 
@@ -349,6 +360,7 @@ Automatic deployment via GitHub Actions (`.github/workflows/deploy.yml`):
 | Time Tracker | https://project.bissbert.ch/tools/time-tracker/ | Active |
 | Burndown Chart | https://project.bissbert.ch/tools/burndown/ | Active |
 | Resource Calendar | https://project.bissbert.ch/tools/resource-calendar/ | Active |
+| Milestone Tracker | https://project.bissbert.ch/tools/milestone-tracker/ | Active |
 
 ### Benefits
 

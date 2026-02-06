@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/milestone-tracker/">
+  <title>Milestone Tracker - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/edit-mode.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Milestone-specific CSS -->
+  <link rel="stylesheet" href="css/milestone-layout.css">
+  <link rel="stylesheet" href="css/milestone-cards.css">
+  <link rel="stylesheet" href="css/milestone-timeline.css">
+  <link rel="stylesheet" href="css/milestone-edit.css">
+  <link rel="stylesheet" href="css/milestone-print.css">
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <nav class="nav-dropdown" data-current="milestone-tracker"></nav>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--milestones">
+          <span class="stat-item__value" id="milestoneCount">0</span>
+          <span class="stat-item__label">Milestones</span>
+        </div>
+        <div class="stat-item stat-item--ontrack">
+          <span class="stat-item__value" id="onTrackCount">0</span>
+          <span class="stat-item__label">On Track</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="view-toggle-group">
+        <button class="view-toggle-btn view-toggle-btn--active" id="timelineViewBtn" onclick="setView('timeline')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="21" x2="4" y2="14"/>
+            <line x1="4" y1="10" x2="4" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12" y2="3"/>
+            <line x1="20" y1="21" x2="20" y2="16"/>
+            <line x1="20" y1="12" x2="20" y2="3"/>
+          </svg>
+          Timeline
+        </button>
+        <button class="view-toggle-btn" id="listViewBtn" onclick="setView('list')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          List
+        </button>
+      </div>
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+      </div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Milestone Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Milestone Modal -->
+  <div class="modal-overlay" id="newMilestoneModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>New Milestone</h2>
+        <button class="modal-close" onclick="closeNewMilestone()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Milestone Name</label>
+        <input type="text" class="form-input" id="newMilestoneName" placeholder="Alpha Release">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deadline</label>
+        <input type="date" class="form-input" id="newMilestoneDeadline">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-input" id="newMilestoneNotes" rows="2" placeholder="Optional description"></textarea>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="createNewMilestone()">Create</button>
+        <button class="btn" onclick="closeNewMilestone()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Milestone Modal -->
+  <div class="modal-overlay" id="editMilestoneModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2 id="editMilestoneTitle">Edit Milestone</h2>
+        <button class="modal-close" onclick="closeEditMilestone()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Milestone Name</label>
+        <input type="text" class="form-input" id="editMilestoneName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deadline</label>
+        <input type="date" class="form-input" id="editMilestoneDeadline">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-input" id="editMilestoneNotes" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status Override</label>
+        <select class="form-input" id="editMilestoneStatusOverride">
+          <option value="">Auto-calculate</option>
+          <option value="complete">Complete</option>
+          <option value="on-track">On Track</option>
+          <option value="at-risk">At Risk</option>
+          <option value="delayed">Delayed</option>
+          <option value="not-started">Not Started</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Progress Override (%)</label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="number" class="form-input" id="editMilestoneProgressOverride" min="0" max="100" placeholder="Auto">
+          <span class="form-hint">Leave empty for auto-calculation</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dependencies</label>
+        <div class="dependency-picker" id="dependencyPicker">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+        <button class="btn btn--primary" onclick="saveEditMilestone()">Save</button>
+        <button class="btn btn--danger edit-only" onclick="deleteCurrentMilestone()">Delete</button>
+        <button class="btn" onclick="closeEditMilestone()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Convert Task to Milestone Modal -->
+  <div class="modal-overlay" id="convertTaskModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Convert Task to Milestone</h2>
+        <button class="modal-close" onclick="closeConvertTask()">&times;</button>
+      </div>
+      <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+        Select a task to mark as a milestone:
+      </p>
+      <div class="task-picker-list" id="taskPickerList">
+        <!-- Populated dynamically -->
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn" onclick="closeConvertTask()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="milestone-container">
+    <!-- Timeline View -->
+    <section class="timeline-view" id="timelineView">
+      <div class="timeline-header" id="timelineHeader">
+        <!-- Month headers rendered here -->
+      </div>
+      <div class="timeline-body" id="timelineBody">
+        <!-- Milestone lanes rendered here -->
+      </div>
+      <div class="timeline-empty" id="timelineEmpty" style="display: none;">
+        <svg class="timeline-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <h3 class="timeline-empty__title">No Milestones Yet</h3>
+        <p class="timeline-empty__text">Create your first milestone to track project goals and deadlines.</p>
+      </div>
+    </section>
+
+    <!-- Card/List View -->
+    <section class="list-view" id="listView" style="display: none;">
+      <!-- Left Panel: Milestone List -->
+      <aside class="milestone-panel">
+        <div class="milestone-panel__header">
+          <h2 class="milestone-panel__title">Milestones</h2>
+        </div>
+        <div class="milestone-list" id="milestoneList">
+          <!-- Milestone items rendered here -->
+        </div>
+        <div class="milestone-panel__footer">
+          <button class="milestone-add-btn edit-only" onclick="openNewMilestone()">+ Add Milestone</button>
+          <button class="milestone-add-btn edit-only" onclick="openConvertTask()">+ From Task</button>
+        </div>
+        <div class="milestone-stats" id="milestoneStats">
+          <!-- Stats rendered here -->
+        </div>
+      </aside>
+
+      <!-- Right Panel: Milestone Details -->
+      <section class="detail-panel" id="detailPanel">
+        <div class="detail-panel__empty" id="detailEmpty">
+          <svg class="detail-panel__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <h3>Select a Milestone</h3>
+          <p>Click a milestone to view details</p>
+        </div>
+        <div class="detail-panel__content" id="detailContent" style="display: none;">
+          <!-- Milestone detail rendered here -->
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Floating Add Button (Timeline View) -->
+  <button class="fab edit-only" id="fabAdd" onclick="openNewMilestone()" title="Add Milestone">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/milestone-app.js"></script>
+</body>
+</html>
