@@ -3,8 +3,8 @@
  * Provides data structure, migrations, and bidirectional sync
  */
 
-// Data format version (v11 adds retrospectives)
-export const DATA_VERSION = 11;
+// Data format version (v12 adds task dependencies for PERT charts)
+export const DATA_VERSION = 12;
 
 // Storage key (shared between tools)
 export const STORAGE_KEY = 'ganttProject';
@@ -455,6 +455,22 @@ function migrateV10ToV11(data) {
   return data;
 }
 
+/**
+ * Migrate project data from v11 to v12 format (adds task dependencies for PERT)
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+function migrateV11ToV12(data) {
+  // Add dependencies array to all tasks if missing
+  (data.tasks || []).forEach(task => {
+    if (!task.dependencies) {
+      task.dependencies = [];
+    }
+  });
+
+  return data;
+}
+
 // ========== MIGRATION REGISTRY ==========
 
 /**
@@ -468,7 +484,8 @@ const migrations = {
   8: migrateV7ToV8,
   9: migrateV8ToV9,
   10: migrateV9ToV10,
-  11: migrateV10ToV11
+  11: migrateV10ToV11,
+  12: migrateV11ToV12
 };
 
 /**

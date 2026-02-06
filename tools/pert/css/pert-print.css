@@ -1,0 +1,142 @@
+/**
+ * PERT Print CSS
+ * Print-specific styles
+ */
+
+@media print {
+  /* Hide non-essential elements */
+  .header,
+  .diagram-toolbar,
+  .diagram-legend,
+  .pert-sidebar,
+  .modal-overlay,
+  .status,
+  .edit-mode-banner {
+    display: none !important;
+  }
+
+  /* Full page layout */
+  body {
+    background: white;
+    color: black;
+  }
+
+  .pert-container {
+    height: auto;
+    display: block;
+  }
+
+  /* Diagram view */
+  .diagram-view {
+    height: auto;
+    page-break-inside: avoid;
+  }
+
+  .diagram-canvas {
+    height: 600px;
+    border: 1px solid #ccc;
+  }
+
+  .diagram-empty {
+    display: none !important;
+  }
+
+  /* SVG colors for print */
+  .pert-node__bg {
+    fill: white;
+    stroke: #333;
+  }
+
+  .pert-node--critical .pert-node__bg {
+    stroke: #7c3aed;
+    stroke-width: 2;
+  }
+
+  .pert-node__header {
+    fill: #f3f4f6;
+  }
+
+  .pert-node--critical .pert-node__header {
+    fill: #ede9fe;
+  }
+
+  .pert-node__title {
+    fill: #111;
+  }
+
+  .pert-node__value-text {
+    fill: #333;
+  }
+
+  .pert-node__value-label {
+    fill: #666;
+  }
+
+  .pert-edge {
+    stroke: #666;
+  }
+
+  .pert-edge--critical {
+    stroke: #7c3aed;
+  }
+
+  /* Table view */
+  .table-view {
+    padding: 0;
+  }
+
+  .table-container {
+    border: none;
+    border-radius: 0;
+  }
+
+  .pert-table {
+    border: 1px solid #ccc;
+  }
+
+  .pert-table th {
+    background: #f3f4f6;
+    color: #333;
+    border-bottom: 2px solid #ccc;
+  }
+
+  .pert-table td {
+    border-bottom: 1px solid #ddd;
+  }
+
+  .pert-table tbody tr.critical {
+    background: #ede9fe;
+  }
+
+  .pert-table__critical-badge--yes {
+    background: #7c3aed;
+    color: white;
+  }
+
+  .pert-table__critical-badge--no {
+    background: #e5e7eb;
+  }
+
+  /* Page header for print */
+  .pert-container::before {
+    content: attr(data-project-title) ' - PERT Chart';
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #333;
+  }
+
+  /* Page footer with date */
+  .pert-container::after {
+    content: 'Printed: ' attr(data-print-date);
+    display: block;
+    font-size: 10px;
+    color: #666;
+    margin-top: 16px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+    text-align: right;
+  }
+}

@@ -140,7 +140,7 @@ IMPORTANT: Always use specialized agents when available:
 
 ## Data Model & Migrations
 
-**Current Version:** v10
+**Current Version:** v12
 
 The unified data model uses a migration registry pattern:
 
@@ -160,6 +160,7 @@ projectData = migrateToLatest(saved);
 - `sprint.startDate/endDate` - ISO date strings (not week numbers)
 - `task.completedAt` - ISO timestamp for burndown calculation
 - `task.assigneeId` - Links to `team[].id` (with `task.assignee` name fallback)
+- `task.dependencies` - Array of predecessor task IDs (for PERT chart)
 
 **Helper functions:**
 - `getSprintWeekNumber(sprint, project)` - Week number from dates

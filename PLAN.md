@@ -41,17 +41,24 @@ Build a comprehensive, offline-first suite of project planning tools that:
 - [x] Burndown Chart
 
 ### Phase 4: Advanced Tools
-- [ ] PERT Chart
+- [x] PERT Chart
 - [ ] Risk Register
-- [ ] Retrospective Board
+- [x] Retrospective Board
 - [ ] Decision Log
 
 ### Phase 5: Integration (In Progress)
-- [x] Cross-tool data sharing (unified-data.js, v10 data model)
+- [x] Cross-tool data sharing (unified-data.js, v11 data model)
 - [x] Inter-tool navigation (navigation.js - dropdown with centralized tool registry)
 - [x] Version-agnostic migration system (migrateToLatest with registry pattern)
 - [ ] Unified dashboard
 - [ ] Project-level data management
+
+### Phase 6: Collaboration (Planned)
+- [ ] Multi-project storage (switch between multiple local projects)
+- [ ] Collaboration server (Node.js/Express with WebSocket)
+- [ ] Real-time multi-user editing
+- [ ] First-connect-uploads (first user sets baseline)
+- [ ] Project switcher UI
 
 ---
 
@@ -208,19 +215,30 @@ Visual sprint progress over time.
 
 Lower priority - for more complex project management needs.
 
-#### PERT Chart
+#### PERT Chart (Complete)
 
-Network diagram for task dependencies.
+Network diagram for task dependencies and critical path analysis.
 
-**Features:**
-- Visual task network
-- Critical path highlighting
-- Task duration estimates (optimistic, likely, pessimistic)
-- Dependency arrows
-- Slack time calculation
-- Zoom and pan navigation
+**Implemented Features:**
+- [x] SVG network diagram with task nodes
+- [x] Critical path highlighting (zero-slack tasks)
+- [x] Forward pass (ES/EF) and backward pass (LS/LF) calculations
+- [x] Slack time calculation per task
+- [x] Dependency edge drawing in edit mode
+- [x] Edge reversal (click existing edge)
+- [x] Edge deletion (right-click edge)
+- [x] Cycle prevention when drawing edges
+- [x] Table view with sortable PERT values
+- [x] Data scope toggle (milestones only vs all tasks)
+- [x] Node details sidebar
+- [x] Zoom and pan navigation
+- [x] Export as PNG or JSON
+- [x] Search/filter nodes
+- [x] Edit mode toggle
+- [x] Keyboard shortcuts (E, D, G, T, +/-, 0)
+- [x] Cross-tab sync
 
-**Shared modules:** storage, undo, export
+**Shared modules:** storage, undo, unified-data, navigation, status
 
 #### Risk Register
 
@@ -236,19 +254,23 @@ Track and manage project risks.
 
 **Shared modules:** storage, export, status
 
-#### Retrospective Board
+#### Retrospective Board (Complete)
 
-Agile sprint retrospectives.
+Agile sprint retrospectives with real-time voting and item grouping.
 
-**Features:**
-- Three columns: Went Well, Didn't Go Well, Action Items
-- Anonymous card submission mode
-- Voting on items
-- Group similar items
-- Export action items
-- Link to sprint
+**Implemented Features:**
+- [x] Three columns: Went Well, Didn't Go Well, Action Items
+- [x] Anonymous mode toggle per retrospective
+- [x] Unlimited voting on items
+- [x] Drag-to-group similar items
+- [x] Drag-to-move items between columns
+- [x] Export action items as text
+- [x] Link to sprint (optional)
+- [x] Retrospective selector dropdown
+- [x] Edit mode toggle for modifications
+- [x] Cross-tab sync via localStorage events
 
-**Shared modules:** storage, export
+**Shared modules:** storage, undo, unified-data, navigation, status
 
 #### Decision Log
 
@@ -285,7 +307,7 @@ Enhancements to shared modules for future tools:
 - [x] `unified-data.js` - Cross-tool data synchronization, model, and migrations (v10)
 - [x] `navigation.js` - Inter-tool navigation with centralized tool registry
 
-### Data Model (v10)
+### Data Model (v12)
 
 The unified data model uses a version-agnostic migration system:
 
@@ -293,6 +315,14 @@ The unified data model uses a version-agnostic migration system:
 - `migrateToLatest()` - Automatically chains through all necessary migrations
 - New versions only require adding a migration function to the registry
 - Tools never need updating when data version changes
+
+**Key v12 Changes:**
+- Added `task.dependencies` array for PERT Chart dependencies
+- Tasks can now have explicit predecessor relationships
+
+**Key v11 Changes:**
+- Added `retrospectives` array for Retrospective Board
+- Retrospective items with columns, voting, grouping support
 
 **Key v10 Changes:**
 - Sprint dates use ISO format (`startDate`/`endDate`) instead of week numbers
@@ -302,6 +332,8 @@ The unified data model uses a version-agnostic migration system:
 **Helper Functions:**
 - `getSprintWeekNumber(sprint, project)` - Calculate week number from dates
 - `getTaskAssignee(task, team)` - Get assignee object with ID or name fallback
+- `generateRetroId()` - Generate unique retrospective ID
+- `generateItemId()` - Generate unique retrospective item ID
 
 ---
 
@@ -380,6 +412,8 @@ Automatic deployment via GitHub Actions (`.github/workflows/deploy.yml`):
 | Burndown Chart | https://project.bissbert.ch/tools/burndown/ | Active |
 | Resource Calendar | https://project.bissbert.ch/tools/resource-calendar/ | Active |
 | Milestone Tracker | https://project.bissbert.ch/tools/milestone-tracker/ | Active |
+| Retrospective Board | https://project.bissbert.ch/tools/retrospective/ | Active |
+| PERT Chart | https://project.bissbert.ch/tools/pert/ | Active |
 
 ### Benefits
 
@@ -402,6 +436,110 @@ For private or enterprise use:
 - Any static file server works (nginx, Apache, Caddy)
 - Docker: `docker run -p 3000:80 -v $(pwd):/usr/share/nginx/html nginx`
 - Node.js: `npx serve .`
+
+---
+
+## Proposed Feature: Collaborative Server Storage
+
+Enable real-time collaboration through an optional server component while maintaining offline-first philosophy.
+
+### Overview
+
+- **Multi-project storage** - Support multiple projects locally and on server
+- **Offline mode** (default): localStorage with project switching
+- **Collaborative mode**: Connect to server, first user uploads project as baseline
+- **Project profiles**: Create, switch, and manage multiple projects
+
+### Architecture
+
+```
+Browser Client                           Collaboration Server
+┌────────────────────────┐              ┌────────────────────────┐
+│  Project Switcher UI   │              │  Node.js / Express     │
+│         ↓              │              │  REST API + WebSocket  │
+│  storage-adapter.js    │◄────────────►│  File-based JSON       │
+│    ↓           ↓       │   HTTP/WS    │  Room-based isolation  │
+│  local.js   server.js  │              └────────────────────────┘
+└────────────────────────┘
+```
+
+### Multi-Project Storage
+
+**Current:** Single `ganttProject` key in localStorage
+
+**Proposed:** Project index with multiple projects
+```javascript
+localStorage.setItem('projectIndex', JSON.stringify({
+  activeProjectId: 'proj_abc123',
+  projects: [
+    { id: 'proj_abc123', name: 'Game Production', serverRoom: null },
+    { id: 'proj_def456', name: 'Marketing Site', serverRoom: 'room-xyz' }
+  ]
+}));
+localStorage.setItem('project_proj_abc123', JSON.stringify(projectData));
+```
+
+### Server Component
+
+**Technology:** Node.js, Express, ws (WebSocket), file-based JSON storage
+
+**REST API:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/rooms` | List rooms with user counts |
+| GET | `/api/rooms/:id` | Get project data |
+| PUT | `/api/rooms/:id` | Save project data |
+| POST | `/api/rooms/:id/init` | First-connect upload |
+
+**WebSocket:** Real-time sync of updates between connected users
+
+### First-Connect-Uploads Flow
+
+1. User A connects to empty room → uploads local project as baseline
+2. User B connects to same room → receives existing project data
+3. Both users now collaborate on same project with real-time sync
+
+### Implementation Phases
+
+1. **Multi-project storage** - Project index, switching, migration
+2. **Project switcher UI** - Dropdown, management modal
+3. **Server MVP** - Express + WebSocket + file storage
+4. **Server backend client** - REST + WebSocket integration
+5. **Connection integration** - UI for connect/disconnect
+6. **Polish** - Loading states, error handling, reconnection
+
+### New Files Required
+
+**Server:**
+```
+server/
+├── package.json
+├── index.js
+├── routes/api.js
+├── storage/file-store.js
+└── sync/websocket.js
+```
+
+**Client:**
+```
+shared/js/storage-adapter.js
+shared/js/project-manager.js
+shared/js/project-ui.js
+shared/js/backends/local.js
+shared/js/backends/server.js
+shared/css/project.css
+```
+
+### Conflict Resolution
+
+MVP: Last-write-wins with notification. Future: User choice dialog.
+
+### Future Enhancements
+
+- Room passwords for authentication
+- User presence indicators
+- Conflict resolution UI
+- Docker deployment option
 
 ---
 

@@ -1,0 +1,293 @@
+/**
+ * PERT Diagram CSS
+ * SVG diagram styling, nodes, edges, and edge drawing states
+ */
+
+/* ========== SVG CONTAINER ========== */
+
+.pert-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ========== NODES ========== */
+
+.pert-node {
+  cursor: pointer;
+}
+
+.pert-node__bg {
+  fill: var(--bg-secondary);
+  stroke: var(--border);
+  stroke-width: 1;
+  rx: 8;
+  transition: fill 0.1s, stroke 0.1s;
+}
+
+.pert-node:hover .pert-node__bg {
+  fill: var(--bg-elevated);
+  stroke: var(--border-strong);
+}
+
+.pert-node--selected .pert-node__bg {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.pert-node--critical .pert-node__bg {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.pert-node--complete .pert-node__bg {
+  stroke: var(--status-success);
+}
+
+.pert-node__header {
+  fill: var(--bg-tertiary);
+  rx: 8;
+}
+
+.pert-node--critical .pert-node__header {
+  fill: var(--accent-subtle);
+}
+
+.pert-node--complete .pert-node__header {
+  fill: var(--status-success-subtle);
+}
+
+.pert-node__title {
+  fill: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.pert-node__subtitle {
+  fill: var(--text-muted);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+/* PERT values inside node */
+.pert-node__values {
+  font-size: 10px;
+}
+
+.pert-node__value-label {
+  fill: var(--text-muted);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.pert-node__value-text {
+  fill: var(--text-secondary);
+  font-weight: 500;
+}
+
+.pert-node__divider {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.pert-node__duration {
+  fill: var(--text-secondary);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.pert-node__slack {
+  fill: var(--text-muted);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.pert-node--critical .pert-node__slack {
+  fill: var(--accent);
+  font-weight: 600;
+}
+
+/* Node status indicator */
+.pert-node__status {
+  r: 4;
+  fill: var(--status-success);
+}
+
+/* ========== EDGES ========== */
+
+.pert-edge {
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+  fill: none;
+  marker-end: url(#arrowhead);
+  cursor: pointer;
+  transition: stroke 0.1s, stroke-width 0.1s;
+}
+
+.pert-edge:hover {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.pert-edge--critical {
+  stroke: var(--accent);
+  stroke-width: 2;
+  marker-end: url(#arrowhead-critical);
+}
+
+.pert-edge--critical:hover {
+  stroke-width: 3;
+}
+
+/* Edge hover hint */
+.pert-edge-hint {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s;
+}
+
+.pert-edge:hover + .pert-edge-hint {
+  opacity: 1;
+}
+
+.pert-edge-hint__bg {
+  fill: var(--bg-elevated);
+  rx: 4;
+}
+
+.pert-edge-hint__text {
+  fill: var(--text-secondary);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+/* ========== EDGE DRAWING MODE ========== */
+
+/* Source node styling when selected for edge drawing */
+.pert-node--drawing-source .pert-node__bg {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 4 2;
+  animation: pulse-border 1s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0.5;
+  }
+}
+
+/* Valid target highlighting */
+.pert-node--valid-target .pert-node__bg {
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: var(--accent-subtle);
+}
+
+/* Invalid target (would create cycle or already connected) */
+.pert-node--invalid-target {
+  cursor: not-allowed;
+}
+
+.pert-node--invalid-target .pert-node__bg {
+  stroke: var(--status-error);
+  stroke-width: 2;
+  stroke-dasharray: 4 2;
+}
+
+/* Ghost edge line while drawing */
+.ghost-edge {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  fill: none;
+  marker-end: url(#arrowhead-ghost);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Draw mode cursor on canvas */
+.diagram-canvas.draw-mode {
+  cursor: crosshair;
+}
+
+.diagram-canvas.draw-mode .pert-node--valid-target {
+  cursor: pointer;
+}
+
+/* Edge reversal indicator */
+.edge-reverse-icon {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.pert-edge:hover ~ .edge-reverse-icon {
+  opacity: 1;
+}
+
+.edge-reverse-icon__bg {
+  fill: var(--bg-elevated);
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+
+.edge-reverse-icon__arrow {
+  fill: var(--accent);
+}
+
+/* ========== START/END PSEUDO-NODES ========== */
+
+.pert-node--start .pert-node__bg,
+.pert-node--end .pert-node__bg {
+  fill: var(--bg-tertiary);
+  stroke: var(--border);
+  stroke-dasharray: 4 2;
+}
+
+.pert-node--start .pert-node__title,
+.pert-node--end .pert-node__title {
+  fill: var(--text-muted);
+  font-style: italic;
+}
+
+/* ========== ZOOM/PAN CONTROLS ========== */
+
+.pert-svg {
+  touch-action: none;
+}
+
+/* Transform group for pan/zoom */
+.pert-transform-group {
+  transition: transform 0.1s ease-out;
+}
+
+/* ========== SELECTION STATE ========== */
+
+.pert-node--selected .pert-node__bg {
+  stroke: var(--accent);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px var(--accent-subtle));
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 640px) {
+  .pert-node__title {
+    font-size: 10px;
+  }
+
+  .pert-node__values,
+  .pert-node__duration,
+  .pert-node__slack {
+    font-size: 8px;
+  }
+
+  .pert-node__value-label {
+    font-size: 7px;
+  }
+}
