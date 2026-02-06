@@ -1,15 +1,86 @@
-/* ========== STATUS STYLES ========== */
+/* ========== SYSTEM STATUS BAR ========== */
+/* Industrial control panel style status indicator */
 
-/* Status message */
 .status {
-  font-size: var(--font-sm);
-  color: var(--text-muted);
+  position: fixed;
+  bottom: var(--spacing-lg);
+  left: var(--spacing-lg);
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  font-size: var(--font-xs);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+
+  transition: all var(--transition-base) var(--ease-mechanical);
+  box-shadow: var(--shadow-md);
 }
 
+/* Signal dot indicator */
+.status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.6;
+  flex-shrink: 0;
+  animation: statusPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* Success state (saved, created, etc.) */
+.status--success,
 .status--saved {
   color: var(--status-success);
+  border-color: rgba(74, 222, 128, 0.3);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.status--success::before,
+.status--saved::before {
+  background: var(--status-success);
+  opacity: 1;
+  animation: none;
+}
+
+/* Error state */
+.status--error {
+  color: var(--status-error);
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.status--error::before {
+  background: var(--status-error);
+  opacity: 1;
+  animation: statusError 0.5s ease-in-out;
+}
+
+@keyframes statusError {
+  0%, 100% { transform: scale(1); }
+  25%, 75% { transform: scale(1.3); }
+}
+
+/* Hide in print */
+@media print {
+  .status {
+    display: none !important;
+  }
 }
 
 /* ========== STATUS INDICATORS ========== */
