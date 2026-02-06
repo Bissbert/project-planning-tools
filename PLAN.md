@@ -217,25 +217,27 @@ Lower priority - for more complex project management needs.
 
 #### PERT Chart (Complete)
 
-Network diagram for task dependencies and critical path analysis.
+Network diagram for task dependencies and critical path analysis using vis-network library.
 
 **Implemented Features:**
-- [x] SVG network diagram with task nodes
-- [x] Critical path highlighting (zero-slack tasks)
+- [x] Interactive network diagram with vis-network library
+- [x] Critical path highlighting (zero-slack tasks in accent color)
 - [x] Forward pass (ES/EF) and backward pass (LS/LF) calculations
 - [x] Slack time calculation per task
-- [x] Dependency edge drawing in edit mode
-- [x] Edge reversal (click existing edge)
-- [x] Edge deletion (right-click edge)
+- [x] Continuous edge drawing in edit mode (draw multiple edges without re-entering mode)
+- [x] Incremental network updates (no view reset when adding/removing edges)
 - [x] Cycle prevention when drawing edges
 - [x] Table view with sortable PERT values
 - [x] Data scope toggle (milestones only vs all tasks)
-- [x] Node details sidebar
+- [x] Node details modal with PERT values
+- [x] Task details sidebar
+- [x] Floating glass-panel zoom controls (bottom-left)
+- [x] Floating edit mode notice (top-right)
 - [x] Zoom and pan navigation
 - [x] Export as PNG or JSON
 - [x] Search/filter nodes
 - [x] Edit mode toggle
-- [x] Keyboard shortcuts (E, D, G, T, +/-, 0)
+- [x] Keyboard shortcuts (E, G, T, F, S, +/-, 0)
 - [x] Cross-tab sync
 
 **Shared modules:** storage, undo, unified-data, navigation, status
