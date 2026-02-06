@@ -68,23 +68,7 @@
   color: var(--text-primary);
 }
 
-/* Stat group - variance display */
-.stat-group {
-  display: flex;
-  gap: 1px;
-  background: var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-tertiary);
-}
-
+/* Stat item number (Gantt-specific) */
 .stat-item__number {
   display: flex;
   align-items: center;
@@ -97,37 +81,6 @@
   font-size: 9px;
   font-weight: 600;
   color: var(--text-muted);
-}
-
-.stat-item__value {
-  font-size: var(--font-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  min-width: 20px;
-  text-align: right;
-}
-
-.stat-item__label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-muted);
-}
-
-.stat-item--planned .stat-item__value {
-  color: var(--accent);
-}
-
-.stat-item--reality .stat-item__value {
-  color: var(--text-secondary);
-}
-
-.stat-item--variance.positive .stat-item__value {
-  color: var(--status-success);
-}
-
-.stat-item--variance.negative .stat-item__value {
-  color: var(--status-error);
 }
 
 /* Progress stats */
@@ -149,47 +102,6 @@
   background: var(--station-bg);
   border: 1px solid var(--station-border);
   border-radius: var(--radius-sm);
-}
-
-/* Action group */
-.action-group {
-  display: flex;
-  gap: 1px;
-  background: var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.action-group .btn {
-  border-radius: 0;
-  border: none;
-}
-
-.action-group .btn:first-child {
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
-}
-
-.action-group .btn:last-child {
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-}
-
-/* Ghost button variant */
-.btn--ghost {
-  background: var(--bg-tertiary);
-  border: none;
-  color: var(--text-secondary);
-}
-
-.btn--ghost:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-/* Search input override */
-.search-input {
-  width: 120px;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: var(--font-sm);
 }
 
 /* Responsive header */

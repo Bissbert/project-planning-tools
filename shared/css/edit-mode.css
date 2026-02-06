@@ -1,0 +1,85 @@
+/* ========== EDIT MODE ========== */
+/* Shared edit mode styles for all tools */
+
+/* ========== EDIT MODE BANNER ========== */
+/* Full-width amber bar at top of page */
+.edit-mode-banner {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-xs);
+  background: var(--status-warning);
+  color: var(--bg-primary);
+  text-align: center;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  z-index: 200;
+}
+
+body.edit-mode .edit-mode-banner {
+  display: block;
+}
+
+/* Push header down when banner visible */
+body.edit-mode .header {
+  margin-top: 24px;
+  top: 24px;
+}
+
+/* Adjust main container heights in edit mode */
+body.edit-mode .gantt-container,
+body.edit-mode .kanban-board,
+body.edit-mode .sprint-container,
+body.edit-mode .time-container,
+body.edit-mode .burndown-container {
+  height: calc(100vh - 52px - 24px);
+}
+
+/* ========== EDIT-ONLY ELEMENTS ========== */
+/* Hidden by default, shown in edit mode */
+.edit-only {
+  display: none !important;
+}
+
+body.edit-mode .edit-only {
+  display: inline-flex !important;
+}
+
+/* Flex container variant */
+body.edit-mode .edit-only.edit-only--flex {
+  display: flex !important;
+}
+
+/* Block variant */
+body.edit-mode .edit-only.edit-only--block {
+  display: block !important;
+}
+
+/* ========== EDIT TOGGLE BUTTON ========== */
+.btn--edit {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.btn--edit:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+body.edit-mode .btn--edit {
+  background: var(--status-warning);
+  border-color: var(--status-warning);
+  color: var(--bg-primary);
+}
+
+body.edit-mode .btn--edit:hover {
+  background: #e5a821;
+  border-color: #e5a821;
+  color: var(--bg-primary);
+}

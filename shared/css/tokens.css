@@ -47,6 +47,9 @@
   --status-info: #a78bfa;
   --status-info-subtle: rgba(167, 139, 250, 0.15);
 
+  /* Stat colors (for stat-item variants) */
+  --stat-info: #6366f1;
+
   /* Assembly line specific */
   --track-color: #2e2e3a;
   --track-active: #a78bfa;

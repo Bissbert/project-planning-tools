@@ -1,0 +1,161 @@
+/* ========== SHARED COMPONENTS ========== */
+/* Reusable UI components across all tools */
+
+/* ========== ACTION GROUP ========== */
+/* Grouped buttons that appear as a single unit */
+.action-group {
+  display: flex;
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.action-group .btn {
+  border-radius: 0;
+  border: none;
+}
+
+.action-group .btn:first-child {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.action-group .btn:last-child {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* ========== STAT GROUP ========== */
+/* Statistics display (variance, counts, etc.) */
+.stat-group {
+  display: flex;
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-tertiary);
+}
+
+.stat-item__value {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 20px;
+  text-align: right;
+}
+
+.stat-item__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+}
+
+/* Stat color variants using CSS variables */
+.stat-item--accent .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--secondary .stat-item__value {
+  color: var(--text-secondary);
+}
+
+.stat-item--success .stat-item__value {
+  color: var(--status-success);
+}
+
+.stat-item--warning .stat-item__value {
+  color: var(--status-warning);
+}
+
+.stat-item--error .stat-item__value {
+  color: var(--status-error);
+}
+
+.stat-item--info .stat-item__value {
+  color: var(--stat-info);
+}
+
+/* Tool-specific stat variants (for backwards compatibility) */
+/* Gantt */
+.stat-item--planned .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--reality .stat-item__value {
+  color: var(--text-secondary);
+}
+
+.stat-item--variance.positive .stat-item__value {
+  color: var(--status-success);
+}
+
+.stat-item--variance.negative .stat-item__value {
+  color: var(--status-error);
+}
+
+/* Kanban */
+.stat-item--backlog .stat-item__value {
+  color: var(--stat-info);
+}
+
+.stat-item--progress .stat-item__value {
+  color: var(--status-warning);
+}
+
+.stat-item--done .stat-item__value {
+  color: var(--status-success);
+}
+
+/* Sprint */
+.stat-item--points .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--velocity .stat-item__value {
+  color: var(--status-success);
+}
+
+.stat-item--sprints .stat-item__value {
+  color: var(--status-warning);
+}
+
+/* Time Tracker */
+.stat-item--today .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--week .stat-item__value {
+  color: var(--status-success);
+}
+
+.stat-item--entries .stat-item__value {
+  color: var(--status-warning);
+}
+
+/* Burndown */
+.stat-item--remaining .stat-item__value {
+  color: var(--accent);
+}
+
+.stat-item--days .stat-item__value {
+  color: var(--status-warning);
+}
+
+/* ========== SEARCH INPUT ========== */
+.search-input {
+  width: 120px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-sm);
+}
+
+/* ========== WIDE MODAL ========== */
+.modal-panel--wide {
+  max-width: 500px;
+}

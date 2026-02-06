@@ -84,3 +84,58 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+
+/* ========== BUTTON VARIANTS ========== */
+
+/* Ghost button - minimal styling */
+.btn--ghost {
+  background: var(--bg-tertiary);
+  border: none;
+  color: var(--text-secondary);
+}
+
+.btn--ghost:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Success button - green theme */
+.btn--success {
+  background: var(--status-success-subtle);
+  border: 1px solid var(--status-success);
+  color: var(--status-success);
+}
+
+.btn--success:hover {
+  background: var(--status-success);
+  color: white;
+}
+
+.btn--success:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Warning button - amber theme */
+.btn--warning {
+  background: var(--status-warning-subtle);
+  border: 1px solid var(--status-warning);
+  color: var(--status-warning);
+}
+
+.btn--warning:hover {
+  background: var(--status-warning);
+  color: var(--bg-primary);
+}
+
+/* Danger button - red theme */
+.btn--danger {
+  background: var(--status-error-subtle);
+  border: 1px solid var(--status-error);
+  color: var(--status-error);
+}
+
+.btn--danger:hover {
+  background: var(--status-error);
+  color: white;
+}
