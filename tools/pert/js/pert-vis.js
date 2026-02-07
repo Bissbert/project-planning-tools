@@ -22,6 +22,7 @@ let networkContainer = null;
 let edgeSvgLayer = null;
 let elkEdgeRoutes = {}; // Store ELK edge routes for rendering
 let criticalEdges = new Set(); // Track which edges are critical
+let isUpdatingNetwork = false; // Guard against edge rendering during updates
 
 // Callbacks
 let callbacks = {
@@ -385,18 +386,24 @@ function setupEventHandlers() {
 /**
  * Update the network with new PERT data
  * Uses ELK.js for node positioning and orthogonal edge routing
+ * Two-phase approach: render nodes first to measure, then run ELK with actual dimensions
  * @param {Object} pertResults - PERT analysis results
  * @param {Set} criticalPathSet - Set of node IDs on critical path
  * @param {Object} options - Options { fitView: boolean }
  */
 export async function updateNetwork(pertResults, criticalPathSet, options = {}) {
   const { fitView = true } = options;
+
+  // Set guard to prevent edge rendering during update
+  isUpdatingNetwork = true;
+
   if (!network || !pertResults || !pertResults.graph) {
     // Clear the network
     nodesDataSet.clear();
     edgesDataSet.clear();
     clearSvgEdges();
     elkEdgeRoutes = {};
+    isUpdatingNetwork = false;
     return;
   }
 
@@ -408,7 +415,7 @@ export async function updateNetwork(pertResults, criticalPathSet, options = {}) 
 
   // Build nodes array for vis-network
   const nodes = [];
-  const elkNodes = [];
+  const nodeIds = [];
 
   graph.nodes.forEach((node, id) => {
     const isCritical = criticalPathSet.has(id);
@@ -426,13 +433,7 @@ export async function updateNetwork(pertResults, criticalPathSet, options = {}) 
       nodeData: node
     });
 
-    // ELK node
-    elkNodes.push({
-      id: id,
-      label: node.name,
-      width: 180,
-      height: 100
-    });
+    nodeIds.push(id);
   });
 
   // Build edges array
@@ -458,7 +459,7 @@ export async function updateNetwork(pertResults, criticalPathSet, options = {}) 
         width: 0
       });
 
-      // ELK edge
+      // ELK edge (dimensions added after measuring)
       elkEdges.push({
         id: edgeId,
         source: fromId,
@@ -467,7 +468,62 @@ export async function updateNetwork(pertResults, criticalPathSet, options = {}) 
     });
   });
 
-  // Run ELK layout for proper orthogonal edge routing
+  // Phase 1: Add nodes to vis-network so we can measure their actual dimensions
+  nodesDataSet.clear();
+  nodesDataSet.add(nodes);
+
+  edgesDataSet.clear();
+  edgesDataSet.add(edges);
+
+  // Force a redraw so nodes are rendered
+  network.redraw();
+
+  // Phase 2: Wait for render, then measure and run ELK with actual dimensions
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  // Measure actual node dimensions from vis-network
+  const elkNodes = [];
+  const nodeDimensions = {};
+
+  nodeIds.forEach(id => {
+    try {
+      const bbox = network.getBoundingBox(id);
+      if (bbox) {
+        const width = Math.ceil(bbox.right - bbox.left);
+        const height = Math.ceil(bbox.bottom - bbox.top);
+        nodeDimensions[id] = { width, height };
+        elkNodes.push({
+          id: id,
+          label: id,
+          width: width,
+          height: height
+        });
+      } else {
+        // Fallback if bounding box not available
+        nodeDimensions[id] = { width: 180, height: 100 };
+        elkNodes.push({
+          id: id,
+          label: id,
+          width: 180,
+          height: 100
+        });
+      }
+    } catch (e) {
+      // Fallback on error
+      nodeDimensions[id] = { width: 180, height: 100 };
+      elkNodes.push({
+        id: id,
+        label: id,
+        width: 180,
+        height: 100
+      });
+    }
+  });
+
+  // Store dimensions for edge rendering
+  window._pertNodeDimensions = nodeDimensions;
+
+  // Phase 3: Run ELK layout with actual node dimensions
   let elkPositions = null;
   if (isELKAvailable() && elkNodes.length > 0 && elkEdges.length > 0) {
     try {
@@ -480,8 +536,6 @@ export async function updateNetwork(pertResults, criticalPathSet, options = {}) 
       // Extract edge routes from ELK (orthogonal paths that avoid nodes)
       elkEdgeRoutes = extractEdgeRoutes(elkResult, elkPositions);
 
-      // Note: ELK positions will be applied after vis-network's initial layout
-
     } catch (err) {
       console.warn('ELK layout failed, using default layout:', err);
       elkPositions = null;
@@ -489,46 +543,44 @@ export async function updateNetwork(pertResults, criticalPathSet, options = {}) 
     }
   }
 
-  // Update vis-network datasets
-  nodesDataSet.clear();
-  nodesDataSet.add(nodes);
-
-  edgesDataSet.clear();
-  edgesDataSet.add(edges);
-
-  // If we have ELK positions, apply them after vis-network's initial layout
+  // Phase 4: Apply ELK positions and render edges
   if (elkPositions) {
-    setTimeout(() => {
-      // Move nodes to ELK positions
-      const positionUpdates = Object.entries(elkPositions).map(([nodeId, pos]) => ({
-        id: nodeId,
-        x: pos.x,
-        y: pos.y
-      }));
-      nodesDataSet.update(positionUpdates);
+    // Move nodes to ELK positions
+    const positionUpdates = Object.entries(elkPositions).map(([nodeId, pos]) => ({
+      id: nodeId,
+      x: pos.x,
+      y: pos.y
+    }));
+    nodesDataSet.update(positionUpdates);
 
-      // Render SVG edges with ELK routes
-      setTimeout(() => {
-        renderSvgEdges();
+    // Wait for position update to complete
+    await new Promise(resolve => setTimeout(resolve, 50));
 
-        // Fit view after positioning
-        if (fitView && network) {
-          network.fit({
-            animation: { duration: 300, easingFunction: 'easeInOutQuad' }
-          });
-        }
-      }, 50);
-    }, 100);
+    // Clear guard before rendering edges
+    isUpdatingNetwork = false;
+
+    // Render SVG edges with ELK routes
+    renderSvgEdges();
+
+    // Fit view after positioning
+    if (fitView && network) {
+      network.fit({
+        animation: { duration: 300, easingFunction: 'easeInOutQuad' }
+      });
+    }
   } else {
     // No ELK - use fallback rendering
-    setTimeout(() => {
-      renderSvgEdges();
-      if (fitView && network) {
-        network.fit({
-          animation: { duration: 300, easingFunction: 'easeInOutQuad' }
-        });
-      }
-    }, 150);
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Clear guard before rendering edges
+    isUpdatingNetwork = false;
+
+    renderSvgEdges();
+    if (fitView && network) {
+      network.fit({
+        animation: { duration: 300, easingFunction: 'easeInOutQuad' }
+      });
+    }
   }
 }
 
@@ -548,7 +600,7 @@ function clearSvgEdges() {
  * Uses ELK edge routes when available, otherwise computes simple orthogonal routes
  */
 function renderSvgEdges() {
-  if (!edgeSvgLayer || !network || !edgesDataSet) return;
+  if (!edgeSvgLayer || !network || !edgesDataSet || !nodesDataSet) return;
 
   // Clear existing edges
   clearSvgEdges();
@@ -569,8 +621,19 @@ function renderSvgEdges() {
       points = elkPoints.map(p => network.canvasToDOM({ x: p.x, y: p.y }));
     } else {
       // Fallback: compute simple orthogonal route
-      const fromPos = network.getPosition(edge.from);
-      const toPos = network.getPosition(edge.to);
+      // First verify both nodes exist
+      const fromNode = nodesDataSet.get(edge.from);
+      const toNode = nodesDataSet.get(edge.to);
+      if (!fromNode || !toNode) return;
+
+      let fromPos, toPos;
+      try {
+        fromPos = network.getPosition(edge.from);
+        toPos = network.getPosition(edge.to);
+      } catch (e) {
+        // Node position not available yet
+        return;
+      }
 
       if (!fromPos || !toPos) return;
 
@@ -621,6 +684,8 @@ function renderSvgEdges() {
  * Update SVG edge positions when view changes (zoom/pan)
  */
 function updateSvgEdgePositions() {
+  // Skip if we're in the middle of updating the network
+  if (isUpdatingNetwork) return;
   if (!edgeSvgLayer || !network || !edgesDataSet) return;
 
   // Re-render edges with new view transformation
@@ -1113,16 +1178,32 @@ export function exportToPNG(padding = 100) {
 /**
  * Draw SVG edges directly to canvas for PNG export
  * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {number} width - Canvas width
- * @param {number} height - Canvas height
+ * @param {number} width - Canvas width (hiDPI scaled)
+ * @param {number} height - Canvas height (hiDPI scaled)
  */
 async function drawSvgEdgesToCanvas(ctx, width, height) {
   if (!edgeSvgLayer) return;
 
+  // Get the original SVG dimensions (DOM container size, before hiDPI scaling)
+  const svgRect = edgeSvgLayer.getBoundingClientRect();
+  const originalWidth = svgRect.width;
+  const originalHeight = svgRect.height;
+
   // Clone the SVG for modification
   const svgClone = edgeSvgLayer.cloneNode(true);
+
+  // Ensure proper SVG namespace for serialization
+  svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  svgClone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+
+  // Add viewBox to map original coordinates to export canvas size
+  // This scales the SVG content from DOM coordinates to hiDPI canvas coordinates
+  svgClone.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
   svgClone.setAttribute('width', width);
   svgClone.setAttribute('height', height);
+
+  // Reset positioning styles so SVG renders from origin
+  svgClone.style.cssText = `width: ${width}px; height: ${height}px;`;
 
   // Serialize SVG to string
   const serializer = new XMLSerializer();
