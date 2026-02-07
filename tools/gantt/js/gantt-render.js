@@ -198,11 +198,6 @@ export function renderTaskRow(container, task, type, currentWeek, projectData, e
       const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
       metaParts.push(priorityLabel + ' Priority');
     }
-    if (task.notes) {
-      // Truncate notes for print
-      const notePreview = task.notes.length > 30 ? task.notes.substring(0, 30) + '...' : task.notes;
-      metaParts.push('📝 ' + notePreview);
-    }
 
     if (metaParts.length > 0) {
       printMeta.textContent = metaParts.join(' · ');
@@ -261,29 +256,17 @@ export function renderTaskRow(container, task, type, currentWeek, projectData, e
       nameDiv.appendChild(priorityDot);
     }
 
-    // Hover-reveal container for assignee and notes
-    const hoverMeta = document.createElement('span');
-    hoverMeta.className = 'task-hover-meta';
-
-    // Assignee display (hover reveal)
+    // Hover-reveal container for assignee
     if (task.assignee) {
+      const hoverMeta = document.createElement('span');
+      hoverMeta.className = 'task-hover-meta';
+
       const assigneeSpan = document.createElement('span');
       assigneeSpan.className = 'task-assignee';
       assigneeSpan.textContent = task.assignee;
       assigneeSpan.title = `Assigned to ${task.assignee}`;
       hoverMeta.appendChild(assigneeSpan);
-    }
 
-    // Notes indicator (hover reveal)
-    if (task.notes) {
-      const notesIcon = document.createElement('span');
-      notesIcon.className = 'task-notes-icon';
-      notesIcon.innerHTML = '\uD83D\uDCDD';
-      notesIcon.title = task.notes;
-      hoverMeta.appendChild(notesIcon);
-    }
-
-    if (hoverMeta.children.length > 0) {
       nameDiv.appendChild(hoverMeta);
     }
 
