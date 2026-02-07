@@ -121,4 +121,26 @@
     border-top: 1px solid #e5e5e5;
     margin-top: 8px;
   }
+
+  /* ========== PRINT METADATA IN REALITY ROW ========== */
+  /* Show metadata (assignee, priority, notes) in reality row for print */
+  .task-print-meta {
+    display: block !important;
+    font-size: 7pt;
+    color: #666 !important;
+    font-style: italic;
+    padding-left: 20px;
+  }
+
+  /* Hide hover metadata in print (already showing in reality row) */
+  .task-hover-meta {
+    display: none !important;
+  }
+
+  /* Ensure priority dots print with color */
+  .priority-dot {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
 }
