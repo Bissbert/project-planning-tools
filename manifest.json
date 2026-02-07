@@ -1,0 +1,13 @@
+{
+  "name": "Project Planning Tools",
+  "short_name": "Plan Tools",
+  "description": "Offline-first project planning suite",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101014",
+  "theme_color": "#a78bfa",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}
