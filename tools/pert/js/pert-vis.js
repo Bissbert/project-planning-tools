@@ -1,12 +1,21 @@
 /**
  * PERT vis-network Module
  * Handles vis-network initialization, rendering, and interactions
+ * Uses SVG overlay for orthogonal edge routing
  */
+
+import {
+  initELK,
+  generateSVGPath
+} from './pert-elk.js';
 
 // vis-network instance
 let network = null;
 let nodesDataSet = null;
 let edgesDataSet = null;
+let networkContainer = null;
+let edgeSvgLayer = null;
+let criticalEdges = new Set(); // Track which edges are critical
 
 // Callbacks
 let callbacks = {
@@ -38,6 +47,10 @@ const COLORS = {
  */
 export function initNetwork(container, handlers) {
   callbacks = { ...callbacks, ...handlers };
+  networkContainer = container;
+
+  // Initialize ELK for orthogonal edge routing
+  initELK();
 
   // Initialize empty data sets
   nodesDataSet = new vis.DataSet([]);
@@ -52,13 +65,84 @@ export function initNetwork(container, handlers) {
 
   network = new vis.Network(container, data, options);
 
+  // Create SVG layer for orthogonal edges AFTER vis.Network (so it's on top)
+  createEdgeSvgLayer(container);
+
   // Expose for debugging
   window._pertNetwork = network;
 
   // Set up event handlers
   setupEventHandlers();
 
+  // Listen for view changes to update SVG edges
+  network.on('afterDrawing', updateSvgEdgePositions);
+
   return network;
+}
+
+/**
+ * Create SVG layer for orthogonal edges
+ * @param {HTMLElement} container - The container element
+ */
+function createEdgeSvgLayer(container) {
+  // Remove existing SVG layer if present
+  if (edgeSvgLayer) {
+    edgeSvgLayer.remove();
+  }
+
+  // Create SVG element that overlays the canvas
+  edgeSvgLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  edgeSvgLayer.setAttribute('class', 'pert-edge-layer');
+  edgeSvgLayer.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  `;
+
+  // Add arrow marker definition
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+  // Normal edge arrow
+  const markerNormal = createArrowMarker('arrow-normal', COLORS.textMuted);
+  defs.appendChild(markerNormal);
+
+  // Critical edge arrow
+  const markerCritical = createArrowMarker('arrow-critical', COLORS.accent);
+  defs.appendChild(markerCritical);
+
+  edgeSvgLayer.appendChild(defs);
+
+  // Append SVG to container (on top of canvas, but pointer-events: none lets clicks through)
+  container.style.position = 'relative';
+  container.appendChild(edgeSvgLayer);
+}
+
+/**
+ * Create an arrow marker for SVG edges
+ * @param {string} id - Marker ID
+ * @param {string} color - Arrow color
+ * @returns {SVGElement} Marker element
+ */
+function createArrowMarker(id, color) {
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', id);
+  marker.setAttribute('viewBox', '0 0 10 10');
+  marker.setAttribute('refX', '9');
+  marker.setAttribute('refY', '5');
+  marker.setAttribute('markerWidth', '8');
+  marker.setAttribute('markerHeight', '8');
+  marker.setAttribute('orient', 'auto-start-reverse');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+  path.setAttribute('fill', color);
+
+  marker.appendChild(path);
+  return marker;
 }
 
 /**
@@ -294,6 +378,7 @@ function setupEventHandlers() {
 
 /**
  * Update the network with new PERT data
+ * Uses vis-network for layout, SVG for orthogonal edge rendering
  * @param {Object} pertResults - PERT analysis results
  * @param {Set} criticalPathSet - Set of node IDs on critical path
  * @param {Object} options - Options { fitView: boolean }
@@ -304,10 +389,14 @@ export function updateNetwork(pertResults, criticalPathSet, options = {}) {
     // Clear the network
     nodesDataSet.clear();
     edgesDataSet.clear();
+    clearSvgEdges();
     return;
   }
 
   const { graph } = pertResults;
+
+  // Track critical edges for rendering
+  criticalEdges.clear();
 
   // Build nodes array
   const nodes = [];
@@ -331,24 +420,24 @@ export function updateNetwork(pertResults, criticalPathSet, options = {}) {
     });
   });
 
-  // Build edges array
+  // Build edges array (hidden - we use SVG for orthogonal edges)
   const edges = [];
   graph.adjacency.forEach((successors, fromId) => {
     successors.forEach(toId => {
-      const fromNode = graph.nodes.get(fromId);
-      const toNode = graph.nodes.get(toId);
+      const edgeId = `${fromId}->${toId}`;
       const isCritical = criticalPathSet.has(fromId) && criticalPathSet.has(toId);
 
+      if (isCritical) {
+        criticalEdges.add(edgeId);
+      }
+
       edges.push({
-        id: `${fromId}->${toId}`,
+        id: edgeId,
         from: fromId,
         to: toId,
-        color: {
-          color: isCritical ? COLORS.accent : COLORS.textMuted,
-          highlight: COLORS.accentBright,
-          hover: COLORS.textSecondary
-        },
-        width: isCritical ? 2.5 : 1.5
+        hidden: true, // Hide vis-network edges - we use SVG
+        color: { color: 'transparent' },
+        width: 0
       });
     });
   });
@@ -359,6 +448,11 @@ export function updateNetwork(pertResults, criticalPathSet, options = {}) {
 
   edgesDataSet.clear();
   edgesDataSet.add(edges);
+
+  // Render SVG edges after vis-network positions nodes
+  setTimeout(() => {
+    renderSvgEdges();
+  }, 100);
 
   // Fit the view after update (only on initial load or when requested)
   if (fitView) {
@@ -371,8 +465,108 @@ export function updateNetwork(pertResults, criticalPathSet, options = {}) {
           }
         });
       }
-    }, 100);
+    }, 200);
   }
+}
+
+/**
+ * Clear all SVG edges
+ */
+function clearSvgEdges() {
+  if (!edgeSvgLayer) return;
+
+  // Remove all path elements (keep defs)
+  const paths = edgeSvgLayer.querySelectorAll('path.edge-path');
+  paths.forEach(p => p.remove());
+}
+
+/**
+ * Render orthogonal edges using SVG
+ * Uses actual vis-network node positions to compute routes
+ */
+function renderSvgEdges() {
+  if (!edgeSvgLayer || !network || !edgesDataSet) return;
+
+  // Clear existing edges
+  clearSvgEdges();
+
+  // Get all edges
+  const edges = edgesDataSet.get();
+  if (!edges || edges.length === 0) return;
+
+  // Node dimensions
+  const nodeWidth = 180;
+  const nodeHeight = 100;
+
+  edges.forEach(edge => {
+    const fromPos = network.getPosition(edge.from);
+    const toPos = network.getPosition(edge.to);
+
+    if (!fromPos || !toPos) return;
+
+    const isCritical = criticalEdges.has(edge.id);
+
+    // Convert to DOM coordinates
+    const fromDOM = network.canvasToDOM(fromPos);
+    const toDOM = network.canvasToDOM(toPos);
+
+    // Calculate node boundaries in DOM space
+    const scale = network.getScale();
+    const halfWidth = (nodeWidth / 2) * scale;
+    const halfHeight = (nodeHeight / 2) * scale;
+
+    // Calculate orthogonal route points
+    // Start from right edge of source node
+    const startX = fromDOM.x + halfWidth;
+    const startY = fromDOM.y;
+
+    // End at left edge of target node
+    const endX = toDOM.x - halfWidth;
+    const endY = toDOM.y;
+
+    // Calculate midpoint for the bend
+    const midX = (startX + endX) / 2;
+
+    // Create orthogonal path (horizontal -> vertical -> horizontal)
+    const points = [
+      { x: startX, y: startY },
+      { x: midX, y: startY },
+      { x: midX, y: endY },
+      { x: endX, y: endY }
+    ];
+
+    // If nodes are on same row, simplify to straight line
+    if (Math.abs(startY - endY) < 5) {
+      points.length = 0;
+      points.push({ x: startX, y: startY });
+      points.push({ x: endX, y: endY });
+    }
+
+    // Generate SVG path
+    const pathD = generateSVGPath(points);
+
+    // Create path element
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'edge-path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', isCritical ? COLORS.accent : COLORS.textMuted);
+    path.setAttribute('stroke-width', isCritical ? '2.5' : '1.5');
+    path.setAttribute('marker-end', `url(#${isCritical ? 'arrow-critical' : 'arrow-normal'})`);
+    path.setAttribute('data-edge-id', edge.id);
+
+    edgeSvgLayer.appendChild(path);
+  });
+}
+
+/**
+ * Update SVG edge positions when view changes (zoom/pan)
+ */
+function updateSvgEdgePositions() {
+  if (!edgeSvgLayer || !network || !edgesDataSet) return;
+
+  // Re-render edges with new view transformation
+  renderSvgEdges();
 }
 
 /**
@@ -669,11 +863,21 @@ export function destroyNetwork() {
     nodesDataSet = null;
     edgesDataSet = null;
   }
+
+  // Clean up SVG layer
+  if (edgeSvgLayer) {
+    edgeSvgLayer.remove();
+    edgeSvgLayer = null;
+  }
+
+  criticalEdges.clear();
+  networkContainer = null;
 }
 
 /**
  * Export the network as PNG
  * Renders at full resolution by temporarily resizing the container
+ * Captures both canvas nodes and SVG edges
  * @param {number} padding - Padding around the network in pixels (default 100)
  * @returns {Promise<string>} Data URL of the PNG
  */
@@ -750,7 +954,7 @@ export function exportToPNG(padding = 100) {
     });
 
     // Capture after resize and render completes
-    const captureHighRes = () => {
+    const captureHighRes = async () => {
       try {
         // Find the canvas element
         let sourceCanvas = null;
@@ -781,8 +985,13 @@ export function exportToPNG(padding = 100) {
         ctx.fillStyle = COLORS.bgPrimary;
         ctx.fillRect(0, 0, srcWidth, srcHeight);
 
-        // Draw the source canvas (already at high resolution)
+        // Draw the source canvas (nodes only, at high resolution)
         ctx.drawImage(sourceCanvas, 0, 0);
+
+        // Now draw SVG edges on top
+        if (edgeSvgLayer && Object.keys(edgeRoutes).length > 0) {
+          await drawSvgEdgesToCanvas(ctx, srcWidth, srcHeight);
+        }
 
         // Restore container size
         container.style.width = originalWidth;
@@ -802,6 +1011,9 @@ export function exportToPNG(padding = 100) {
 
         // Redraw at original size
         network.redraw();
+
+        // Re-render SVG edges for current view
+        renderSvgEdges();
 
         resolve(exportCanvas.toDataURL('image/png'));
       } catch (err) {
@@ -823,6 +1035,8 @@ export function exportToPNG(padding = 100) {
     // Wait for resize and redraw to complete
     setTimeout(() => {
       network.redraw();
+      // Re-render SVG edges for the export view
+      renderSvgEdges();
       setTimeout(() => {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -831,6 +1045,45 @@ export function exportToPNG(padding = 100) {
         });
       }, 100);
     }, 50);
+  });
+}
+
+/**
+ * Draw SVG edges directly to canvas for PNG export
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
+ */
+async function drawSvgEdgesToCanvas(ctx, width, height) {
+  if (!edgeSvgLayer) return;
+
+  // Clone the SVG for modification
+  const svgClone = edgeSvgLayer.cloneNode(true);
+  svgClone.setAttribute('width', width);
+  svgClone.setAttribute('height', height);
+
+  // Serialize SVG to string
+  const serializer = new XMLSerializer();
+  let svgString = serializer.serializeToString(svgClone);
+
+  // Create a blob and image
+  const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      resolve();
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      // Don't reject - just skip SVG edges
+      console.warn('Could not render SVG edges to PNG');
+      resolve();
+    };
+    img.src = url;
   });
 }
 
