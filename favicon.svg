@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark background -->
+  <rect width="32" height="32" rx="4" fill="#18181f"/>
+
+  <!-- Simple Gantt-style horizontal bars -->
+  <rect x="6" y="7" width="12" height="3" rx="1" fill="#a78bfa"/>
+  <rect x="6" y="14" width="18" height="3" rx="1" fill="#7c7c8a"/>
+  <rect x="6" y="21" width="8" height="3" rx="1" fill="#a78bfa"/>
+</svg>
