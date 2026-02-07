@@ -276,6 +276,8 @@ export function moveItem(projectData, retroId, itemId, newColumn, newPosition) {
 
 /**
  * Get items for a column, sorted by position
+ * Handles both array format [{column: 'went-well', ...}] and
+ * legacy object format {'went-well': [...], ...}
  * @param {Object} retro - Retrospective object
  * @param {string} column - Column ID
  * @returns {Array} - Sorted items
@@ -283,9 +285,24 @@ export function moveItem(projectData, retroId, itemId, newColumn, newPosition) {
 export function getColumnItems(retro, column) {
   if (!retro || !retro.items) return [];
 
-  return retro.items
-    .filter(i => i.column === column && !i.groupId)
-    .sort((a, b) => (a.position || 0) - (b.position || 0));
+  // Handle array format (current)
+  if (Array.isArray(retro.items)) {
+    return retro.items
+      .filter(i => i.column === column && !i.groupId)
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
+  }
+
+  // Handle legacy object format
+  if (typeof retro.items === 'object' && retro.items[column]) {
+    const items = retro.items[column];
+    if (Array.isArray(items)) {
+      return items
+        .filter(i => !i.groupId)
+        .sort((a, b) => (a.position || 0) - (b.position || 0));
+    }
+  }
+
+  return [];
 }
 
 /**
