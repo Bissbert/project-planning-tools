@@ -185,6 +185,31 @@ export function renderTaskRow(container, task, type, currentWeek, projectData, e
   const nameDiv = document.createElement('div');
   nameDiv.className = 'task-name';
 
+  if (type === 'reality') {
+    // Print-only metadata row (hidden on screen, visible in print)
+    const printMeta = document.createElement('span');
+    printMeta.className = 'task-print-meta';
+
+    const metaParts = [];
+    if (task.assignee) {
+      metaParts.push(task.assignee);
+    }
+    if (task.priority) {
+      const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+      metaParts.push(priorityLabel + ' Priority');
+    }
+    if (task.notes) {
+      // Truncate notes for print
+      const notePreview = task.notes.length > 30 ? task.notes.substring(0, 30) + '...' : task.notes;
+      metaParts.push('📝 ' + notePreview);
+    }
+
+    if (metaParts.length > 0) {
+      printMeta.textContent = metaParts.join(' · ');
+      nameDiv.appendChild(printMeta);
+    }
+  }
+
   if (type === 'planned') {
     // Drag handle (edit mode only)
     if (editMode) {
@@ -228,31 +253,38 @@ export function renderTaskRow(container, task, type, currentWeek, projectData, e
     }
     nameDiv.appendChild(nameText);
 
-    // Priority badge
+    // Priority dot (always visible, compact)
     if (task.priority) {
-      const priorityBadge = document.createElement('span');
-      priorityBadge.className = `priority-badge priority-badge--${task.priority}`;
-      priorityBadge.textContent = task.priority.charAt(0).toUpperCase();
-      priorityBadge.title = `${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority`;
-      nameDiv.appendChild(priorityBadge);
+      const priorityDot = document.createElement('span');
+      priorityDot.className = `priority-dot priority-dot--${task.priority}`;
+      priorityDot.title = `${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority`;
+      nameDiv.appendChild(priorityDot);
     }
 
-    // Assignee display
+    // Hover-reveal container for assignee and notes
+    const hoverMeta = document.createElement('span');
+    hoverMeta.className = 'task-hover-meta';
+
+    // Assignee display (hover reveal)
     if (task.assignee) {
       const assigneeSpan = document.createElement('span');
       assigneeSpan.className = 'task-assignee';
       assigneeSpan.textContent = task.assignee;
       assigneeSpan.title = `Assigned to ${task.assignee}`;
-      nameDiv.appendChild(assigneeSpan);
+      hoverMeta.appendChild(assigneeSpan);
     }
 
-    // Notes indicator
+    // Notes indicator (hover reveal)
     if (task.notes) {
       const notesIcon = document.createElement('span');
       notesIcon.className = 'task-notes-icon';
       notesIcon.innerHTML = '\uD83D\uDCDD';
       notesIcon.title = task.notes;
-      nameDiv.appendChild(notesIcon);
+      hoverMeta.appendChild(notesIcon);
+    }
+
+    if (hoverMeta.children.length > 0) {
+      nameDiv.appendChild(hoverMeta);
     }
 
     // Task action buttons (edit mode only)
