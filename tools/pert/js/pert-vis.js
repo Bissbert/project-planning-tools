@@ -128,7 +128,7 @@ function getNetworkOptions(editMode) {
       width: 1.5,
       smooth: {
         enabled: true,
-        type: 'cubicBezier',
+        type: 'horizontal',
         roundness: 0.5
       },
       font: {
