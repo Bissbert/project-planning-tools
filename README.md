@@ -142,6 +142,7 @@ project-planning-tools/
             ├── pert-calc.js
             ├── pert-render.js
             ├── pert-vis.js
+            ├── pert-elk.js
             ├── pert-edit.js
             └── pert-layout.js
 ```
@@ -279,6 +280,8 @@ Network diagram for task dependencies and critical path analysis.
 
 **Features:**
 - Interactive network diagram (vis-network library)
+- ELK.js orthogonal edge routing (90-degree angles, parallel edges)
+- Dynamic node dimension measurement for precise edge alignment
 - Critical path highlighting with zero-slack visualization
 - PERT calculations: Early Start/Finish, Late Start/Finish, Slack
 - Continuous edge drawing in edit mode
@@ -288,6 +291,7 @@ Network diagram for task dependencies and critical path analysis.
 - Data scope toggle (milestones only vs all tasks)
 - Node details modal and sidebar
 - Floating glass-panel controls (zoom, edit notice)
+- High-quality PNG export with proper hiDPI scaling
 - Export as PNG or JSON
 - Search/filter nodes
 

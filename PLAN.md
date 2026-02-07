@@ -217,11 +217,14 @@ Lower priority - for more complex project management needs.
 
 #### PERT Chart (Complete)
 
-Network diagram for task dependencies and critical path analysis using vis-network library.
+Network diagram for task dependencies and critical path analysis using vis-network library with ELK.js for advanced edge routing.
 
 **Implemented Features:**
 - [x] Interactive network diagram with vis-network library
-- [x] Critical path highlighting (zero-slack tasks in accent color)
+- [x] ELK.js orthogonal edge routing (90-degree angles, edges avoid nodes)
+- [x] Dynamic node dimension measurement for precise edge alignment
+- [x] Parallel edge separation (multiple edges don't overlap)
+- [x] Critical path highlighting (zero-slack tasks and edges in accent color)
 - [x] Forward pass (ES/EF) and backward pass (LS/LF) calculations
 - [x] Slack time calculation per task
 - [x] Continuous edge drawing in edit mode (draw multiple edges without re-entering mode)
@@ -234,6 +237,7 @@ Network diagram for task dependencies and critical path analysis using vis-netwo
 - [x] Floating glass-panel zoom controls (bottom-left)
 - [x] Floating edit mode notice (top-right)
 - [x] Zoom and pan navigation
+- [x] High-quality PNG export with proper hiDPI scaling and SVG edge rendering
 - [x] Export as PNG or JSON
 - [x] Search/filter nodes
 - [x] Edit mode toggle
