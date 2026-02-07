@@ -567,7 +567,7 @@ export function startRenameCategory(element, categoryName, projectData, onSave) 
  */
 export function startEditTitle(projectData, onSave) {
   const titleEl = document.getElementById('projectTitle');
-  const currentTitle = projectData.project.title || '8-Month Game Production';
+  const currentTitle = projectData.project.title || projectData.project.name || 'Untitled Project';
 
   const input = document.createElement('input');
   input.type = 'text';
@@ -581,8 +581,10 @@ export function startEditTitle(projectData, onSave) {
 
   const finish = () => {
     const newTitle = input.value.trim();
-    if (newTitle && newTitle !== projectData.project.title) {
+    const oldTitle = projectData.project.title || projectData.project.name;
+    if (newTitle && newTitle !== oldTitle) {
       projectData.project.title = newTitle;
+      projectData.project.name = newTitle; // Keep both in sync
     }
     onSave();
   };

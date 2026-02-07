@@ -4,7 +4,7 @@
  */
 
 // Data format version (v12 adds task dependencies for PERT charts)
-export const DATA_VERSION = 12;
+export const DATA_VERSION = 13;
 
 // Storage key (shared between tools)
 export const STORAGE_KEY = 'ganttProject';
@@ -471,6 +471,57 @@ function migrateV11ToV12(data) {
   return data;
 }
 
+/**
+ * Migrate project data from v12 to v13 format (normalizes retrospective items to array)
+ * Old format: items: { 'went-well': [...], 'to-improve': [...], 'action-items': [...] }
+ * New format: items: [{ column: 'went-well', ... }, { column: 'to-improve', ... }, ...]
+ * @param {Object} data - Project data to migrate
+ * @returns {Object} - Migrated data
+ */
+function migrateV12ToV13(data) {
+  if (!data.retrospectives) {
+    data.retrospectives = [];
+    return data;
+  }
+
+  data.retrospectives.forEach(retro => {
+    // Skip if already in array format
+    if (Array.isArray(retro.items)) {
+      return;
+    }
+
+    // Convert object format to array format
+    if (retro.items && typeof retro.items === 'object') {
+      const flatItems = [];
+      const columnMapping = {
+        'went-well': 'went-well',
+        'to-improve': 'to-improve',
+        'action-items': 'action-items'
+      };
+
+      Object.entries(retro.items).forEach(([columnKey, items]) => {
+        const column = columnMapping[columnKey] || columnKey;
+        if (Array.isArray(items)) {
+          items.forEach((item, index) => {
+            flatItems.push({
+              ...item,
+              column,
+              position: index
+            });
+          });
+        }
+      });
+
+      retro.items = flatItems;
+    } else {
+      // No items or invalid format, initialize empty array
+      retro.items = [];
+    }
+  });
+
+  return data;
+}
+
 // ========== MIGRATION REGISTRY ==========
 
 /**
@@ -485,7 +536,8 @@ const migrations = {
   9: migrateV8ToV9,
   10: migrateV9ToV10,
   11: migrateV10ToV11,
-  12: migrateV11ToV12
+  12: migrateV11ToV12,
+  13: migrateV12ToV13
 };
 
 /**
