@@ -574,7 +574,7 @@ function applyWeekRange() {
 // ========== SETTINGS MODAL ==========
 
 function openSettings() {
-  document.getElementById('settingsTitle').value = projectData.project.title;
+  document.getElementById('settingsTitle').value = projectData.project.title || projectData.project.name || '';
   document.getElementById('settingsStartDate').value = projectData.project.startDate;
   document.getElementById('settingsEndDate').value = projectData.project.endDate;
   updateProjectDatesPreview();
@@ -759,19 +759,21 @@ function redo() {
 // ========== EXPORT/IMPORT ==========
 
 function exportToJSON() {
-  const filename = sanitizeFilename(projectData.project.title);
+  const projectName = projectData.project.title || projectData.project.name || 'project';
+  const filename = sanitizeFilename(projectName);
   downloadJSON(projectData, filename);
   statusManager.show('JSON exported', true);
 }
 
 function exportToExcel() {
+  const projectName = projectData.project.title || projectData.project.name || 'project';
   const xml = generateExcelXML();
   const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${sanitizeFilename(projectData.project.title)}.xls`;
+  a.download = `${sanitizeFilename(projectName)}.xls`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -868,8 +870,9 @@ function generateExcelXML() {
   let rows = '';
 
   // Title row
+  const excelTitle = projectData.project.title || projectData.project.name || 'Project';
   rows += `<Row ss:Height="20">
-    <Cell ss:StyleID="Title"><Data ss:Type="String">${projectData.project.title}</Data></Cell>
+    <Cell ss:StyleID="Title"><Data ss:Type="String">${excelTitle}</Data></Cell>
   </Row>
   <Row ss:Height="16">
     <Cell><Data ss:Type="String">Start: ${projectData.project.startDate} | Weeks: ${totalWeeks}</Data></Cell>

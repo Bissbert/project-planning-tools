@@ -295,7 +295,7 @@ window.saveSettings = function() {
 // ========== EXPORT ==========
 
 window.exportToJSON = function() {
-  const filename = sanitizeFilename(projectData.project.title);
+  const filename = sanitizeFilename(projectData.project.title || projectData.project.name || "project");
   downloadJSON(projectData, filename);
   statusManager.show('JSON exported', true);
 };

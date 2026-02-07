@@ -19,7 +19,7 @@ import {
  */
 export function renderProjectTitle(projectData, editMode, onEditTitle) {
   const titleEl = document.getElementById('projectTitle');
-  titleEl.textContent = projectData.project.title || '8-Month Game Production';
+  titleEl.textContent = projectData.project.title || projectData.project.name || 'Untitled Project';
 
   // Remove old listeners by replacing the element
   const newTitleEl = titleEl.cloneNode(true);

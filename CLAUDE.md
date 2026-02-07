@@ -140,7 +140,7 @@ IMPORTANT: Always use specialized agents when available:
 
 ## Data Model & Migrations
 
-**Current Version:** v12
+**Current Version:** v13
 
 The unified data model uses a migration registry pattern:
 

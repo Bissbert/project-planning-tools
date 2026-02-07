@@ -104,6 +104,30 @@ function loadData() {
     projectData.retrospectives = [];
   }
 
+  // Normalize retrospective items to array format
+  // (handles legacy object format: {'went-well': [...], ...})
+  projectData.retrospectives.forEach(retro => {
+    if (retro.items && !Array.isArray(retro.items)) {
+      const flatItems = [];
+      Object.entries(retro.items).forEach(([columnKey, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach((item, index) => {
+            flatItems.push({
+              ...item,
+              column: columnKey,
+              position: item.position ?? index
+            });
+          });
+        }
+      });
+      retro.items = flatItems;
+    }
+    // Ensure items is always an array
+    if (!retro.items) {
+      retro.items = [];
+    }
+  });
+
   // Auto-select most recent retro
   if (projectData.retrospectives.length > 0 && !activeRetroId) {
     const sorted = [...projectData.retrospectives].sort((a, b) =>
@@ -595,7 +619,7 @@ function redo() {
 // ========== EXPORT/IMPORT ==========
 
 window.exportToJSON = function() {
-  const filename = sanitizeFilename(projectData.project.title);
+  const filename = sanitizeFilename(projectData.project.title || projectData.project.name || "project");
   downloadJSON(projectData, filename);
   statusManager.show('JSON exported', true);
 };

@@ -261,7 +261,8 @@ window.importProject = function() {
 };
 
 window.exportToJSON = function() {
-  const filename = sanitizeFilename(projectData.project.title || 'project') + '.json';
+  const projectName = projectData.project.title || projectData.project.name || 'project';
+  const filename = sanitizeFilename(projectName) + '.json';
   downloadJSON(projectData, filename);
   statusManager.show('Exported as ' + filename, 'success');
 };
