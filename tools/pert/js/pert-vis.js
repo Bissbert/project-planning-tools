@@ -677,12 +677,11 @@ export function destroyNetwork() {
 
 /**
  * Export the network as PNG
- * Captures the full network at high resolution with padding
- * @param {number} scale - Resolution scale factor (default 2 for retina/zoom quality)
- * @param {number} padding - Padding around the network in pixels (default 80)
+ * Renders at full resolution by temporarily resizing the container
+ * @param {number} padding - Padding around the network in pixels (default 100)
  * @returns {Promise<string>} Data URL of the PNG
  */
-export function exportToPNG(scale = 2, padding = 80) {
+export function exportToPNG(padding = 100) {
   return new Promise((resolve, reject) => {
     if (!network) {
       reject(new Error('Network not initialized'));
@@ -717,6 +716,8 @@ export function exportToPNG(scale = 2, padding = 80) {
     // Calculate content dimensions in network coordinates
     const contentWidth = maxX - minX;
     const contentHeight = maxY - minY;
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
 
     // Save current view state
     const currentScale = network.getScale();
@@ -724,27 +725,44 @@ export function exportToPNG(scale = 2, padding = 80) {
 
     // Get the container
     const container = network.body.container;
+    const originalWidth = container.style.width;
+    const originalHeight = container.style.height;
+    const originalOverflow = container.style.overflow;
+    const originalPosition = container.style.position;
 
-    // Fit all nodes in view with some margin
-    network.fit({
-      nodes: nodeIds,
-      animation: false,
-      minZoomLevel: 0.1,
-      maxZoomLevel: 2
+    // Calculate export size at 1:1 scale (network coords = pixels) plus padding
+    // Use 2x for high DPI quality
+    const hiDpiScale = 2;
+    const exportWidth = (contentWidth + padding * 2) * hiDpiScale;
+    const exportHeight = (contentHeight + padding * 2) * hiDpiScale;
+
+    // Temporarily resize container to fit content at 1:1 scale
+    // This makes vis-network render text at full size
+    container.style.position = 'absolute';
+    container.style.width = `${exportWidth / hiDpiScale}px`;
+    container.style.height = `${exportHeight / hiDpiScale}px`;
+    container.style.overflow = 'hidden';
+
+    // Force network to resize to new container
+    network.setSize(`${exportWidth / hiDpiScale}px`, `${exportHeight / hiDpiScale}px`);
+
+    // Set view to show all content at 1:1 scale centered
+    network.moveTo({
+      position: { x: centerX, y: centerY },
+      scale: 1.0,
+      animation: false
     });
 
-    // Capture after fit completes
-    const captureAfterFit = () => {
+    // Capture after resize and render completes
+    const captureHighRes = () => {
       try {
         // Find the canvas element
         let sourceCanvas = null;
 
-        // Try the internal path
         if (network.canvas && network.canvas.frame && network.canvas.frame.canvas) {
           sourceCanvas = network.canvas.frame.canvas;
         }
 
-        // Fallback: find canvas in container
         if (!sourceCanvas) {
           sourceCanvas = container.querySelector('canvas');
         }
@@ -753,33 +771,31 @@ export function exportToPNG(scale = 2, padding = 80) {
           throw new Error('Canvas not found');
         }
 
-        // Get canvas dimensions
+        // Get the source canvas (may have devicePixelRatio scaling)
         const srcWidth = sourceCanvas.width;
         const srcHeight = sourceCanvas.height;
 
-        // Calculate export dimensions
-        // Add padding scaled appropriately
-        const paddingScaled = padding * scale;
-        const exportWidth = srcWidth * scale + paddingScaled * 2;
-        const exportHeight = srcHeight * scale + paddingScaled * 2;
-
-        // Create the export canvas at high resolution
+        // Create export canvas
         const exportCanvas = document.createElement('canvas');
         const ctx = exportCanvas.getContext('2d');
-        exportCanvas.width = exportWidth;
-        exportCanvas.height = exportHeight;
+        exportCanvas.width = srcWidth;
+        exportCanvas.height = srcHeight;
 
         // Fill background
         ctx.fillStyle = COLORS.bgPrimary;
-        ctx.fillRect(0, 0, exportWidth, exportHeight);
+        ctx.fillRect(0, 0, srcWidth, srcHeight);
 
-        // Draw the source canvas centered with padding
-        // Scale up for high resolution
-        ctx.drawImage(
-          sourceCanvas,
-          0, 0, srcWidth, srcHeight,
-          paddingScaled, paddingScaled, srcWidth * scale, srcHeight * scale
-        );
+        // Draw the source canvas (already at high resolution)
+        ctx.drawImage(sourceCanvas, 0, 0);
+
+        // Restore container size
+        container.style.width = originalWidth;
+        container.style.height = originalHeight;
+        container.style.overflow = originalOverflow;
+        container.style.position = originalPosition;
+
+        // Force network to resize back
+        network.setSize(originalWidth, originalHeight);
 
         // Restore original view
         network.moveTo({
@@ -788,9 +804,17 @@ export function exportToPNG(scale = 2, padding = 80) {
           animation: false
         });
 
+        // Redraw at original size
+        network.redraw();
+
         resolve(exportCanvas.toDataURL('image/png'));
       } catch (err) {
-        // Restore view on error
+        // Restore container on error
+        container.style.width = originalWidth;
+        container.style.height = originalHeight;
+        container.style.overflow = originalOverflow;
+        container.style.position = originalPosition;
+        network.setSize(originalWidth, originalHeight);
         network.moveTo({
           position: currentPosition,
           scale: currentScale,
@@ -800,14 +824,16 @@ export function exportToPNG(scale = 2, padding = 80) {
       }
     };
 
-    // Wait for fit and redraw to complete
-    // Use multiple frames to ensure rendering is done
+    // Wait for resize and redraw to complete
     setTimeout(() => {
-      requestAnimationFrame(() => {
+      network.redraw();
+      setTimeout(() => {
         requestAnimationFrame(() => {
-          captureAfterFit();
+          requestAnimationFrame(() => {
+            captureHighRes();
+          });
         });
-      });
+      }, 100);
     }, 50);
   });
 }
