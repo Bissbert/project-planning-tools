@@ -736,6 +736,8 @@ window.exportToPNG = async function() {
     return;
   }
 
+  statusManager.show('Exporting PNG...');
+
   try {
     const dataUrl = await networkExportToPNG();
 
@@ -748,7 +750,7 @@ window.exportToPNG = async function() {
     statusManager.show('PNG exported', true);
   } catch (err) {
     console.error('Failed to export PNG:', err);
-    statusManager.show('Export failed');
+    statusManager.show('Export failed: ' + err.message);
   }
 };
 

@@ -677,36 +677,138 @@ export function destroyNetwork() {
 
 /**
  * Export the network as PNG
+ * Captures the full network at high resolution with padding
+ * @param {number} scale - Resolution scale factor (default 2 for retina/zoom quality)
+ * @param {number} padding - Padding around the network in pixels (default 80)
  * @returns {Promise<string>} Data URL of the PNG
  */
-export function exportToPNG() {
+export function exportToPNG(scale = 2, padding = 80) {
   return new Promise((resolve, reject) => {
     if (!network) {
       reject(new Error('Network not initialized'));
       return;
     }
 
-    // Get canvas element from vis-network
-    const canvas = network.canvas.frame.canvas;
-    if (!canvas) {
-      reject(new Error('Canvas not found'));
+    // Get all node positions to calculate bounding box
+    const positions = network.getPositions();
+    const nodeIds = Object.keys(positions);
+
+    if (nodeIds.length === 0) {
+      reject(new Error('No nodes to export'));
       return;
     }
 
-    // Create a new canvas with white background
-    const exportCanvas = document.createElement('canvas');
-    const ctx = exportCanvas.getContext('2d');
-    exportCanvas.width = canvas.width;
-    exportCanvas.height = canvas.height;
+    // Calculate bounding box of all nodes in network coordinates
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
 
-    // Fill background
-    ctx.fillStyle = COLORS.bgPrimary;
-    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    // Node size (matches the node options in getNetworkOptions)
+    const nodeWidth = 180;
+    const nodeHeight = 100;
 
-    // Draw the network canvas
-    ctx.drawImage(canvas, 0, 0);
+    nodeIds.forEach(id => {
+      const pos = positions[id];
+      minX = Math.min(minX, pos.x - nodeWidth / 2);
+      maxX = Math.max(maxX, pos.x + nodeWidth / 2);
+      minY = Math.min(minY, pos.y - nodeHeight / 2);
+      maxY = Math.max(maxY, pos.y + nodeHeight / 2);
+    });
 
-    resolve(exportCanvas.toDataURL('image/png'));
+    // Calculate content dimensions in network coordinates
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    // Save current view state
+    const currentScale = network.getScale();
+    const currentPosition = network.getViewPosition();
+
+    // Get the container
+    const container = network.body.container;
+
+    // Fit all nodes in view with some margin
+    network.fit({
+      nodes: nodeIds,
+      animation: false,
+      minZoomLevel: 0.1,
+      maxZoomLevel: 2
+    });
+
+    // Capture after fit completes
+    const captureAfterFit = () => {
+      try {
+        // Find the canvas element
+        let sourceCanvas = null;
+
+        // Try the internal path
+        if (network.canvas && network.canvas.frame && network.canvas.frame.canvas) {
+          sourceCanvas = network.canvas.frame.canvas;
+        }
+
+        // Fallback: find canvas in container
+        if (!sourceCanvas) {
+          sourceCanvas = container.querySelector('canvas');
+        }
+
+        if (!sourceCanvas) {
+          throw new Error('Canvas not found');
+        }
+
+        // Get canvas dimensions
+        const srcWidth = sourceCanvas.width;
+        const srcHeight = sourceCanvas.height;
+
+        // Calculate export dimensions
+        // Add padding scaled appropriately
+        const paddingScaled = padding * scale;
+        const exportWidth = srcWidth * scale + paddingScaled * 2;
+        const exportHeight = srcHeight * scale + paddingScaled * 2;
+
+        // Create the export canvas at high resolution
+        const exportCanvas = document.createElement('canvas');
+        const ctx = exportCanvas.getContext('2d');
+        exportCanvas.width = exportWidth;
+        exportCanvas.height = exportHeight;
+
+        // Fill background
+        ctx.fillStyle = COLORS.bgPrimary;
+        ctx.fillRect(0, 0, exportWidth, exportHeight);
+
+        // Draw the source canvas centered with padding
+        // Scale up for high resolution
+        ctx.drawImage(
+          sourceCanvas,
+          0, 0, srcWidth, srcHeight,
+          paddingScaled, paddingScaled, srcWidth * scale, srcHeight * scale
+        );
+
+        // Restore original view
+        network.moveTo({
+          position: currentPosition,
+          scale: currentScale,
+          animation: false
+        });
+
+        resolve(exportCanvas.toDataURL('image/png'));
+      } catch (err) {
+        // Restore view on error
+        network.moveTo({
+          position: currentPosition,
+          scale: currentScale,
+          animation: false
+        });
+        reject(err);
+      }
+    };
+
+    // Wait for fit and redraw to complete
+    // Use multiple frames to ensure rendering is done
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          captureAfterFit();
+        });
+      });
+    }, 50);
   });
 }
 
