@@ -743,7 +743,7 @@ window.exportToPNG = async function() {
 
     // Download
     const link = document.createElement('a');
-    link.download = `${sanitizeFilename(projectData.project.title)}-pert.png`;
+    link.download = `${sanitizeFilename(projectData.project?.title || 'pert-chart')}-pert.png`;
     link.href = dataUrl;
     link.click();
 
