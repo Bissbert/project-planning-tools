@@ -32,15 +32,25 @@ export function convertToELKGraph(nodes, edges) {
       'elk.algorithm': 'layered',
       'elk.direction': 'RIGHT',
       'elk.edgeRouting': 'ORTHOGONAL',
-      'elk.layered.spacing.nodeNodeBetweenLayers': '100',
-      'elk.spacing.nodeNode': '50',
-      'elk.spacing.edgeNode': '30',
-      'elk.spacing.edgeEdge': '20',
+      // Node spacing
+      'elk.layered.spacing.nodeNodeBetweenLayers': '150',
+      'elk.spacing.nodeNode': '80',
+      // Edge spacing - ensure edges don't overlap and stay parallel
+      'elk.spacing.edgeNode': '40',
+      'elk.spacing.edgeEdge': '25',
+      'elk.layered.spacing.edgeNodeBetweenLayers': '40',
+      'elk.layered.spacing.edgeEdgeBetweenLayers': '25',
+      // Layout strategies
       'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
       'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',
       'elk.layered.considerModelOrder.strategy': 'NODES_AND_EDGES',
+      // Keep edges separate, don't merge
       'elk.layered.mergeEdges': 'false',
-      'elk.layered.unnecessaryBendpoints': 'true'
+      // Remove unnecessary bendpoints for cleaner paths
+      'elk.layered.unnecessaryBendpoints': 'false',
+      // Ensure proper edge routing
+      'elk.layered.edgeRouting.selfLoopDistribution': 'EQUALLY',
+      'elk.layered.edgeRouting.splines.mode': 'CONSERVATIVE'
     },
     children: nodes.map(node => ({
       id: node.id,
@@ -109,49 +119,48 @@ export function extractEdgeRoutes(elkResult, nodePositions) {
     elkResult.edges.forEach(edge => {
       const points = [];
 
-      // Get source node position (right edge)
-      const sourceId = edge.sources[0];
-      const sourceNode = elkResult.children?.find(c => c.id === sourceId);
-      if (sourceNode) {
-        points.push({
-          x: sourceNode.x + sourceNode.width,
-          y: sourceNode.y + sourceNode.height / 2
-        });
-      }
-
-      // Add bend points from ELK
-      if (edge.sections) {
+      // ELK provides sections with start, bend points, and end
+      if (edge.sections && edge.sections.length > 0) {
         edge.sections.forEach(section => {
-          // Start point
+          // Start point (from node edge)
           if (section.startPoint) {
             points.push({ x: section.startPoint.x, y: section.startPoint.y });
           }
 
-          // Bend points
+          // Bend points (the orthogonal routing)
           if (section.bendPoints) {
             section.bendPoints.forEach(bp => {
               points.push({ x: bp.x, y: bp.y });
             });
           }
 
-          // End point
+          // End point (to node edge)
           if (section.endPoint) {
             points.push({ x: section.endPoint.x, y: section.endPoint.y });
           }
         });
+      } else {
+        // Fallback: compute from node positions if no sections
+        const sourceId = edge.sources[0];
+        const targetId = edge.targets[0];
+        const sourceNode = elkResult.children?.find(c => c.id === sourceId);
+        const targetNode = elkResult.children?.find(c => c.id === targetId);
+
+        if (sourceNode && targetNode) {
+          points.push({
+            x: sourceNode.x + sourceNode.width,
+            y: sourceNode.y + sourceNode.height / 2
+          });
+          points.push({
+            x: targetNode.x,
+            y: targetNode.y + targetNode.height / 2
+          });
+        }
       }
 
-      // Get target node position (left edge)
-      const targetId = edge.targets[0];
-      const targetNode = elkResult.children?.find(c => c.id === targetId);
-      if (targetNode) {
-        points.push({
-          x: targetNode.x,
-          y: targetNode.y + targetNode.height / 2
-        });
+      if (points.length >= 2) {
+        routes[edge.id] = points;
       }
-
-      routes[edge.id] = points;
     });
   }
 

@@ -1,12 +1,17 @@
 /**
  * PERT vis-network Module
  * Handles vis-network initialization, rendering, and interactions
- * Uses SVG overlay for orthogonal edge routing
+ * Uses ELK.js for orthogonal edge routing
  */
 
 import {
   initELK,
-  generateSVGPath
+  convertToELKGraph,
+  runELKLayout,
+  extractNodePositions,
+  extractEdgeRoutes,
+  generateSVGPath,
+  isELKAvailable
 } from './pert-elk.js';
 
 // vis-network instance
@@ -15,6 +20,7 @@ let nodesDataSet = null;
 let edgesDataSet = null;
 let networkContainer = null;
 let edgeSvgLayer = null;
+let elkEdgeRoutes = {}; // Store ELK edge routes for rendering
 let criticalEdges = new Set(); // Track which edges are critical
 
 // Callbacks
@@ -378,18 +384,19 @@ function setupEventHandlers() {
 
 /**
  * Update the network with new PERT data
- * Uses vis-network for layout, SVG for orthogonal edge rendering
+ * Uses ELK.js for node positioning and orthogonal edge routing
  * @param {Object} pertResults - PERT analysis results
  * @param {Set} criticalPathSet - Set of node IDs on critical path
  * @param {Object} options - Options { fitView: boolean }
  */
-export function updateNetwork(pertResults, criticalPathSet, options = {}) {
+export async function updateNetwork(pertResults, criticalPathSet, options = {}) {
   const { fitView = true } = options;
   if (!network || !pertResults || !pertResults.graph) {
     // Clear the network
     nodesDataSet.clear();
     edgesDataSet.clear();
     clearSvgEdges();
+    elkEdgeRoutes = {};
     return;
   }
 
@@ -397,9 +404,12 @@ export function updateNetwork(pertResults, criticalPathSet, options = {}) {
 
   // Track critical edges for rendering
   criticalEdges.clear();
+  elkEdgeRoutes = {};
 
-  // Build nodes array
+  // Build nodes array for vis-network
   const nodes = [];
+  const elkNodes = [];
+
   graph.nodes.forEach((node, id) => {
     const isCritical = criticalPathSet.has(id);
     const isComplete = node.isComplete;
@@ -410,18 +420,25 @@ export function updateNetwork(pertResults, criticalPathSet, options = {}) {
     nodes.push({
       id: id,
       label: label,
-      title: buildNodeTooltip(node), // Tooltip on hover
+      title: buildNodeTooltip(node),
       color: getNodeColor(isCritical, isComplete),
-      font: {
-        multi: 'html'
-      },
-      // Store original data for reference
+      font: { multi: 'html' },
       nodeData: node
+    });
+
+    // ELK node
+    elkNodes.push({
+      id: id,
+      label: node.name,
+      width: 180,
+      height: 100
     });
   });
 
-  // Build edges array (hidden - we use SVG for orthogonal edges)
+  // Build edges array
   const edges = [];
+  const elkEdges = [];
+
   graph.adjacency.forEach((successors, fromId) => {
     successors.forEach(toId => {
       const edgeId = `${fromId}->${toId}`;
@@ -431,41 +448,87 @@ export function updateNetwork(pertResults, criticalPathSet, options = {}) {
         criticalEdges.add(edgeId);
       }
 
+      // Hidden vis-network edge (we use SVG for rendering)
       edges.push({
         id: edgeId,
         from: fromId,
         to: toId,
-        hidden: true, // Hide vis-network edges - we use SVG
+        hidden: true,
         color: { color: 'transparent' },
         width: 0
+      });
+
+      // ELK edge
+      elkEdges.push({
+        id: edgeId,
+        source: fromId,
+        target: toId
       });
     });
   });
 
-  // Update datasets
+  // Run ELK layout for proper orthogonal edge routing
+  let elkPositions = null;
+  if (isELKAvailable() && elkNodes.length > 0 && elkEdges.length > 0) {
+    try {
+      const elkGraph = convertToELKGraph(elkNodes, elkEdges);
+      const elkResult = await runELKLayout(elkGraph);
+
+      // Extract node positions from ELK
+      elkPositions = extractNodePositions(elkResult);
+
+      // Extract edge routes from ELK (orthogonal paths that avoid nodes)
+      elkEdgeRoutes = extractEdgeRoutes(elkResult, elkPositions);
+
+      // Note: ELK positions will be applied after vis-network's initial layout
+
+    } catch (err) {
+      console.warn('ELK layout failed, using default layout:', err);
+      elkPositions = null;
+      elkEdgeRoutes = {};
+    }
+  }
+
+  // Update vis-network datasets
   nodesDataSet.clear();
   nodesDataSet.add(nodes);
 
   edgesDataSet.clear();
   edgesDataSet.add(edges);
 
-  // Render SVG edges after vis-network positions nodes
-  setTimeout(() => {
-    renderSvgEdges();
-  }, 100);
-
-  // Fit the view after update (only on initial load or when requested)
-  if (fitView) {
+  // If we have ELK positions, apply them after vis-network's initial layout
+  if (elkPositions) {
     setTimeout(() => {
-      if (network) {
+      // Move nodes to ELK positions
+      const positionUpdates = Object.entries(elkPositions).map(([nodeId, pos]) => ({
+        id: nodeId,
+        x: pos.x,
+        y: pos.y
+      }));
+      nodesDataSet.update(positionUpdates);
+
+      // Render SVG edges with ELK routes
+      setTimeout(() => {
+        renderSvgEdges();
+
+        // Fit view after positioning
+        if (fitView && network) {
+          network.fit({
+            animation: { duration: 300, easingFunction: 'easeInOutQuad' }
+          });
+        }
+      }, 50);
+    }, 100);
+  } else {
+    // No ELK - use fallback rendering
+    setTimeout(() => {
+      renderSvgEdges();
+      if (fitView && network) {
         network.fit({
-          animation: {
-            duration: 300,
-            easingFunction: 'easeInOutQuad'
-          }
+          animation: { duration: 300, easingFunction: 'easeInOutQuad' }
         });
       }
-    }, 200);
+    }, 150);
   }
 }
 
@@ -482,7 +545,7 @@ function clearSvgEdges() {
 
 /**
  * Render orthogonal edges using SVG
- * Uses actual vis-network node positions to compute routes
+ * Uses ELK edge routes when available, otherwise computes simple orthogonal routes
  */
 function renderSvgEdges() {
   if (!edgeSvgLayer || !network || !edgesDataSet) return;
@@ -494,53 +557,48 @@ function renderSvgEdges() {
   const edges = edgesDataSet.get();
   if (!edges || edges.length === 0) return;
 
-  // Node dimensions
-  const nodeWidth = 180;
-  const nodeHeight = 100;
+  const hasElkRoutes = Object.keys(elkEdgeRoutes).length > 0;
 
   edges.forEach(edge => {
-    const fromPos = network.getPosition(edge.from);
-    const toPos = network.getPosition(edge.to);
-
-    if (!fromPos || !toPos) return;
-
     const isCritical = criticalEdges.has(edge.id);
+    let points = [];
 
-    // Convert to DOM coordinates
-    const fromDOM = network.canvasToDOM(fromPos);
-    const toDOM = network.canvasToDOM(toPos);
+    if (hasElkRoutes && elkEdgeRoutes[edge.id]) {
+      // Use ELK-computed orthogonal routes (transforms network coords to DOM)
+      const elkPoints = elkEdgeRoutes[edge.id];
+      points = elkPoints.map(p => network.canvasToDOM({ x: p.x, y: p.y }));
+    } else {
+      // Fallback: compute simple orthogonal route
+      const fromPos = network.getPosition(edge.from);
+      const toPos = network.getPosition(edge.to);
 
-    // Calculate node boundaries in DOM space
-    const scale = network.getScale();
-    const halfWidth = (nodeWidth / 2) * scale;
-    const halfHeight = (nodeHeight / 2) * scale;
+      if (!fromPos || !toPos) return;
 
-    // Calculate orthogonal route points
-    // Start from right edge of source node
-    const startX = fromDOM.x + halfWidth;
-    const startY = fromDOM.y;
+      const fromDOM = network.canvasToDOM(fromPos);
+      const toDOM = network.canvasToDOM(toPos);
 
-    // End at left edge of target node
-    const endX = toDOM.x - halfWidth;
-    const endY = toDOM.y;
+      const scale = network.getScale();
+      const halfWidth = (180 / 2) * scale;
 
-    // Calculate midpoint for the bend
-    const midX = (startX + endX) / 2;
+      const startX = fromDOM.x + halfWidth;
+      const startY = fromDOM.y;
+      const endX = toDOM.x - halfWidth;
+      const endY = toDOM.y;
+      const midX = (startX + endX) / 2;
 
-    // Create orthogonal path (horizontal -> vertical -> horizontal)
-    const points = [
-      { x: startX, y: startY },
-      { x: midX, y: startY },
-      { x: midX, y: endY },
-      { x: endX, y: endY }
-    ];
-
-    // If nodes are on same row, simplify to straight line
-    if (Math.abs(startY - endY) < 5) {
-      points.length = 0;
-      points.push({ x: startX, y: startY });
-      points.push({ x: endX, y: endY });
+      if (Math.abs(startY - endY) < 5) {
+        points = [{ x: startX, y: startY }, { x: endX, y: endY }];
+      } else {
+        points = [
+          { x: startX, y: startY },
+          { x: midX, y: startY },
+          { x: midX, y: endY },
+          { x: endX, y: endY }
+        ];
+      }
     }
+
+    if (points.length < 2) return;
 
     // Generate SVG path
     const pathD = generateSVGPath(points);
@@ -870,6 +928,7 @@ export function destroyNetwork() {
     edgeSvgLayer = null;
   }
 
+  elkEdgeRoutes = {};
   criticalEdges.clear();
   networkContainer = null;
 }
@@ -989,8 +1048,11 @@ export function exportToPNG(padding = 100) {
         ctx.drawImage(sourceCanvas, 0, 0);
 
         // Now draw SVG edges on top
-        if (edgeSvgLayer && Object.keys(edgeRoutes).length > 0) {
-          await drawSvgEdgesToCanvas(ctx, srcWidth, srcHeight);
+        if (edgeSvgLayer) {
+          const edgePaths = edgeSvgLayer.querySelectorAll('path.edge-path');
+          if (edgePaths.length > 0) {
+            await drawSvgEdgesToCanvas(ctx, srcWidth, srcHeight);
+          }
         }
 
         // Restore container size
