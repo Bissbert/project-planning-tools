@@ -1,0 +1,102 @@
+/* ========== DASHBOARD PRINT STYLES ========== */
+
+@media print {
+  /* Hide interactive elements */
+  .header-right,
+  .card-badge,
+  .quick-links,
+  #cardQuickLinks {
+    display: none !important;
+  }
+
+  /* Reset backgrounds for print */
+  body {
+    background: white;
+    color: black;
+  }
+
+  .header {
+    background: white;
+    border-bottom: 2px solid #333;
+    padding: 16px 0;
+  }
+
+  .header-left h1 {
+    color: black;
+    font-size: 24px;
+  }
+
+  .nav-dropdown {
+    display: none;
+  }
+
+  /* Card styling for print */
+  .dashboard-card {
+    background: white;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+  }
+
+  .card-content {
+    color: black;
+  }
+
+  /* Progress bar for print */
+  .progress-bar {
+    background: #eee;
+    border: 1px solid #ccc;
+  }
+
+  .progress-bar__fill {
+    background: #666 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Metrics */
+  .metric-primary,
+  .stat-row__value {
+    color: black;
+  }
+
+  /* Status colors in print */
+  .milestone-item__status {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .milestone-item__status--on-track {
+    background: #22c55e !important;
+  }
+
+  .milestone-item__status--at-risk {
+    background: #fbbf24 !important;
+  }
+
+  .milestone-item__status--delayed {
+    background: #f87171 !important;
+  }
+
+  /* Grid layout for print */
+  .dashboard-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .dashboard-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* Hide hover effects */
+  .dashboard-card--clickable::after {
+    display: none;
+  }
+}

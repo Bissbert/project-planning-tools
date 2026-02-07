@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/dashboard/">
+  <title>Dashboard - Project Planning Tools</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Dashboard-specific CSS -->
+  <link rel="stylesheet" href="css/dashboard-layout.css">
+  <link rel="stylesheet" href="css/dashboard-cards.css">
+  <link rel="stylesheet" href="css/dashboard-print.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <nav class="nav-dropdown" data-current="dashboard"></nav>
+      <h1 id="projectTitle">Loading...</h1>
+    </div>
+
+    <div class="header-right">
+      <input type="file" id="fileInput" accept=".json" style="display: none;">
+      <div class="action-group">
+        <button class="btn btn--ghost" onclick="importProject()">Import</button>
+        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <!-- Row 1: Project Health + Sprint Status -->
+    <div class="dashboard-row">
+      <section class="dashboard-card" id="cardProjectHealth">
+        <div class="card-badge">A</div>
+        <h2 class="card-title">Project Health</h2>
+        <div class="card-content" id="projectHealthContent">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <section class="dashboard-card" id="cardSprintStatus">
+        <div class="card-badge">B</div>
+        <h2 class="card-title">Sprint Status</h2>
+        <div class="card-content" id="sprintStatusContent">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Row 2: Task Distribution + Milestones -->
+    <div class="dashboard-row">
+      <section class="dashboard-card" id="cardTaskDistribution">
+        <div class="card-badge">C</div>
+        <h2 class="card-title">Task Distribution</h2>
+        <div class="card-content" id="taskDistributionContent">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <section class="dashboard-card" id="cardMilestones">
+        <div class="card-badge">D</div>
+        <h2 class="card-title">Milestones</h2>
+        <div class="card-content" id="milestonesContent">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Row 3: Velocity + Team Capacity -->
+    <div class="dashboard-row">
+      <section class="dashboard-card" id="cardVelocity">
+        <div class="card-badge">E</div>
+        <h2 class="card-title">Velocity</h2>
+        <div class="card-content" id="velocityContent">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <section class="dashboard-card" id="cardTeamCapacity">
+        <div class="card-badge">F</div>
+        <h2 class="card-title">Team Capacity</h2>
+        <div class="card-content" id="teamCapacityContent">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Row 4: Quick Links -->
+    <div class="dashboard-row dashboard-row--full">
+      <section class="dashboard-card dashboard-card--wide" id="cardQuickLinks">
+        <div class="card-badge">G</div>
+        <h2 class="card-title">Quick Links</h2>
+        <div class="card-content" id="quickLinksContent">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/dashboard-app.js"></script>
+</body>
+</html>

@@ -18,7 +18,8 @@ const TOOLS = [
   { id: 'resource-calendar', number: '06', label: 'Resources', path: 'resource-calendar' },
   { id: 'milestone-tracker', number: '07', label: 'Milestones', path: 'milestone-tracker' },
   { id: 'retrospective', number: '08', label: 'Retro Board', path: 'retrospective' },
-  { id: 'pert', number: '09', label: 'PERT Chart', path: 'pert' }
+  { id: 'pert', number: '09', label: 'PERT Chart', path: 'pert' },
+  { id: 'dashboard', number: '10', label: 'Dashboard', path: 'dashboard' }
 ];
 
 // SVG icons

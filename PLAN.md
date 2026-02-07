@@ -42,15 +42,15 @@ Build a comprehensive, offline-first suite of project planning tools that:
 
 ### Phase 4: Advanced Tools
 - [x] PERT Chart
-- [ ] Risk Register
+- [ ] Risk Register (postponed)
 - [x] Retrospective Board
-- [ ] Decision Log
+- [ ] Decision Log (postponed)
 
 ### Phase 5: Integration (In Progress)
 - [x] Cross-tool data sharing (unified-data.js, v11 data model)
 - [x] Inter-tool navigation (navigation.js - dropdown with centralized tool registry)
 - [x] Version-agnostic migration system (migrateToLatest with registry pattern)
-- [ ] Unified dashboard
+- [x] Unified Dashboard
 - [ ] Project-level data management
 
 ### Phase 6: Collaboration (Planned)
@@ -242,7 +242,7 @@ Network diagram for task dependencies and critical path analysis using vis-netwo
 
 **Shared modules:** storage, undo, unified-data, navigation, status
 
-#### Risk Register
+#### Risk Register (Postponed)
 
 Track and manage project risks.
 
@@ -274,7 +274,7 @@ Agile sprint retrospectives with real-time voting and item grouping.
 
 **Shared modules:** storage, undo, unified-data, navigation, status
 
-#### Decision Log
+#### Decision Log (Postponed)
 
 Record and track project decisions.
 
@@ -416,6 +416,7 @@ Automatic deployment via GitHub Actions (`.github/workflows/deploy.yml`):
 | Milestone Tracker | https://project.bissbert.ch/tools/milestone-tracker/ | Active |
 | Retrospective Board | https://project.bissbert.ch/tools/retrospective/ | Active |
 | PERT Chart | https://project.bissbert.ch/tools/pert/ | Active |
+| Dashboard | https://project.bissbert.ch/tools/dashboard/ | Active |
 
 ### Benefits
 
