@@ -126,11 +126,7 @@ function getNetworkOptions(editMode) {
         hover: COLORS.textSecondary
       },
       width: 1.5,
-      smooth: {
-        enabled: true,
-        type: 'straightCross',
-        roundness: 0.5
-      },
+      smooth: false,
       font: {
         face: 'JetBrains Mono, monospace',
         size: 10,
