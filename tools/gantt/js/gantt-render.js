@@ -649,6 +649,42 @@ export function render(projectData, editMode, collapsedCategories, searchQuery, 
     renderAddCategoryRow(container, handlers.onAddCategory);
   }
 
+  // Add print footer row (hidden on screen, visible in print)
+  const printFooter = document.createElement('div');
+  printFooter.className = 'gantt-print-footer';
+  printFooter.textContent = `Exported ${new Date().toLocaleDateString()}`;
+  container.appendChild(printFooter);
+
+  // Add today marker overlay (continuous line through entire chart)
+  if (currentWeek) {
+    // Remove any existing overlay
+    const existingOverlay = container.querySelector('.today-marker-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    // Create overlay after a brief delay to ensure layout is complete
+    requestAnimationFrame(() => {
+      const todayCell = container.querySelector('.week-cell--today');
+      // Get first cell of first category row (actual element, not display:contents)
+      const firstContentCell = container.querySelector('.category-row > div');
+      if (todayCell && firstContentCell) {
+        const overlay = document.createElement('div');
+        overlay.className = 'today-marker-overlay';
+
+        // Get position relative to container
+        const containerRect = container.getBoundingClientRect();
+        const cellRect = todayCell.getBoundingClientRect();
+        const firstCellRect = firstContentCell.getBoundingClientRect();
+
+        const leftPos = cellRect.left - containerRect.left + (cellRect.width / 2);
+        const topPos = firstCellRect.top - containerRect.top;
+
+        overlay.style.left = `${leftPos}px`;
+        overlay.style.top = `${topPos}px`;
+        container.appendChild(overlay);
+      }
+    });
+  }
+
   // Render legend
   renderLegend(projectData);
 }

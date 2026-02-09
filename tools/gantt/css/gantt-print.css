@@ -15,9 +15,33 @@
     display: none !important;
   }
 
-  /* Remove reality row left border for print */
+  /* ========== REAL ROW VISUAL DIFFERENTIATION ========== */
+  /* Remove left border and add indent instead */
   .task-row--reality > div:first-child {
     border-left: none !important;
+    padding-left: 30px !important;
+  }
+
+  /* Subtle background for REAL rows */
+  .task-row--reality > div {
+    background: #fafafa !important;
+  }
+
+  /* ========== CURRENT WEEK - MUTED FOR PRINT ========== */
+  .week-header .week-cell--today {
+    background: #f0f0f0 !important;
+    color: #666 !important;
+  }
+
+  /* Hide the overlay marker in print (positioning doesn't work) */
+  .today-marker-overlay {
+    display: none !important;
+  }
+
+  /* Show individual cell markers in print (fallback since overlay is hidden) */
+  .week-cell--today::before {
+    display: block !important;
+    background: #999 !important; /* Muted gray for print */
   }
 
   /* Gantt container */
@@ -26,6 +50,7 @@
     border: 1px solid #333;
     box-shadow: none;
     overflow: visible;
+    position: static !important; /* Reset positioning for print layout */
   }
 
   /* Disable sticky columns for print */
@@ -96,8 +121,7 @@
   }
 
   .week-cell--reality.week-cell--active {
-    background: var(--task-color) !important;
-    opacity: 0.5 !important;
+    background: color-mix(in srgb, var(--task-color) 50%, transparent) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
@@ -110,16 +134,36 @@
     color-adjust: exact !important;
   }
 
-  /* Print footer with date */
+  /* ========== PRINT FOOTER ========== */
+  /* Remove old ::after footer (using DOM element instead) */
   .gantt::after {
-    content: "Exported " attr(data-export-date);
-    display: block;
+    display: none !important;
+  }
+
+  /* DOM-based print footer row */
+  .gantt-print-footer {
+    display: block !important;
+    grid-column: 1 / -1;
     text-align: right;
     font-size: 7pt;
-    color: #999;
-    padding: 8px 12px 0 0;
+    color: #666;
+    padding: 12px;
     border-top: 1px solid #e5e5e5;
-    margin-top: 8px;
+    background: #fff !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+
+  /* Keep PLAN and REAL rows together (don't split a task across pages) */
+  .task-row--planned {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* Keep category header with its first task */
+  .category-row {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
   /* ========== PRINT METADATA IN REALITY ROW ========== */

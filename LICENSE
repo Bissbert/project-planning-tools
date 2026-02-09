@@ -1,0 +1,111 @@
+Project Planning Tools License
+
+Copyright (c) 2024-2025 Fabian Bissig
+
+TERMS AND CONDITIONS
+
+1. DEFINITIONS
+
+   "Software" refers to the Project Planning Tools application, including all
+   source code, documentation, and associated files in this repository.
+
+   "Official Instance" refers to the Software hosted at project.bissbert.ch
+   and any subdomains thereof.
+
+   "Personal Use" means use by an individual for private, non-commercial
+   purposes including learning, experimentation, hobby projects, and personal
+   productivity.
+
+   "Commercial Use" means any use in connection with a business, company,
+   government agency, or other organization, regardless of whether revenue
+   is generated directly from using the Software. This includes internal
+   business operations, client work, and organizational productivity.
+
+   "User" means any individual who accesses or uses the Software within an
+   organization.
+
+2. PERSONAL USE (FREE)
+
+   You may freely:
+   a) Use, copy, and modify the Software for Personal Use
+   b) Deploy your own instance for Personal Use
+   c) Share modifications with others for their Personal Use
+
+   Personal Use requires no registration, payment, or attribution (though
+   attribution is appreciated).
+
+3. COMMERCIAL USE OF THE OFFICIAL INSTANCE
+
+   Commercial Use of the Official Instance at project.bissbert.ch requires:
+   a) Registration of your organization (contact details below)
+   b) Acceptance of these license terms
+
+   Commercial Use of the Official Instance is currently provided at no cost
+   during the initial period. Pricing may be introduced in the future with
+   reasonable notice to registered users.
+
+4. COMMERCIAL SELF-HOSTING LICENSE
+
+   Deploying your own instance for Commercial Use requires a paid license:
+
+   STARTUP TIER (1-10 Users)
+   CHF 3 per user per year
+   Minimum: CHF 15/year
+
+   BUSINESS TIER (11-100 Users)
+   CHF 2.50 per user per year
+
+   ENTERPRISE TIER (100+ Users)
+   Contact for custom pricing
+
+   All tiers include:
+   - Perpetual right to use the version licensed
+   - Right to modify for internal use
+   - Email support for setup questions
+
+5. SPECIAL CASES
+
+   Non-profit organizations, educational institutions, and open-source
+   projects may request alternative licensing arrangements. Contact the
+   copyright holder to discuss your situation.
+
+6. RESTRICTIONS
+
+   a) No Redistribution as Service: You may NOT offer the Software as a
+      hosted service to third parties without separate written agreement.
+
+   b) Commercial Redistribution: You may NOT redistribute the Software or
+      modifications for Commercial Use by others.
+
+   c) No Removal of Attribution: You may NOT remove copyright notices or
+      license information from the Software.
+
+7. REGISTRATION AND CONTACT
+
+   For commercial registration, licensing, or inquiries:
+   - Email: dev@bissbert.ch
+   - Repository: github.com/bissbert/project-planning-tools (Issues)
+   - Website: project.bissbert.ch
+
+8. DISCLAIMER
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
+
+9. TERMINATION
+
+   This license automatically terminates if you violate any of its terms.
+   Upon termination, you must cease all Commercial Use and, if self-hosting,
+   remove the Software from your infrastructure.
+
+10. CHANGES TO THIS LICENSE
+
+    The copyright holder may update this license. Existing paid licenses
+    remain valid under the terms they were purchased. Continued use of the
+    Official Instance after license changes constitutes acceptance of new
+    terms.

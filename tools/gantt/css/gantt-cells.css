@@ -40,12 +40,11 @@
 }
 
 .week-cell--reality.week-cell--active {
-  background: var(--task-color);
-  opacity: 0.5;
+  background: color-mix(in srgb, var(--task-color) 50%, transparent);
 }
 
 .week-cell--reality.week-cell--active:hover {
-  opacity: 0.65;
+  background: color-mix(in srgb, var(--task-color) 65%, transparent);
 }
 
 .week-cell--reality.week-cell--active::after {
@@ -66,14 +65,30 @@
   position: relative;
 }
 
+/* Individual cell marker - hidden on screen (overlay used instead), shown in print */
 .week-cell--today::before {
   content: '';
   position: absolute;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   top: 0;
   bottom: 0;
   width: 2px;
   background: var(--status-warning);
+  z-index: 1;
+  display: none; /* Hidden on screen - overlay is used */
+}
+
+/* ========== TODAY MARKER OVERLAY ========== */
+/* Continuous line spanning from below week header to bottom */
+.today-marker-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  background: var(--status-warning);
+  z-index: 50;
+  pointer-events: none;
+  transform: translateX(-50%);
 }
 
 .week-header .week-cell--today {

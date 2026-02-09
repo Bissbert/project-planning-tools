@@ -41,6 +41,7 @@
   <link rel="stylesheet" href="../../shared/css/modals.css">
   <link rel="stylesheet" href="../../shared/css/status.css">
   <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/export-dropdown.css">
   <link rel="stylesheet" href="../../shared/css/components.css">
   <link rel="stylesheet" href="../../shared/css/edit-mode.css">
   <link rel="stylesheet" href="../../shared/css/print.css">
@@ -75,13 +76,10 @@
         <button class="mode-btn mode-btn--active" data-mode="points" id="modePoints">Points</button>
         <button class="mode-btn" data-mode="tasks" id="modeTasks">Tasks</button>
       </div>
-      <button class="btn btn--ghost" onclick="exportChart()">Export PNG</button>
       <button class="btn edit-only" onclick="openSettings()">Settings</button>
       <input type="file" id="fileInput" accept=".json" style="display: none;">
-      <div class="action-group">
-        <button class="btn btn--ghost" onclick="importProject()">Import</button>
-        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
-      </div>
+      <button class="btn btn--ghost" onclick="importProject()">Import</button>
+      <div class="export-dropdown" data-exports="json,png"></div>
       <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
     </div>
   </header>

@@ -10,6 +10,7 @@ import { createUndoManager } from '../../../shared/js/undo.js';
 import { downloadJSON, readJSONFile, sanitizeFilename } from '../../../shared/js/export.js';
 import { createStatusManager } from '../../../shared/js/status.js';
 import { initNavigation } from '../../../shared/js/navigation.js';
+import { initExportDropdown } from '../../../shared/js/export-dropdown.js';
 
 // Import unified data module
 import {
@@ -48,6 +49,9 @@ export function init() {
 
   // Initialize navigation
   initNavigation();
+
+  // Initialize export dropdown
+  initExportDropdown();
 
   // Load data
   loadData();

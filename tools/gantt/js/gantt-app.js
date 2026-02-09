@@ -10,6 +10,7 @@ import { createUndoManager } from '../../../shared/js/undo.js';
 import { downloadJSON, readJSONFile, sanitizeFilename, triggerPrint } from '../../../shared/js/export.js';
 import { createStatusManager } from '../../../shared/js/status.js';
 import { initNavigation } from '../../../shared/js/navigation.js';
+import { initExportDropdown } from '../../../shared/js/export-dropdown.js';
 
 // Import gantt-specific modules
 import {
@@ -81,6 +82,9 @@ export function init() {
 
   // Initialize navigation
   initNavigation();
+
+  // Initialize export dropdown
+  initExportDropdown();
 
   // Try to load from localStorage first
   const saved = loadFromStorage(STORAGE_KEY);
@@ -959,7 +963,6 @@ function generateExcelXML() {
 }
 
 function exportToPDF() {
-  document.querySelector('.gantt').setAttribute('data-export-date', new Date().toLocaleDateString());
   statusManager.show('Enable "Background graphics" in print dialog for colors', false);
   triggerPrint();
 }

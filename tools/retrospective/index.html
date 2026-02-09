@@ -41,6 +41,7 @@
   <link rel="stylesheet" href="../../shared/css/modals.css">
   <link rel="stylesheet" href="../../shared/css/status.css">
   <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/export-dropdown.css">
   <link rel="stylesheet" href="../../shared/css/components.css">
   <link rel="stylesheet" href="../../shared/css/edit-mode.css">
   <link rel="stylesheet" href="../../shared/css/print.css">
@@ -78,11 +79,8 @@
       <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
       <button class="btn edit-only" onclick="openSettings()">Settings</button>
       <input type="file" id="fileInput" accept=".json">
-      <div class="action-group">
-        <button class="btn btn--ghost" onclick="importProject()">Import</button>
-        <button class="btn btn--ghost" onclick="exportToJSON()">JSON</button>
-        <button class="btn btn--ghost" onclick="exportActionItems()">Actions</button>
-      </div>
+      <button class="btn btn--ghost" onclick="importProject()">Import</button>
+      <div class="export-dropdown" data-exports="json,actions"></div>
       <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
     </div>
   </header>
