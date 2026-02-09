@@ -548,6 +548,62 @@ MVP: Last-write-wins with notification. Future: User choice dialog.
 - Conflict resolution UI
 - Docker deployment option
 
+### Licensing Considerations
+
+Commercial deployment of the collaboration server requires a license. See [Licensing](#licensing) section for pricing tiers. Operating the server as a hosted service for third parties requires separate agreement.
+
+---
+
+## Licensing
+
+The project uses a custom dual license that balances open access with fair compensation for commercial use.
+
+### License Summary
+
+| Use Case | Requirements |
+|----------|--------------|
+| Personal use (any deployment) | Free, no registration |
+| Commercial use of project.bissbert.ch | Registration required (honor system) |
+| Commercial self-hosting | Paid per-user license |
+
+### Personal Use (Free)
+
+Individuals may freely use, modify, and deploy the Software for personal, non-commercial purposes including:
+- Learning and experimentation
+- Hobby projects
+- Personal productivity
+- Sharing modifications with others for personal use
+
+### Commercial Use
+
+Commercial use includes any use in connection with a business, company, government agency, or organization—regardless of whether revenue is generated directly.
+
+**Official Instance (project.bissbert.ch):**
+- Requires registration of your organization
+- Currently free during initial period
+- Pricing may be introduced with reasonable notice
+
+**Self-Hosting Pricing Tiers:**
+
+| Tier | Users | Price |
+|------|-------|-------|
+| Startup | 1-10 | CHF 3/user/year (min CHF 15) |
+| Business | 11-100 | CHF 2.50/user/year |
+| Enterprise | 100+ | Contact for custom pricing |
+
+### Special Cases
+
+Non-profit organizations, educational institutions, and open-source projects may request alternative licensing. Contact dev@bissbert.ch to discuss.
+
+### Server Component Licensing
+
+When deploying the collaboration server (Phase 6):
+- **Personal use:** Free for self-hosted personal projects
+- **Commercial use:** Same per-user pricing applies to server deployments
+- **Hosted service:** Operating the server as a service for third parties requires separate written agreement
+
+See [LICENSE](LICENSE) for full terms.
+
 ---
 
 ## Contributing
