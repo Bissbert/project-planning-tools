@@ -19,7 +19,8 @@ const TOOLS = [
   { id: 'milestone-tracker', number: '07', label: 'Milestones', path: 'milestone-tracker' },
   { id: 'retrospective', number: '08', label: 'Retro Board', path: 'retrospective' },
   { id: 'pert', number: '09', label: 'PERT Chart', path: 'pert' },
-  { id: 'dashboard', number: '10', label: 'Dashboard', path: 'dashboard' }
+  { id: 'dashboard', number: '10', label: 'Dashboard', path: 'dashboard' },
+  { id: 'dependencies', number: '11', label: 'Dependencies', path: 'dependencies' }
 ];
 
 // SVG icons

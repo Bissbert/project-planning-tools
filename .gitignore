@@ -14,3 +14,6 @@
 
 # Local development
 *.local
+
+# Agent/tool config
+.claude/
