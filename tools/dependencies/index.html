@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/tools/dependencies/">
+  <title>Dependencies - Project Planning Tools</title>
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+
+  <!-- Description -->
+  <meta name="description" content="Free, offline-first planning tools: Gantt charts, Kanban boards, Sprint planning, Burndown charts & more. No account required — data stays in your browser.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://project.bissbert.ch/">
+  <meta property="og:title" content="Project Planning Tools — Gantt, Kanban, Sprint & More">
+  <meta property="og:description" content="Free, offline-first planning tools: Gantt charts, Kanban boards, Sprint planning, Burndown charts & more. No account required — data stays in your browser.">
+  <meta property="og:image" content="https://project.bissbert.ch/og-image.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Project Planning Tools — Gantt, Kanban, Sprint & More">
+  <meta name="twitter:description" content="Free, offline-first planning tools: Gantt charts, Kanban boards, Sprint planning, Burndown charts & more. No account required — data stays in your browser.">
+  <meta name="twitter:image" content="https://project.bissbert.ch/og-image.png">
+
+  <!-- PWA & iOS -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#a78bfa">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS (load order matters) -->
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/buttons.css">
+  <link rel="stylesheet" href="../../shared/css/forms.css">
+  <link rel="stylesheet" href="../../shared/css/modals.css">
+  <link rel="stylesheet" href="../../shared/css/status.css">
+  <link rel="stylesheet" href="../../shared/css/navigation.css">
+  <link rel="stylesheet" href="../../shared/css/export-dropdown.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/edit-mode.css">
+  <link rel="stylesheet" href="../../shared/css/print.css">
+
+  <!-- Dependencies-specific CSS -->
+  <link rel="stylesheet" href="css/deps-layout.css">
+  <link rel="stylesheet" href="css/deps-chart.css">
+  <link rel="stylesheet" href="css/deps-print.css">
+
+  <!-- vis-network library -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+  <!-- ELK.js for orthogonal edge routing -->
+  <script type="text/javascript" src="https://unpkg.com/elkjs@0.9.3/lib/elk.bundled.js"></script>
+</head>
+<body>
+  <div class="edit-mode-banner">Editing Mode</div>
+
+  <header class="header">
+    <div class="header-left">
+      <nav class="nav-dropdown" data-current="dependencies"></nav>
+      <h1 id="projectTitle">Loading...</h1>
+      <div class="stat-group">
+        <div class="stat-item stat-item--nodes">
+          <span class="stat-item__value" id="nodeCount">0</span>
+          <span class="stat-item__label">Tasks</span>
+        </div>
+        <div class="stat-item stat-item--edges">
+          <span class="stat-item__value" id="edgeCount">0</span>
+          <span class="stat-item__label">Links</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="filter-group">
+        <select class="filter-select" id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+        <select class="filter-select" id="statusFilter">
+          <option value="">All Statuses</option>
+        </select>
+      </div>
+      <input type="text" class="search-input" placeholder="Search (F)" id="searchInput">
+      <button class="btn edit-only" onclick="openSettings()">Settings</button>
+      <input type="file" id="fileInput" accept=".json">
+      <button class="btn btn--ghost" onclick="importProject()">Import</button>
+      <div class="export-dropdown" data-exports="json,png"></div>
+      <button class="btn btn--edit" onclick="toggleEditMode()" id="editToggle">Edit</button>
+    </div>
+  </header>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-input" id="settingsTitle">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn--primary" onclick="saveSettings()">Save</button>
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Details Modal -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal-panel modal-panel--wide">
+      <div class="modal-header">
+        <h2 id="taskModalTitle">Task Details</h2>
+        <button class="modal-close" onclick="closeTaskModal()">&times;</button>
+      </div>
+      <div class="task-modal-content">
+        <div class="task-modal-section">
+          <h3>Info</h3>
+          <div class="task-info-grid" id="taskInfo">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="task-modal-section">
+          <h3>Predecessors</h3>
+          <div class="dependency-list" id="taskPredecessors">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="task-modal-section">
+          <h3>Successors</h3>
+          <div class="dependency-list" id="taskSuccessors">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="task-modal-section edit-only">
+          <h3>Add Dependency</h3>
+          <div class="add-dependency-form">
+            <select class="form-input" id="addDependencySelect">
+              <option value="">Select a predecessor...</option>
+            </select>
+            <button class="btn btn--primary" onclick="addDependencyFromModal()">Add</button>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn" onclick="closeTaskModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="deps-container">
+    <section class="deps-diagram">
+      <div class="diagram-canvas" id="diagramCanvas">
+        <!-- vis-network container -->
+        <div id="networkContainer"></div>
+
+        <!-- Floating zoom controls -->
+        <div class="floating-controls floating-controls--zoom">
+          <button class="floating-btn" onclick="zoomIn()" title="Zoom In (+)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <button class="floating-btn" onclick="zoomOut()" title="Zoom Out (-)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <button class="floating-btn" onclick="resetZoom()" title="Fit All (0)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Floating edit mode notice -->
+        <div class="floating-notice edit-only" id="editModeNotice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+            <path d="M2 2l7.586 7.586"/>
+            <circle cx="11" cy="11" r="2"/>
+          </svg>
+          <span>Click and drag between nodes to connect</span>
+        </div>
+      </div>
+      <div class="diagram-empty" id="diagramEmpty" style="display: none;">
+        <svg class="diagram-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        <h3 class="diagram-empty__title">No Dependencies Yet</h3>
+        <p class="diagram-empty__text">Add dependencies between tasks to visualize what depends on what.</p>
+        <p class="diagram-empty__hint">Create dependencies in the Gantt chart or enable Edit mode here to draw connections.</p>
+      </div>
+      <div class="diagram-legend">
+        <div class="legend-item">
+          <span class="legend-color legend-color--done"></span>
+          <span class="legend-label">Done</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-color--in-progress"></span>
+          <span class="legend-label">In Progress</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-color--todo"></span>
+          <span class="legend-label">To Do</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-color--backlog"></span>
+          <span class="legend-label">Backlog</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <!-- Load app as ES module -->
+  <script type="module" src="js/deps-app.js"></script>
+</body>
+</html>

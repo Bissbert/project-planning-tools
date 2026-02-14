@@ -1,0 +1,62 @@
+/**
+ * Dependencies Print CSS
+ * Print-specific styles
+ */
+
+@media print {
+  .header,
+  .diagram-legend,
+  .modal-overlay,
+  .status,
+  .edit-mode-banner,
+  .floating-controls,
+  .floating-notice {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .deps-container {
+    height: auto;
+    display: block;
+  }
+
+  .deps-diagram {
+    height: auto;
+    page-break-inside: avoid;
+  }
+
+  .diagram-canvas {
+    height: 600px;
+    border: 1px solid #ccc;
+  }
+
+  .diagram-empty {
+    display: none !important;
+  }
+
+  /* Page header for print */
+  .deps-container::before {
+    content: attr(data-project-title) ' - Dependency Chart';
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #333;
+  }
+
+  .deps-container::after {
+    content: 'Printed: ' attr(data-print-date);
+    display: block;
+    font-size: 10px;
+    color: #666;
+    margin-top: 16px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+    text-align: right;
+  }
+}
