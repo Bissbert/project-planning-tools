@@ -1012,7 +1012,6 @@ export function exportToPNG(padding = 100) {
       return;
     }
 
-    // Get all node positions to calculate bounding box
     const positions = network.getPositions();
     const nodeIds = Object.keys(positions);
 
@@ -1021,11 +1020,9 @@ export function exportToPNG(padding = 100) {
       return;
     }
 
-    // Calculate bounding box of all nodes in network coordinates
     let minX = Infinity, minY = Infinity;
     let maxX = -Infinity, maxY = -Infinity;
 
-    // Node size (matches the node options in getNetworkOptions)
     const nodeWidth = 180;
     const nodeHeight = 100;
 
@@ -1037,82 +1034,113 @@ export function exportToPNG(padding = 100) {
       maxY = Math.max(maxY, pos.y + nodeHeight / 2);
     });
 
-    // Calculate content dimensions in network coordinates
     const contentWidth = maxX - minX;
     const contentHeight = maxY - minY;
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
 
-    // Save current view state
     const currentScale = network.getScale();
     const currentPosition = network.getViewPosition();
 
-    // Get the container
     const container = network.body.container;
     const originalWidth = container.style.width;
     const originalHeight = container.style.height;
     const originalOverflow = container.style.overflow;
     const originalPosition = container.style.position;
+    // Capture actual computed size for restore (inline styles may be empty)
+    const computedWidth = container.offsetWidth;
+    const computedHeight = container.offsetHeight;
 
-    // Calculate export size at 1:1 scale (network coords = pixels) plus padding
-    // Use 2x for high DPI quality
-    const hiDpiScale = 2;
-    const exportWidth = (contentWidth + padding * 2) * hiDpiScale;
-    const exportHeight = (contentHeight + padding * 2) * hiDpiScale;
+    // Calculate export size, respecting browser canvas limits.
+    // Browsers cap canvas at ~16384px per dimension and ~268M total pixels.
+    // On HiDPI displays, the backing store is CSS size * devicePixelRatio.
+    const dpr = window.devicePixelRatio || 1;
+    const MAX_CANVAS_DIM = 16384;
+    const MAX_CANVAS_AREA = 268435456;
 
-    // Temporarily resize container to fit content at 1:1 scale
-    // This makes vis-network render text at full size
+    const desiredCssWidth = contentWidth + padding * 2;
+    const desiredCssHeight = contentHeight + padding * 2;
+    const backingWidth = desiredCssWidth * dpr;
+    const backingHeight = desiredCssHeight * dpr;
+
+    let exportScale = 1.0;
+
+    if (backingWidth > MAX_CANVAS_DIM || backingHeight > MAX_CANVAS_DIM) {
+      exportScale = Math.min(
+        exportScale,
+        MAX_CANVAS_DIM / backingWidth,
+        MAX_CANVAS_DIM / backingHeight
+      );
+    }
+
+    const scaledArea = (backingWidth * exportScale) * (backingHeight * exportScale);
+    if (scaledArea > MAX_CANVAS_AREA) {
+      exportScale = Math.min(
+        exportScale,
+        Math.sqrt(MAX_CANVAS_AREA / (backingWidth * backingHeight))
+      );
+    }
+
+    // Leave a small safety margin
+    exportScale *= 0.95;
+
+    const exportCssWidth = Math.floor(desiredCssWidth * exportScale);
+    const exportCssHeight = Math.floor(desiredCssHeight * exportScale);
+
     container.style.position = 'absolute';
-    container.style.width = `${exportWidth / hiDpiScale}px`;
-    container.style.height = `${exportHeight / hiDpiScale}px`;
+    container.style.width = `${exportCssWidth}px`;
+    container.style.height = `${exportCssHeight}px`;
     container.style.overflow = 'hidden';
 
-    // Force network to resize to new container
-    network.setSize(`${exportWidth / hiDpiScale}px`, `${exportHeight / hiDpiScale}px`);
+    network.setSize(`${exportCssWidth}px`, `${exportCssHeight}px`);
 
-    // Set view to show all content at 1:1 scale centered
     network.moveTo({
       position: { x: centerX, y: centerY },
-      scale: 1.0,
+      scale: exportScale,
       animation: false
     });
 
-    // Capture after resize and render completes
+    const restoreView = () => {
+      container.style.width = originalWidth;
+      container.style.height = originalHeight;
+      container.style.overflow = originalOverflow;
+      container.style.position = originalPosition;
+      // Use computed dimensions for setSize since inline styles may be empty
+      const restoreW = originalWidth || `${computedWidth}px`;
+      const restoreH = originalHeight || `${computedHeight}px`;
+      network.setSize(restoreW, restoreH);
+      network.moveTo({ position: currentPosition, scale: currentScale, animation: false });
+      network.redraw();
+      renderSvgEdges();
+    };
+
     const captureHighRes = async () => {
       try {
-        // Find the canvas element
         let sourceCanvas = null;
-
         if (network.canvas && network.canvas.frame && network.canvas.frame.canvas) {
           sourceCanvas = network.canvas.frame.canvas;
         }
-
         if (!sourceCanvas) {
           sourceCanvas = container.querySelector('canvas');
         }
+        if (!sourceCanvas) throw new Error('Canvas not found');
 
-        if (!sourceCanvas) {
-          throw new Error('Canvas not found');
-        }
-
-        // Get the source canvas (may have devicePixelRatio scaling)
         const srcWidth = sourceCanvas.width;
         const srcHeight = sourceCanvas.height;
 
-        // Create export canvas
+        if (srcWidth === 0 || srcHeight === 0) {
+          throw new Error('Canvas has zero dimensions — graph too large to export');
+        }
+
         const exportCanvas = document.createElement('canvas');
         const ctx = exportCanvas.getContext('2d');
         exportCanvas.width = srcWidth;
         exportCanvas.height = srcHeight;
 
-        // Fill background
         ctx.fillStyle = COLORS.bgPrimary;
         ctx.fillRect(0, 0, srcWidth, srcHeight);
-
-        // Draw the source canvas (nodes only, at high resolution)
         ctx.drawImage(sourceCanvas, 0, 0);
 
-        // Now draw SVG edges on top
         if (edgeSvgLayer) {
           const edgePaths = edgeSvgLayer.querySelectorAll('path.edge-path');
           if (edgePaths.length > 0) {
@@ -1120,49 +1148,27 @@ export function exportToPNG(padding = 100) {
           }
         }
 
-        // Restore container size
-        container.style.width = originalWidth;
-        container.style.height = originalHeight;
-        container.style.overflow = originalOverflow;
-        container.style.position = originalPosition;
+        restoreView();
 
-        // Force network to resize back
-        network.setSize(originalWidth, originalHeight);
+        const dataUrl = exportCanvas.toDataURL('image/png');
+        if (!dataUrl || dataUrl.length < 100) {
+          throw new Error('PNG export produced empty output — graph too large');
+        }
 
-        // Restore original view
-        network.moveTo({
-          position: currentPosition,
-          scale: currentScale,
-          animation: false
-        });
-
-        // Redraw at original size
-        network.redraw();
-
-        // Re-render SVG edges for current view
-        renderSvgEdges();
-
-        resolve(exportCanvas.toDataURL('image/png'));
+        resolve(dataUrl);
       } catch (err) {
-        // Restore container on error
-        container.style.width = originalWidth;
-        container.style.height = originalHeight;
-        container.style.overflow = originalOverflow;
-        container.style.position = originalPosition;
-        network.setSize(originalWidth, originalHeight);
-        network.moveTo({
-          position: currentPosition,
-          scale: currentScale,
-          animation: false
-        });
+        restoreView();
         reject(err);
       }
     };
 
-    // Wait for resize and redraw to complete
+    // Use longer delays for large graphs to ensure redraw completes
+    const isLargeGraph = nodeIds.length > 100;
+    const resizeDelay = isLargeGraph ? 200 : 50;
+    const captureDelay = isLargeGraph ? 300 : 100;
+
     setTimeout(() => {
       network.redraw();
-      // Re-render SVG edges for the export view
       renderSvgEdges();
       setTimeout(() => {
         requestAnimationFrame(() => {
@@ -1170,8 +1176,8 @@ export function exportToPNG(padding = 100) {
             captureHighRes();
           });
         });
-      }, 100);
-    }, 50);
+      }, captureDelay);
+    }, resizeDelay);
   });
 }
 

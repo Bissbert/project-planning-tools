@@ -847,23 +847,72 @@ export function exportToPNG(padding = 100) {
     const originalHeight = container.style.height;
     const originalOverflow = container.style.overflow;
     const originalPosition = container.style.position;
+    // Capture actual computed size for restore (inline styles may be empty)
+    const computedWidth = container.offsetWidth;
+    const computedHeight = container.offsetHeight;
 
-    const hiDpiScale = 2;
-    const exportWidth = (contentWidth + padding * 2) * hiDpiScale;
-    const exportHeight = (contentHeight + padding * 2) * hiDpiScale;
+    // Calculate export size, respecting browser canvas limits.
+    // Browsers cap canvas at ~16384px per dimension and ~268M total pixels.
+    // On HiDPI displays, the backing store is CSS size * devicePixelRatio.
+    const dpr = window.devicePixelRatio || 1;
+    const MAX_CANVAS_DIM = 16384;
+    const MAX_CANVAS_AREA = 268435456;
+
+    const desiredCssWidth = contentWidth + padding * 2;
+    const desiredCssHeight = contentHeight + padding * 2;
+    const backingWidth = desiredCssWidth * dpr;
+    const backingHeight = desiredCssHeight * dpr;
+
+    let exportScale = 1.0;
+
+    if (backingWidth > MAX_CANVAS_DIM || backingHeight > MAX_CANVAS_DIM) {
+      exportScale = Math.min(
+        exportScale,
+        MAX_CANVAS_DIM / backingWidth,
+        MAX_CANVAS_DIM / backingHeight
+      );
+    }
+
+    const scaledArea = (backingWidth * exportScale) * (backingHeight * exportScale);
+    if (scaledArea > MAX_CANVAS_AREA) {
+      exportScale = Math.min(
+        exportScale,
+        Math.sqrt(MAX_CANVAS_AREA / (backingWidth * backingHeight))
+      );
+    }
+
+    // Leave a small safety margin
+    exportScale *= 0.95;
+
+    const exportCssWidth = Math.floor(desiredCssWidth * exportScale);
+    const exportCssHeight = Math.floor(desiredCssHeight * exportScale);
 
     container.style.position = 'absolute';
-    container.style.width = `${exportWidth / hiDpiScale}px`;
-    container.style.height = `${exportHeight / hiDpiScale}px`;
+    container.style.width = `${exportCssWidth}px`;
+    container.style.height = `${exportCssHeight}px`;
     container.style.overflow = 'hidden';
 
-    network.setSize(`${exportWidth / hiDpiScale}px`, `${exportHeight / hiDpiScale}px`);
+    network.setSize(`${exportCssWidth}px`, `${exportCssHeight}px`);
 
     network.moveTo({
       position: { x: centerX, y: centerY },
-      scale: 1.0,
+      scale: exportScale,
       animation: false
     });
+
+    const restoreView = () => {
+      container.style.width = originalWidth;
+      container.style.height = originalHeight;
+      container.style.overflow = originalOverflow;
+      container.style.position = originalPosition;
+      // Use computed dimensions for setSize since inline styles may be empty
+      const restoreW = originalWidth || `${computedWidth}px`;
+      const restoreH = originalHeight || `${computedHeight}px`;
+      network.setSize(restoreW, restoreH);
+      network.moveTo({ position: currentPosition, scale: currentScale, animation: false });
+      network.redraw();
+      renderSvgEdges();
+    };
 
     const captureHighRes = async () => {
       try {
@@ -878,6 +927,10 @@ export function exportToPNG(padding = 100) {
 
         const srcWidth = sourceCanvas.width;
         const srcHeight = sourceCanvas.height;
+
+        if (srcWidth === 0 || srcHeight === 0) {
+          throw new Error('Canvas has zero dimensions — graph too large to export');
+        }
 
         const exportCanvas = document.createElement('canvas');
         const ctx = exportCanvas.getContext('2d');
@@ -895,26 +948,24 @@ export function exportToPNG(padding = 100) {
           }
         }
 
-        container.style.width = originalWidth;
-        container.style.height = originalHeight;
-        container.style.overflow = originalOverflow;
-        container.style.position = originalPosition;
-        network.setSize(originalWidth, originalHeight);
-        network.moveTo({ position: currentPosition, scale: currentScale, animation: false });
-        network.redraw();
-        renderSvgEdges();
+        restoreView();
 
-        resolve(exportCanvas.toDataURL('image/png'));
+        const dataUrl = exportCanvas.toDataURL('image/png');
+        if (!dataUrl || dataUrl.length < 100) {
+          throw new Error('PNG export produced empty output — graph too large');
+        }
+
+        resolve(dataUrl);
       } catch (err) {
-        container.style.width = originalWidth;
-        container.style.height = originalHeight;
-        container.style.overflow = originalOverflow;
-        container.style.position = originalPosition;
-        network.setSize(originalWidth, originalHeight);
-        network.moveTo({ position: currentPosition, scale: currentScale, animation: false });
+        restoreView();
         reject(err);
       }
     };
+
+    // Use longer delays for large graphs to ensure redraw completes
+    const isLargeGraph = nodeIds.length > 100;
+    const resizeDelay = isLargeGraph ? 200 : 50;
+    const captureDelay = isLargeGraph ? 300 : 100;
 
     setTimeout(() => {
       network.redraw();
@@ -925,8 +976,8 @@ export function exportToPNG(padding = 100) {
             captureHighRes();
           });
         });
-      }, 100);
-    }, 50);
+      }, captureDelay);
+    }, resizeDelay);
   });
 }
 
