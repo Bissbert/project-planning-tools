@@ -222,9 +222,7 @@ window.stopTimer = function() {
     totalMs += new Date() - timerState.startTime;
   }
 
-  const totalMinutes = Math.round(totalMs / 60000);
-
-  if (totalMinutes < 1) {
+  if (totalMs < 60000) {
     statusManager.show('Entry too short (< 1 minute)');
     resetTimer();
     return;
