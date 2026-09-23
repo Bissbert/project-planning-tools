@@ -122,11 +122,12 @@ body.edit-mode .task-name--editable:hover {
   gap: 1px;
   max-width: 0;
   overflow: hidden;
-  transition: max-width var(--transition-slow), opacity var(--transition-base);
+  transition: opacity var(--transition-base);
   opacity: 0;
 }
 
-.task-row:hover .task-actions-buttons {
+.task-row:hover .task-actions-buttons,
+.task-row:focus-within .task-actions-buttons {
   max-width: 120px;
   opacity: 1;
 }
@@ -150,27 +151,27 @@ body.edit-mode .task-name--editable:hover {
 
 .task-btn--copy:hover {
   background: var(--environment);
-  color: white;
+  color: var(--bg-primary);
 }
 
 .task-btn--duplicate:hover {
   background: var(--planning);
-  color: white;
+  color: var(--bg-primary);
 }
 
 .task-btn--move:hover {
   background: var(--status-warning);
-  color: white;
+  color: var(--bg-primary);
 }
 
 .task-btn--edit-details:hover {
   background: var(--misc);
-  color: white;
+  color: var(--bg-primary);
 }
 
 .task-btn--range:hover {
   background: var(--planning);
-  color: white;
+  color: var(--bg-primary);
 }
 
 /* Compact delete button in task actions */

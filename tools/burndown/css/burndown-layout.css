@@ -127,7 +127,6 @@
 
 .sprint-btn__status--active {
   background: var(--status-success);
-  box-shadow: 0 0 4px var(--status-success);
 }
 
 .sprint-btn__status--completed {
@@ -238,11 +237,6 @@
 }
 
 .sidebar-title {
-  font-size: var(--font-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-muted);
   margin-bottom: var(--spacing-md);
 }
 

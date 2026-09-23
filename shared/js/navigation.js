@@ -132,13 +132,16 @@ function generateDropdownHTML(currentTool) {
       <span class="station-badge__label">${currentTool.label}</span>
       ${CHEVRON_ICON}
     </button>
-    <div class="nav-dropdown__menu" role="menu">
-      <a href="../../index.html" class="nav-dropdown__item" role="menuitem">
-        ${HOME_ICON}
-        Home
-      </a>
-      <div class="nav-dropdown__divider"></div>
-      ${toolItems}
+    <div class="nav-dropdown__menu">
+      <div class="nav-dropdown__list" role="menu" aria-label="Tools">
+        <a href="../../index.html" class="nav-dropdown__item" role="menuitem">
+          ${HOME_ICON}
+          Home
+        </a>
+        <div class="nav-dropdown__divider" role="separator"></div>
+        ${toolItems}
+      </div>
+      <p class="nav-dropdown__note">All tools share this one project. It is saved only in this browser, so export a backup to keep a copy.</p>
     </div>
   `;
 }

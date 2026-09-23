@@ -45,11 +45,11 @@ export function showStatus(message, success = false, options = {}) {
   }
 
   // Determine class based on state
-  let stateClass = 'status';
+  let stateClass = 'status status--active';
   if (success === 'error') {
-    stateClass = 'status status--error';
+    stateClass = 'status status--active status--error';
   } else if (success) {
-    stateClass = 'status status--success';
+    stateClass = 'status status--active status--success';
   }
 
   // Update status element
@@ -108,9 +108,9 @@ export function createStatusManager(elementId, options = {}) {
       // Determine class based on state
       let stateClass = 'status';
       if (success === 'error') {
-        stateClass = 'status status--error';
+        stateClass = 'status status--active status--error';
       } else if (success) {
-        stateClass = 'status status--success';
+        stateClass = 'status status--active status--success';
       }
 
       element.textContent = message;

@@ -18,24 +18,25 @@
 .btn:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  border-color: #3a3a3a;
+  border-color: var(--border-strong);
 }
 
 .btn:focus-visible {
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(68, 114, 196, 0.3);
+  box-shadow: 0 0 0 4px var(--accent-subtle);
 }
 
 /* Primary button */
 .btn--primary {
   background: var(--planning);
   border-color: var(--planning);
-  color: white;
+  color: var(--bg-primary);
 }
 
 .btn--primary:hover {
-  background: #5588dd;
-  border-color: #5588dd;
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+  color: var(--bg-primary);
 }
 
 /* Settings button */
@@ -108,7 +109,7 @@
 
 .btn--success:hover {
   background: var(--status-success);
-  color: white;
+  color: var(--bg-primary);
 }
 
 .btn--success:disabled {
@@ -137,5 +138,5 @@
 
 .btn--danger:hover {
   background: var(--status-error);
-  color: white;
+  color: var(--bg-primary);
 }

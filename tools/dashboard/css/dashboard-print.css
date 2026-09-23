@@ -3,7 +3,7 @@
 @media print {
   /* Hide interactive elements */
   .header-right,
-  .card-badge,
+  .panel-title__badge,
   .quick-links,
   #cardQuickLinks {
     display: none !important;

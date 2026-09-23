@@ -343,6 +343,7 @@
 .points-btn--selected:hover {
   background: var(--accent-bright);
   border-color: var(--accent-bright);
+  color: var(--bg-primary);
 }
 
 /* ========== DROP ZONES ========== */
