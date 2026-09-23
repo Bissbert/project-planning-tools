@@ -1,414 +1,163 @@
 # Project Planning Tools
 
-A collection of lightweight, browser-based planning tools that work offline and keep your data local.
+Project Planning Tools is a collection of browser-based views over one shared
+project JSON document. It covers planning, execution, delivery tracking,
+capacity, time, dependencies, and retrospectives while keeping the working
+copy in the browser. The tools are plain HTML, CSS, and JavaScript modules, so
+the repository is also easy to inspect, serve locally, and extend.
 
-## Philosophy
+```mermaid
+flowchart LR
+    J["Shared project JSON<br/>localStorage"]
+    G["Gantt<br/>planned vs actual"]
+    K["Kanban<br/>workflow"]
+    S["Sprint<br/>backlog and capacity"]
+    B["Burndown<br/>completion trend"]
+    P["PERT and Dependencies<br/>task graph"]
+    M["Milestones<br/>deadlines"]
+    R["Resources and Time<br/>capacity and entries"]
+    X["Retrospective<br/>feedback"]
+    D["Dashboard<br/>project summary"]
 
-- **Offline-first** - Works without internet; data stays in your browser
-- **No build tools** - Plain HTML, CSS, and JavaScript with ES modules
-- **Local data** - Uses localStorage; your data never leaves your machine
-- **Minimal dependencies** - Only external resource is Google Fonts
+    J --> G
+    J --> K
+    J --> S
+    J --> B
+    J --> P
+    J --> M
+    J --> R
+    J --> X
+    J --> D
+    G <--> K
+    K <--> S
+    S --> B
+    K --> B
+    P --> D
+    R --> D
 
-## Features
+    style J fill:#1f6feb,stroke:#58a6ff,color:#fff
+    style D fill:#238636,stroke:#3fb950,color:#fff
+    style P fill:#8250df,stroke:#bc8cff,color:#fff
+```
 
-- Browser-based project planning tools
-- Data persists in localStorage
-- Export to JSON, Excel, and PDF
-- Undo/redo support
-- Print-friendly layouts
-- Dark theme by default
+## Quick start
 
-## Design System
-
-**Aesthetic Direction:** Assembly Line
-**Color Palette:** Warm Steel (gray-purple)
-
-The UI follows a factory/assembly line visual metaphor with:
-- Track lines and conveyor-inspired flow elements
-- Numbered stations and progress indicators
-- Organized, workflow-oriented layouts
-- Modular panel-based components
-
-**Color Palette:**
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--bg-primary` | `#101014` | Main background |
-| `--bg-secondary` | `#18181f` | Cards, panels |
-| `--bg-tertiary` | `#202028` | Elevated elements |
-| `--accent` | `#a78bfa` | Primary accent (soft lavender) |
-| `--accent-secondary` | `#7c7c8a` | Secondary (steel purple) |
-| `--text-primary` | `#e8e8e8` | Main text |
-| `--text-secondary` | `#9898a4` | Muted text |
-
-## Getting Started
-
-ES modules require a local server. The simplest way to run:
+ES modules need an HTTP origin. From the repository root:
 
 ```bash
-cd project-planning-tools
-npx serve .
+python3 -m http.server 8765
 ```
 
-Then open [http://localhost:3000](http://localhost:3000)
+Open <http://localhost:8765>. The command was run during this documentation
+pass; the landing page and the Gantt entrypoint both returned successfully.
 
-Alternatively, use any local server:
-- Python: `python -m http.server 3000`
-- PHP: `php -S localhost:3000`
-- VS Code: Live Server extension
+## Architecture
 
-## Project Structure
+Every tool follows the same load, migrate, render, edit, and save path. The
+tool-specific app owns view state; the shared unified-data module owns the
+cross-tool rules and migrations.
 
-```
-project-planning-tools/
-├── index.html              # Landing page with tool links
-├── shared/                 # Shared modules for all tools
-│   ├── css/
-│   │   ├── tokens.css      # Design tokens (colors, spacing)
-│   │   ├── base.css        # Base styles and reset
-│   │   ├── buttons.css     # Button components
-│   │   ├── forms.css       # Form inputs and labels
-│   │   ├── modals.css      # Modal dialogs
-│   │   ├── status.css      # Status indicators
-│   │   └── print.css       # Print-specific styles
-│   └── js/
-│       ├── storage.js      # localStorage utilities
-│       ├── backup.js       # Backup/restore functionality
-│       ├── undo.js         # Undo/redo manager
-│       ├── export.js       # File download utilities
-│       ├── status.js       # Status message display
-│       └── navigation.js   # Inter-tool navigation dropdown
-└── tools/
-    ├── gantt/              # Gantt Chart tool
-    │   ├── index.html
-    │   ├── css/
-    │   │   ├── gantt-layout.css
-    │   │   ├── gantt-cells.css
-    │   │   ├── gantt-edit.css
-    │   │   └── gantt-print.css
-    │   └── js/
-    │       ├── gantt-app.js
-    │       ├── gantt-data.js
-    │       ├── gantt-render.js
-    │       └── gantt-edit.js
-    ├── kanban/             # Kanban Board tool
-    │   ├── index.html
-    │   ├── css/
-    │   │   ├── kanban-layout.css
-    │   │   ├── kanban-cards.css
-    │   │   ├── kanban-edit.css
-    │   │   └── kanban-print.css
-    │   └── js/
-    │       └── kanban-app.js
-    ├── sprint/             # Sprint Planner tool
-    │   ├── index.html
-    │   ├── css/
-    │   │   ├── sprint-layout.css
-    │   │   ├── sprint-cards.css
-    │   │   ├── sprint-edit.css
-    │   │   └── sprint-print.css
-    │   └── js/
-    │       ├── sprint-app.js
-    │       ├── sprint-render.js
-    │       └── sprint-edit.js
-    ├── burndown/           # Burndown Chart tool
-    │   ├── index.html
-    │   ├── css/
-    │   └── js/
-    ├── time-tracker/       # Time Tracker tool
-    │   ├── index.html
-    │   ├── css/
-    │   └── js/
-    ├── resource-calendar/  # Resource Calendar tool
-    │   ├── index.html
-    │   ├── css/
-    │   └── js/
-    ├── milestone-tracker/  # Milestone Tracker tool
-    │   ├── index.html
-    │   ├── css/
-    │   └── js/
-    ├── retrospective/      # Retrospective Board tool
-    │   ├── index.html
-    │   ├── css/
-    │   └── js/
-    └── pert/               # PERT Chart tool
-        ├── index.html
-        ├── css/
-        │   ├── pert-layout.css
-        │   ├── pert-diagram.css
-        │   ├── pert-table.css
-        │   └── pert-print.css
-        └── js/
-            ├── pert-app.js
-            ├── pert-calc.js
-            ├── pert-render.js
-            ├── pert-vis.js
-            ├── pert-elk.js
-            ├── pert-edit.js
-            └── pert-layout.js
+```mermaid
+flowchart TD
+    A["Tool entrypoint<br/>index.html + app module"] --> B["Load ganttProject<br/>from localStorage"]
+    B --> C{"Saved document?"}
+    C -- "no" --> D["Create tool defaults"]
+    C -- "yes" --> E{"Current data version?"}
+    E -- "older" --> F["Run chained migrations"]
+    E -- "current" --> G["Use saved document"]
+    D --> H["Render tool view"]
+    F --> H
+    G --> H
+    H --> I["User edits, filters, drags,<br/>or changes view"]
+    I --> J["Tool edit helpers and<br/>shared calculations"]
+    J --> K["Save JSON and create<br/>periodic local backup"]
+    K --> L["Other open tabs receive<br/>the storage event"]
+    L --> H
+
+    style A fill:#1f6feb,stroke:#58a6ff,color:#fff
+    style K fill:#238636,stroke:#3fb950,color:#fff
+    style J fill:#8250df,stroke:#bc8cff,color:#fff
 ```
 
-## Available Tools
+The detailed data relationships are in [the data model write-up](docs/data-model.md),
+and the shared lifecycle is described in [architecture.md](docs/architecture.md).
 
-### Gantt Chart
+## Capability table
 
-Visual project timeline with planned vs. reality tracking.
+| Tool | Input | Output | Reach for it when |
+|---|---|---|---|
+| [Gantt](tools/gantt/index.html) | Tasks, categories, planned and reality weeks | Timeline grid and variance view | You need a schedule and planned-vs-actual comparison |
+| [Kanban](tools/kanban/index.html) | Tasks and workflow columns | Drag-and-drop work board | You need to move work through a workflow |
+| [Sprint](tools/sprint/index.html) | Tasks, story points, and sprints | Backlog, sprint board, and velocity | You need to commit backlog work to a sprint |
+| [Burndown](tools/burndown/index.html) | Sprint tasks and completion timestamps | Ideal and actual progress chart | You need to see remaining work over a sprint |
+| [Time Tracker](tools/time-tracker/index.html) | Timer actions and time entries | Daily, weekly, and report views | You need recorded effort against tasks |
+| [Resource Calendar](tools/resource-calendar/index.html) | Team members and availability entries | Week/month capacity calendar | You need to see team availability |
+| [Milestone Tracker](tools/milestone-tracker/index.html) | Milestone tasks and dependencies | Timeline and status cards | You need deadline-focused project checkpoints |
+| [Retrospective](tools/retrospective/index.html) | Retrospective items and votes | Grouped feedback board and actions | You need to turn sprint feedback into actions |
+| [PERT](tools/pert/index.html) | Tasks and dependency edges | Network, PERT values, and critical path | You need schedule impact and slack analysis |
+| [Dependencies](tools/dependencies/index.html) | Tasks and dependency edges | Status-oriented dependency network | You need a focused dependency map |
+| [Dashboard](tools/dashboard/index.html) | All shared project collections | Health, velocity, milestones, and capacity cards | You need a compact project overview |
 
-**Features:**
-- Week-by-week scheduling grid
-- Planned vs. actual progress comparison
-- Variance tracking (ahead/behind schedule)
-- Drag-and-drop task management
-- Category-based organization with collapse/expand
-- Task assignment and priority levels
-- Milestone markers
-- Search and filter tasks
-- Team member management
-- Import/export JSON project files
-- Export to Excel and PDF
-- Keyboard shortcuts
-- Edit mode for modifications
+## Measured results
 
-### Kanban Board
+The checked-in script [devtools/measure_docs.py](devtools/measure_docs.py) reports
+facts from tracked files and tool entrypoints:
 
-Visual workflow management with customizable columns.
+| Measurement | Result |
+|---|---:|
+| Tool entrypoints | 11 |
+| Navigation entries | 11 |
+| Tracked HTML/CSS/JS files | 111 |
+| Tracked app source bytes | 1,081,447 |
+| Tracked app source lines | 39,529 |
+| Current data version | 13 |
+| Migration steps registered | 9 |
+| External script URLs | 2 |
 
-**Features:**
-- Configurable columns (Backlog, To Do, In Progress, Done)
-- Custom columns (add, delete, rename, recolor, reorder)
-- Drag-and-drop cards between columns
-- Card details: name, category, assignee, priority, notes
-- Card filtering and search
-- Column collapse/expand
-- Bidirectional sync with Gantt and Sprint Planner
-- Edit mode for modifications
-- Print/export support
+The external scripts are ELK.js and vis-network, used by the graph views. No
+runtime performance benchmark is claimed here; the measurement script reports
+repository facts, not browser timing.
 
-### Sprint Planner
+## Repository layout
 
-Agile sprint planning with backlog management and velocity tracking.
+```text
+shared/
+├── css/                 shared tokens and interface components
+└── js/                  storage, migration, sync, export, and navigation
+tools/
+├── gantt/               planned versus actual timeline
+├── kanban/              workflow board
+├── sprint/              backlog and sprint planning
+├── burndown/            sprint progress chart
+├── time-tracker/        time entries and reports
+├── resource-calendar/   availability and capacity
+├── milestone-tracker/   deadline-focused task view
+├── retrospective/      feedback and action items
+├── pert/                critical-path analysis
+├── dependencies/        dependency network
+└── dashboard/           cross-tool summary
+devtools/
+└── measure_docs.py      documentation measurement script
+docs/                    diagrams and subsystem write-ups
+```
 
-**Features:**
-- Product backlog with story point estimation (Fibonacci scale)
-- Sprint creation with name, goal, and week range
-- Sprint tabs for navigation
-- Drag-and-drop from backlog to sprint
-- Move tasks back to backlog
-- Velocity tracking from completed sprints
-- Capacity bar (committed vs velocity)
-- Sprint status management (planning, active, completed)
-- Two-panel layout (backlog + sprint board)
-- Bidirectional sync with Gantt and Kanban
-- Edit mode for modifications
+See [docs/README.md](docs/README.md) for the documentation index.
 
-### Burndown Chart
+## Known limitations
 
-Visual sprint progress tracking with ideal vs. actual burndown lines.
-
-**Features:**
-- Ideal burndown line showing linear progress
-- Actual burndown calculated dynamically from task completion timestamps
-- Story points or task count display modes
-- Sprint selector for viewing different sprints
-- Today marker showing current position
-- Historical sprint comparison in sidebar
-- Average velocity calculation
-- Export chart as PNG image
-- Cross-tab sync with Sprint Planner
-- Keyboard shortcuts
-
-### Time Tracker
-
-Track time spent on tasks and projects.
-
-**Features:**
-- Timer with start/stop/pause
-- Manual time entry (quick add)
-- Associate time with projects/tasks
-- Daily and weekly views
-- Date navigation
-- Time reports view
-- Billable hours tracking
-- Edit mode for modifications
-
-### Resource Calendar
-
-Team availability and capacity planning.
-
-**Features:**
-- Week and month view toggle
-- Calendar grid with team member rows
-- Mark days as available, partial, unavailable, or holiday
-- Team member management with color coding
-- Weekly hours configuration per member
-- Capacity calculation and visualization
-- Search/filter team members
-- Edit mode for modifications
-
-### Milestone Tracker
-
-High-level view of project milestones with deadline tracking.
-
-**Features:**
-- Timeline view with horizontal month headers
-- Card/list view with two-panel layout
-- Status indicators (on track, at risk, delayed, complete)
-- Auto-calculated status based on deadline and progress
-- Deadline tracking with days remaining
-- Dependencies between milestones and tasks
-- Progress percentage from dependency completion
-- Convert existing tasks to milestones
-- Search/filter milestones
-
-### Retrospective Board
-
-Agile sprint retrospectives with voting and item grouping.
-
-**Features:**
-- Three columns: Went Well, Didn't Go Well, Action Items
-- Anonymous mode toggle per retrospective
-- Unlimited voting on items
-- Drag-to-group similar items
-- Drag-to-move items between columns
-- Export action items as text
-- Link to sprint (optional)
-- Retrospective selector dropdown
-- Edit mode for modifications
-
-### PERT Chart
-
-Network diagram for task dependencies and critical path analysis.
-
-**Features:**
-- Interactive network diagram (vis-network library)
-- ELK.js orthogonal edge routing (90-degree angles, parallel edges)
-- Dynamic node dimension measurement for precise edge alignment
-- Critical path highlighting with zero-slack visualization
-- PERT calculations: Early Start/Finish, Late Start/Finish, Slack
-- Continuous edge drawing in edit mode
-- Incremental updates (view preserved when adding edges)
-- Cycle prevention when creating dependencies
-- Table view with sortable PERT values
-- Data scope toggle (milestones only vs all tasks)
-- Node details modal and sidebar
-- Floating glass-panel controls (zoom, edit notice)
-- High-quality PNG export with proper hiDPI scaling
-- Export as PNG or JSON
-- Search/filter nodes
-
-## Shared Modules
-
-### CSS Modules
-
-| Module | Purpose |
-|--------|---------|
-| `tokens.css` | Design tokens: colors, spacing, typography, status colors |
-| `base.css` | Reset, body styles, scrollbars, typography |
-| `buttons.css` | Button variants: default, primary, destructive, edit |
-| `forms.css` | Input fields, labels, textareas, selects |
-| `modals.css` | Modal overlays and panels |
-| `status.css` | Status message styling |
-| `navigation.css` | Inter-tool navigation dropdown |
-| `print.css` | Print media query styles |
-
-### JavaScript Modules
-
-| Module | Purpose | Key Exports |
-|--------|---------|-------------|
-| `storage.js` | localStorage wrapper | `saveToStorage()`, `loadFromStorage()`, `removeFromStorage()` |
-| `undo.js` | Undo/redo stack | `createUndoManager()` |
-| `export.js` | File downloads | `downloadJSON()`, `downloadBlob()`, `readJSONFile()` |
-| `status.js` | Status messages | `initStatus()`, `showStatus()`, `createStatusManager()` |
-| `backup.js` | Backup utilities | Backup/restore functionality |
-| `unified-data.js` | Cross-tool data sync | `migrateToLatest()`, `getProductBacklog()`, `getSprintTasks()`, `calculateVelocity()`, `getSprintWeekNumber()`, `getTaskAssignee()` |
-| `navigation.js` | Inter-tool navigation | `initNavigation()` |
-
-## Creating New Tools
-
-1. Create a new directory under `tools/`:
-   ```
-   tools/
-   └── my-tool/
-       ├── index.html
-       ├── css/
-       │   └── my-tool.css
-       └── js/
-           └── my-tool-app.js
-   ```
-
-2. **Register the tool** in `shared/js/navigation.js` by adding to the `TOOLS` array:
-   ```javascript
-   const TOOLS = [
-     { id: 'gantt', number: '01', label: 'Gantt', path: 'gantt' },
-     { id: 'kanban', number: '02', label: 'Kanban', path: 'kanban' },
-     // ... existing tools ...
-     { id: 'my-tool', number: '05', label: 'My Tool', path: 'my-tool' }  // Add here
-   ];
-   ```
-   This single change makes the tool appear in all other tools' navigation dropdowns.
-
-3. In your `index.html`, import shared CSS (order matters):
-   ```html
-   <link rel="stylesheet" href="../../shared/css/tokens.css">
-   <link rel="stylesheet" href="../../shared/css/base.css">
-   <link rel="stylesheet" href="../../shared/css/buttons.css">
-   <link rel="stylesheet" href="../../shared/css/forms.css">
-   <link rel="stylesheet" href="../../shared/css/modals.css">
-   <link rel="stylesheet" href="../../shared/css/status.css">
-   <link rel="stylesheet" href="../../shared/css/navigation.css">
-   <link rel="stylesheet" href="../../shared/css/print.css">
-   ```
-
-4. Add the navigation placeholder in your header:
-   ```html
-   <header class="header">
-     <div class="header-left">
-       <nav class="nav-dropdown" data-current="my-tool"></nav>
-       <!-- rest of header -->
-     </div>
-   </header>
-   ```
-
-5. In your JavaScript, import and initialize navigation:
-   ```javascript
-   import { saveToStorage, loadFromStorage } from '../../../shared/js/storage.js';
-   import { initNavigation } from '../../../shared/js/navigation.js';
-   // ... other imports ...
-
-   function init() {
-     initNavigation();  // Initialize navigation dropdown
-     // ... rest of initialization ...
-   }
-   ```
-
-6. Add a card to the landing page `index.html`
-
-## Browser Support
-
-Modern browsers with ES modules support:
-- Chrome 61+
-- Firefox 60+
-- Safari 11+
-- Edge 16+
-
-## Data Storage
-
-All data is stored in your browser's localStorage:
-- Data persists between sessions
-- Data is per-browser and per-domain
-- Clear browser data to reset
-- Export JSON for backups or sharing
-
-## Data Model
-
-The suite uses a unified data model (v12) shared across all tools:
-- **Automatic migration**: Data is automatically migrated to the latest version
-- **Cross-tool sync**: Changes in one tool sync to others via localStorage events
-- **Sprint dates**: Stored as ISO date strings for portability
-- **Burndown**: Calculated dynamically from task completion timestamps
-- **Assignees**: Linked by ID with name fallback for backwards compatibility
-- **Dependencies**: Task dependencies stored for PERT chart analysis
-- **Retrospectives**: Sprint retrospective data with voting and grouping
-
-## License
-
-MIT License - feel free to use, modify, and distribute.
+- Data is local to the browser origin. There is no server, shared workspace,
+  authentication, or multi-user conflict resolution.
+- ES modules require a local HTTP server; opening an entrypoint directly from
+  the file system is not the supported path.
+- The core app is local-first, but fresh loads of the landing page fetch Google
+  Fonts, and the graph tools fetch ELK.js and vis-network from unpkg. An
+  environment without those resources will not have the same presentation or
+  graph layout behavior until the resources are available or cached.
+- Imported documents are migrated in place to the current data format. Keep a
+  JSON export before testing an old or experimental document.
+- The timer rounds elapsed time before applying its too-short guard, so some
+  sub-minute runs are saved as one-minute entries. See
+  [docs/BUGS-FOUND.md](docs/BUGS-FOUND.md).
+- This pass ships Mermaid diagrams only. No terminal animation is included
+  because a real interactive browser session was not captured as a reusable
+  recording.
