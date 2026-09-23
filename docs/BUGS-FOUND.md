@@ -3,7 +3,17 @@
 # Bugs found during the documentation pass
 
 This file records an existing behavior issue found while checking the
-documentation against the source. No application source file was changed.
+documentation against the source. No application source file was changed
+during the documentation pass itself.
+
+> **Since this pass:** an independent adjudication confirmed this entry, and a
+> subsequent fix pass applied it to the default branch in commit `0b4ad44`.
+> `stopTimer` now rejects raw elapsed durations below 60,000 milliseconds
+> before it formats clock strings or creates the entry. How a saved duration is
+> derived from the truncated clock string was deliberately left unchanged; that
+> is a separate behavior decision, not part of this fix. Read the reproduction
+> and the diagram below as the state at the time of the pass, not as the
+> current state of the default branch.
 
 ```mermaid
 flowchart TD
@@ -67,3 +77,9 @@ diff --git a/tools/time-tracker/js/time-app.js b/tools/time-tracker/js/time-app.
    const entry = addTimeEntry(projectData, {
 @@
    });
+```
+
+The fix applied to the default branch takes a different route to the same
+result: `stopTimer` rejects a raw elapsed duration below 60,000 milliseconds
+before any clock string is formatted, rather than switching the rounding to
+`Math.floor`.
