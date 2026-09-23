@@ -7,6 +7,17 @@
   box-sizing: border-box;
 }
 
+/* Browser surfaces follow the dark palette (scrollbars, native controls) */
+:root {
+  color-scheme: dark;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+::selection {
+  background: var(--accent-subtle);
+  color: var(--text-primary);
+}
+
 /* Body */
 body {
   font-family: 'JetBrains Mono', monospace;

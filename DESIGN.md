@@ -50,7 +50,7 @@ A gray-purple palette with soft lavender accents.
 |-------|-------|-------|
 | `--text-primary` | `#e8e8ec` | Headings, primary content |
 | `--text-secondary` | `#9898a8` | Body text, descriptions |
-| `--text-muted` | `#5c5c6c` | Labels, hints, disabled |
+| `--text-muted` | `#8e8e9e` | Labels, hints, disabled (5.9:1 on `--bg-primary`) |
 | `--text-accent` | `#c4b5fd` | Links, highlighted text |
 
 ### Accent Colors
@@ -60,7 +60,6 @@ A gray-purple palette with soft lavender accents.
 | `--accent` | `#a78bfa` | Primary accent (buttons, badges, focus) |
 | `--accent-bright` | `#c4b5fd` | Hover states, code highlights |
 | `--accent-dim` | `#7c3aed` | Active/pressed states |
-| `--accent-glow` | `rgba(167, 139, 250, 0.4)` | Glow effects |
 | `--accent-subtle` | `rgba(167, 139, 250, 0.12)` | Subtle backgrounds |
 
 ### Status Colors
@@ -156,8 +155,12 @@ Each status color has a `-subtle` variant for backgrounds (e.g., `--status-succe
 | `--shadow-sm` | Subtle elevation |
 | `--shadow-md` | Cards, dropdowns |
 | `--shadow-lg` | Modals, popovers |
-| `--shadow-glow` | Focus states, accent glow |
 | `--shadow-inset` | Pressed states, depth |
+
+Shadows mean elevation only. There are no glows: no zero-offset blurred
+shadows on dots, markers, lines or selected items. Show selection with a
+1px `--accent` ring (`box-shadow: 0 0 0 1px var(--accent)`) and focus with
+the outline plus a 4px `--accent-subtle` ring.
 
 ---
 
@@ -165,16 +168,20 @@ Each status color has a `-subtle` variant for backgrounds (e.g., `--status-succe
 
 ### Section Header
 
-Every major section has a badge and uppercase title:
+Every major section has a badge and uppercase title. On the landing page
+this is `.section-header`; inside the tools, panel and sidebar headings use
+the shared `.panel-title` from `components.css`:
 
 ```html
-<div class="section-header">
-  <span class="section-header__badge">A</span>
-  <h2>Section Title</h2>
-</div>
+<h2 class="panel-title">
+  <span class="panel-title__badge" aria-hidden="true">A</span>
+  Section Title
+</h2>
 ```
 
-Badges use sequential letters (A, B, C) or symbols ($, #).
+`.panel-title` sets the size, weight, uppercase and `--tracking-wider`
+muted color; tool CSS only adds margins. The badge is optional (sidebar
+titles go without). Badges use sequential letters (A, B, C) or symbols ($, #).
 
 ### Station Numbers
 
@@ -233,13 +240,18 @@ Cards connect to track lines with horizontal connectors:
 }
 ```
 
-### Status Badges
+### Status Messages
 
-```html
-<span class="status status--success">Active</span>
-<span class="status status--warning">Pending</span>
-<span class="status status--error">Blocked</span>
-```
+Each tool has one `#status` element (`role="status"`, `aria-live="polite"`)
+driven by `shared/js/status.js`. It stays hidden until a message is shown
+and hides again after the timeout, so it never covers content while idle.
+
+### Shared Data Note
+
+All tools read and write the same project in `localStorage`. The landing
+page says so under the hero, and the tool switcher menu ends with a short
+note, so people know that a change in one tool shows up in the others and
+that a JSON export is the only backup.
 
 ---
 
@@ -256,6 +268,7 @@ Cards connect to track lines with horizontal connectors:
 - **Continuous loops** - Blinking lights, pulsing indicators, rotating spinners (unless loading)
 - **Staggered page loads** - All content should appear immediately
 - **Decorative motion** - Animation that doesn't aid comprehension
+- **Width or height transitions** - Progress and capacity bars jump to their value
 
 ### Timing
 
@@ -303,6 +316,8 @@ Cards connect to track lines with horizontal connectors:
 - **DO** use `--bg-secondary` for cards on `--bg-primary` pages
 - **DO** use `--text-secondary` for descriptions, `--text-muted` for labels
 - **DON'T** use pure white (`#fff`) or pure black (`#000`)
+- **DO** put `--bg-primary` text on filled accent, success and danger buttons, including their hover states
+- **DON'T** add glows or colored halos
 - **DON'T** mix warm and cool grays
 
 ### Typography

@@ -86,9 +86,6 @@
 }
 
 .backlog-title {
-  font-size: var(--font-md);
-  font-weight: 600;
-  color: var(--text-primary);
   margin-bottom: var(--spacing-xs);
 }
 
@@ -203,7 +200,6 @@
 
 .sprint-tab__status--active {
   background: var(--status-success);
-  box-shadow: 0 0 4px var(--status-success);
 }
 
 .sprint-tab__status--completed {
@@ -355,7 +351,6 @@
   height: 100%;
   background: var(--accent);
   border-radius: var(--radius-sm);
-  transition: width 0.3s var(--ease-mechanical);
 }
 
 .capacity-bar__fill--warning {

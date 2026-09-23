@@ -70,7 +70,7 @@ function renderTeamList(projectData, searchQuery, handlers) {
     teamList.innerHTML = `
       <div class="empty-state">
         <div class="empty-state__text">
-          ${team.length === 0 ? 'No team members yet. Click "Add Member" to get started.' : 'No members match your search.'}
+          ${team.length === 0 ? 'No team members yet. Switch to Edit to add one.' : 'No members match your search.'}
         </div>
       </div>
     `;

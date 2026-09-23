@@ -164,11 +164,6 @@
   background: var(--bg-tertiary);
 }
 
-.milestone-panel__title {
-  font-size: var(--font-md);
-  font-weight: 600;
-  color: var(--text-primary);
-}
 
 .milestone-list {
   flex: 1;
@@ -269,14 +264,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  box-shadow: var(--shadow-lg);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   z-index: 50;
 }
 
 .fab:hover {
   transform: scale(1.1);
-  box-shadow: var(--shadow-lg), 0 0 30px var(--accent-glow);
+  background: var(--accent-bright);
 }
 
 /* ========== RESPONSIVE ========== */

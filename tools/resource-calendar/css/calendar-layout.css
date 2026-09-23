@@ -85,11 +85,6 @@
   background: var(--bg-tertiary);
 }
 
-.team-title {
-  font-size: var(--font-md);
-  font-weight: 600;
-  color: var(--text-primary);
-}
 
 .team-list {
   flex: 1;

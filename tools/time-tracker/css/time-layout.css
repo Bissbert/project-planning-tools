@@ -93,13 +93,6 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.timer-title {
-  font-size: var(--font-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-muted);
-}
 
 .timer-status {
   font-size: var(--font-xs);
@@ -217,13 +210,6 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.quick-add-title {
-  font-size: var(--font-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-muted);
-}
 
 .form-row {
   display: flex;
