@@ -95,7 +95,6 @@
 }
 
 .inline-edit__input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -146,7 +145,6 @@
 }
 
 .quick-add__input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

@@ -94,13 +94,13 @@
         <button class="modal-close" onclick="closeSettings()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Project Title</label>
+        <label for="settingsTitle" class="form-label">Project Title</label>
         <input type="text" class="form-input" id="settingsTitle">
       </div>
       <div class="form-group">
-        <label class="form-label">Columns</label>
+        <span class="form-label" id="columnSettingsLabel">Columns</span>
         <p class="form-hint">Drag to reorder. Default columns (Backlog, To Do, In Progress, Done) cannot be deleted.</p>
-        <div class="column-settings" id="columnSettings"></div>
+        <div class="column-settings" id="columnSettings" role="group" aria-labelledby="columnSettingsLabel"></div>
         <button class="btn btn--ghost" onclick="addNewColumn()" style="margin-top: 8px;">+ Add Column</button>
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -118,21 +118,21 @@
         <button class="modal-close" onclick="closeTaskEdit()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Task Name</label>
+        <label for="taskEditName" class="form-label">Task Name</label>
         <input type="text" class="form-input" id="taskEditName">
       </div>
       <div class="form-group">
-        <label class="form-label">Category</label>
+        <label for="taskEditCategory" class="form-label">Category</label>
         <select class="form-input" id="taskEditCategory"></select>
       </div>
       <div class="form-group">
-        <label class="form-label">Assignee</label>
+        <label for="taskEditAssignee" class="form-label">Assignee</label>
         <select class="form-input" id="taskEditAssignee">
           <option value="">Unassigned</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Priority</label>
+        <label for="taskEditPriority" class="form-label">Priority</label>
         <select class="form-input" id="taskEditPriority">
           <option value="">None</option>
           <option value="high">High</option>
@@ -147,11 +147,11 @@
         </label>
       </div>
       <div class="form-group">
-        <label class="form-label">Notes</label>
+        <label for="taskEditNotes" class="form-label">Notes</label>
         <textarea class="form-input" id="taskEditNotes" rows="3" placeholder="Add notes..."></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Planned Timeline (Weeks)</label>
+        <label for="taskEditStartWeek" class="form-label">Planned Timeline (Weeks)</label>
         <div style="display: flex; gap: 8px; align-items: center;">
           <input type="number" class="form-input" id="taskEditStartWeek" min="1" style="width: 80px;" placeholder="Start">
           <span>to</span>
@@ -159,7 +159,7 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Reality (Weeks Worked)</label>
+        <label for="taskEditAddRealityWeek" class="form-label">Reality (Weeks Worked)</label>
         <div id="taskEditRealityContainer" class="reality-weeks-container"></div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
           <input type="number" class="form-input" id="taskEditAddRealityWeek" min="1" style="width: 80px;" placeholder="Week">
@@ -167,7 +167,7 @@
         </div>
       </div>
       <div class="form-group" id="taskEditProgressGroup">
-        <label class="form-label">Progress</label>
+        <span class="form-label">Progress</span>
         <div class="task-progress-bar">
           <div class="task-progress-fill" id="taskEditProgressFill"></div>
         </div>
@@ -190,15 +190,15 @@
         <button class="modal-close" onclick="closeNewTask()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Task Name</label>
+        <label for="newTaskName" class="form-label">Task Name</label>
         <input type="text" class="form-input" id="newTaskName" placeholder="Enter task name...">
       </div>
       <div class="form-group">
-        <label class="form-label">Category</label>
+        <label for="newTaskCategory" class="form-label">Category</label>
         <select class="form-input" id="newTaskCategory"></select>
       </div>
       <div class="form-group">
-        <label class="form-label">Column</label>
+        <label for="newTaskColumn" class="form-label">Column</label>
         <select class="form-input" id="newTaskColumn"></select>
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -213,7 +213,7 @@
   </main>
 
   <!-- Status indicator -->
-  <div id="status" class="status"></div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
 
   <!-- Load app as ES module -->
   <script type="module" src="js/kanban-app.js"></script>

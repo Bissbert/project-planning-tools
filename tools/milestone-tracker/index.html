@@ -115,7 +115,7 @@
         <button class="modal-close" onclick="closeSettings()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Project Title</label>
+        <label for="settingsTitle" class="form-label">Project Title</label>
         <input type="text" class="form-input" id="settingsTitle">
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -133,15 +133,15 @@
         <button class="modal-close" onclick="closeNewMilestone()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Milestone Name</label>
+        <label for="newMilestoneName" class="form-label">Milestone Name</label>
         <input type="text" class="form-input" id="newMilestoneName" placeholder="Alpha Release">
       </div>
       <div class="form-group">
-        <label class="form-label">Deadline</label>
+        <label for="newMilestoneDeadline" class="form-label">Deadline</label>
         <input type="date" class="form-input" id="newMilestoneDeadline">
       </div>
       <div class="form-group">
-        <label class="form-label">Notes</label>
+        <label for="newMilestoneNotes" class="form-label">Notes</label>
         <textarea class="form-input" id="newMilestoneNotes" rows="2" placeholder="Optional description"></textarea>
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -159,19 +159,19 @@
         <button class="modal-close" onclick="closeEditMilestone()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Milestone Name</label>
+        <label for="editMilestoneName" class="form-label">Milestone Name</label>
         <input type="text" class="form-input" id="editMilestoneName">
       </div>
       <div class="form-group">
-        <label class="form-label">Deadline</label>
+        <label for="editMilestoneDeadline" class="form-label">Deadline</label>
         <input type="date" class="form-input" id="editMilestoneDeadline">
       </div>
       <div class="form-group">
-        <label class="form-label">Notes</label>
+        <label for="editMilestoneNotes" class="form-label">Notes</label>
         <textarea class="form-input" id="editMilestoneNotes" rows="2"></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Status Override</label>
+        <label for="editMilestoneStatusOverride" class="form-label">Status Override</label>
         <select class="form-input" id="editMilestoneStatusOverride">
           <option value="">Auto-calculate</option>
           <option value="complete">Complete</option>
@@ -182,15 +182,15 @@
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Progress Override (%)</label>
+        <label for="editMilestoneProgressOverride" class="form-label">Progress Override (%)</label>
         <div style="display: flex; align-items: center; gap: 8px;">
           <input type="number" class="form-input" id="editMilestoneProgressOverride" min="0" max="100" placeholder="Auto">
           <span class="form-hint">Leave empty for auto-calculation</span>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Dependencies</label>
-        <div class="dependency-picker" id="dependencyPicker">
+        <span class="form-label" id="dependencyPickerLabel">Dependencies</span>
+        <div class="dependency-picker" id="dependencyPicker" role="group" aria-labelledby="dependencyPickerLabel">
           <!-- Populated dynamically -->
         </div>
       </div>
@@ -283,7 +283,7 @@
   </button>
 
   <!-- Status indicator -->
-  <div id="status" class="status"></div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
 
   <!-- Load app as ES module -->
   <script type="module" src="js/milestone-app.js"></script>

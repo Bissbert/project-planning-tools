@@ -23,7 +23,7 @@
 
 .chart-axis-label {
   fill: var(--text-muted);
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 500;
 }
 
@@ -104,7 +104,7 @@
 
 .chart-today-label {
   fill: var(--status-warning);
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-anchor: middle;
 }
@@ -209,18 +209,18 @@
 
 .chart-boundary-label {
   fill: var(--text-muted);
-  font-size: 9px;
+  font-size: var(--font-xs);
   text-anchor: middle;
 }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 640px) {
   .chart-axis-label {
-    font-size: 9px;
+    font-size: var(--font-xs);
   }
 
   .chart-axis-title {
-    font-size: 10px;
+    font-size: var(--font-xs);
   }
 
   .chart-line-actual {

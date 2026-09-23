@@ -78,7 +78,7 @@
   background: var(--station-bg);
   border: 1px solid var(--station-border);
   border-radius: var(--radius-sm);
-  font-size: 9px;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--text-muted);
 }

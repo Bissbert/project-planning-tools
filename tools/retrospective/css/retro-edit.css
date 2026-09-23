@@ -86,7 +86,6 @@
 }
 
 .quick-add__input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -132,10 +131,6 @@
   color: var(--text-primary);
   resize: vertical;
   min-height: 60px;
-}
-
-.retro-item__edit-input:focus {
-  outline: none;
 }
 
 /* ========== KEYBOARD SHORTCUTS HELP ========== */

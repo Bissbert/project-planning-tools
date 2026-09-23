@@ -53,7 +53,6 @@
 }
 
 .retro-selector:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

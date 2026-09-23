@@ -143,7 +143,6 @@ input:focus-visible {
 }
 
 .search-input:focus {
-  outline: none;
   border-color: var(--planning);
 }
 

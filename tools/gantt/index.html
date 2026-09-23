@@ -95,20 +95,20 @@
         <button class="modal-close" onclick="closeSettings()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Project Title</label>
+        <label for="settingsTitle" class="form-label">Project Title</label>
         <input type="text" class="form-input" id="settingsTitle">
       </div>
       <div class="form-group">
-        <label class="form-label">Start Date</label>
+        <label for="settingsStartDate" class="form-label">Start Date</label>
         <input type="date" class="form-input" id="settingsStartDate">
       </div>
       <div class="form-group">
-        <label class="form-label">End Date</label>
+        <label for="settingsEndDate" class="form-label">End Date</label>
         <input type="date" class="form-input" id="settingsEndDate">
         <div class="project-dates" id="projectDates"></div>
       </div>
       <div class="form-group">
-        <label class="form-label">Team Members (for task assignment)</label>
+        <label for="newTeamMember" class="form-label">Team Members (for task assignment)</label>
         <div class="team-list" id="teamList"></div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
           <input type="text" class="form-input" id="newTeamMember" placeholder="Enter name..." style="flex: 1;">
@@ -128,11 +128,11 @@
       <h3>Set Week Range</h3>
       <div class="range-picker__inputs">
         <div class="range-picker__field">
-          <label>Start Week</label>
+          <label for="rangeStartWeek">Start Week</label>
           <input type="number" id="rangeStartWeek" min="1" max="99">
         </div>
         <div class="range-picker__field">
-          <label>End Week</label>
+          <label for="rangeEndWeek">End Week</label>
           <input type="number" id="rangeEndWeek" min="1" max="99">
         </div>
       </div>
@@ -147,13 +147,13 @@
   <div class="task-edit-popover" id="taskEditPopover">
     <h4 id="popoverTaskName">Edit Task</h4>
     <div class="popover-field">
-      <label>Assignee</label>
+      <label for="popoverAssignee">Assignee</label>
       <select id="popoverAssignee">
         <option value="">Unassigned</option>
       </select>
     </div>
     <div class="popover-field">
-      <label>Priority</label>
+      <label for="popoverPriority">Priority</label>
       <select id="popoverPriority">
         <option value="">None</option>
         <option value="high">High</option>
@@ -166,7 +166,7 @@
       <label for="popoverMilestone">Mark as Milestone</label>
     </div>
     <div class="popover-field">
-      <label>Notes</label>
+      <label for="popoverNotes">Notes</label>
       <textarea id="popoverNotes" placeholder="Add notes about this task..."></textarea>
     </div>
     <div class="popover-actions">
