@@ -37,7 +37,6 @@
   background: var(--accent);
   border-radius: 1px;
   margin: var(--spacing-xs) 0;
-  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .drop-indicator--before {
@@ -82,7 +81,6 @@
   height: 100%;
   background: var(--accent);
   border-radius: 2px;
-  transition: width 0.2s var(--ease-mechanical);
 }
 
 .task-progress-fill--complete {

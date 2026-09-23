@@ -129,7 +129,6 @@
       height: 6px;
       background: var(--status-success);
       border-radius: 50%;
-      box-shadow: 0 0 6px var(--status-success);
     }
 
     .hero h1 {
@@ -150,6 +149,15 @@
       line-height: var(--leading-relaxed);
       max-width: 600px;
       margin-bottom: var(--spacing-2xl);
+    }
+
+    .hero-description:has(+ .hero-description--note) {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .hero-description--note {
+      font-size: var(--font-md);
+      line-height: var(--leading-normal);
     }
 
     /* Process indicators */
@@ -653,6 +661,9 @@
       <h1>Project <span class="highlight">Planning</span> Tools</h1>
       <p class="hero-description">
         Lightweight, browser-based planning tools that work offline and keep your data local. No accounts, no servers, no complexity.
+      </p>
+      <p class="hero-description hero-description--note">
+        Every tool works on the same project: a task added in the Gantt chart shows up on the Kanban board, in sprints and on the dashboard. It is stored in this browser, so export a JSON backup to move it or keep a copy.
       </p>
       <div class="process-flow">
         <div class="process-step">

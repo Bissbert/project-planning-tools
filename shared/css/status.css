@@ -22,8 +22,17 @@
   letter-spacing: var(--tracking-wide);
   color: var(--text-muted);
 
-  transition: all var(--transition-base) var(--ease-mechanical);
+  transition: opacity var(--transition-base) var(--ease-mechanical),
+    transform var(--transition-base) var(--ease-mechanical),
+    visibility var(--transition-base);
   box-shadow: var(--shadow-md);
+}
+
+/* Only visible while a message is showing; the idle state would cover content */
+.status:not(.status--active) {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
 }
 
 /* Signal dot indicator */
@@ -33,14 +42,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
-  opacity: 0.6;
   flex-shrink: 0;
-  animation: statusPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
 }
 
 /* Success state (saved, created, etc.) */
@@ -213,12 +215,10 @@
 
 .priority-dot--high {
   background: #dc2626;
-  box-shadow: 0 0 4px rgba(220, 38, 38, 0.5);
 }
 
 .priority-dot--medium {
   background: #f59e0b;
-  box-shadow: 0 0 4px rgba(245, 158, 11, 0.4);
 }
 
 .priority-dot--low {
@@ -317,7 +317,6 @@
   transform: rotate(45deg);
   margin-right: 10px;
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
 }
 
 .task-row--milestone .task-name-text {

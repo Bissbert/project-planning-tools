@@ -222,7 +222,7 @@ export function renderColumn(column, tasks, categories, editMode, handlers) {
   cardsArea.dataset.columnId = column.id;
 
   if (columnTasks.length === 0) {
-    cardsArea.innerHTML = `
+    cardsArea.innerHTML = editMode ? `
       <div class="column-empty-state">
         <svg class="column-empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
@@ -230,6 +230,10 @@ export function renderColumn(column, tasks, categories, editMode, handlers) {
           <line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
         <span class="column-empty-state__text">Drop tasks here</span>
+      </div>
+    ` : `
+      <div class="column-empty-state">
+        <span class="column-empty-state__text">No tasks</span>
       </div>
     `;
   } else {

@@ -17,7 +17,7 @@
 
 .retro-item--selected {
   border-color: var(--accent);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 /* Dragging state */

@@ -232,7 +232,6 @@
   left: var(--today-position, 50%);
   width: 2px;
   background: var(--accent);
-  box-shadow: 0 0 4px var(--accent-glow);
 }
 
 .timeline-bar__today::after {

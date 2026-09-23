@@ -7,7 +7,6 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
-  padding-top: calc(var(--spacing-xl) + 8px);
   min-height: 180px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -21,29 +20,7 @@
 }
 
 /* Card badge (A, B, C, etc.) */
-.card-badge {
-  position: absolute;
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--station-bg);
-  border: 1px solid var(--station-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-xs);
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
 .card-title {
-  font-size: var(--font-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-muted);
   margin-bottom: var(--spacing-lg);
 }
 
@@ -88,7 +65,6 @@
   height: 100%;
   background: var(--accent);
   border-radius: var(--radius-sm);
-  transition: width 0.3s ease;
 }
 
 .progress-bar__fill--success {
@@ -398,7 +374,6 @@
 .distribution-row__fill {
   height: 100%;
   border-radius: var(--radius-sm);
-  transition: width 0.3s ease;
 }
 
 .distribution-row__fill--backlog {

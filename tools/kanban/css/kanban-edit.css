@@ -25,7 +25,6 @@
   background: var(--accent);
   border-radius: 2px;
   margin: var(--spacing-xs) 0;
-  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 /* ========== CARD EDITING ========== */
@@ -221,7 +220,6 @@ textarea.form-input {
   height: 100%;
   background: var(--accent);
   border-radius: var(--radius-sm);
-  transition: width var(--transition-fast);
 }
 
 .task-progress-fill--complete {
