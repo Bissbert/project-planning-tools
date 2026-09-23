@@ -155,8 +155,11 @@ See [docs/README.md](docs/README.md) for the documentation index.
   graph layout behavior until the resources are available or cached.
 - Imported documents are migrated in place to the current data format. Keep a
   JSON export before testing an old or experimental document.
-- The timer rounds elapsed time before applying its too-short guard, so some
-  sub-minute runs are saved as one-minute entries. See
+- Saved durations are still derived from the truncated clock strings rather
+  than from the raw elapsed milliseconds, which remains an open behavior
+  decision. The related too-short guard has been fixed: it now rejects raw
+  elapsed durations below one minute before any rounding, so sub-minute runs
+  are no longer stored as one-minute entries. See
   [docs/BUGS-FOUND.md](docs/BUGS-FOUND.md).
 - This pass ships Mermaid diagrams only. No terminal animation is included
   because a real interactive browser session was not captured as a reusable
