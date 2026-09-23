@@ -77,3 +77,9 @@ diff --git a/tools/time-tracker/js/time-app.js b/tools/time-tracker/js/time-app.
    const entry = addTimeEntry(projectData, {
 @@
    });
+```
+
+The fix applied to the default branch takes a different route to the same
+result: `stopTimer` rejects a raw elapsed duration below 60,000 milliseconds
+before any clock string is formatted, rather than switching the rounding to
+`Math.floor`.
