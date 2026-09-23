@@ -93,7 +93,7 @@
         <button class="modal-close" onclick="closeSettings()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Project Title</label>
+        <label for="settingsTitle" class="form-label">Project Title</label>
         <input type="text" class="form-input" id="settingsTitle">
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -111,11 +111,11 @@
         <button class="modal-close" onclick="closeNewRetro()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Retrospective Name</label>
+        <label for="newRetroName" class="form-label">Retrospective Name</label>
         <input type="text" class="form-input" id="newRetroName" placeholder="Sprint 5 Retrospective">
       </div>
       <div class="form-group">
-        <label class="form-label">Link to Sprint (optional)</label>
+        <label for="newRetroSprintId" class="form-label">Link to Sprint (optional)</label>
         <select class="form-input" id="newRetroSprintId">
           <option value="">No sprint link</option>
         </select>
@@ -142,11 +142,11 @@
         <button class="modal-close" onclick="closeEditRetro()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Retrospective Name</label>
+        <label for="editRetroName" class="form-label">Retrospective Name</label>
         <input type="text" class="form-input" id="editRetroName">
       </div>
       <div class="form-group">
-        <label class="form-label">Link to Sprint (optional)</label>
+        <label for="editRetroSprintId" class="form-label">Link to Sprint (optional)</label>
         <select class="form-input" id="editRetroSprintId">
           <option value="">No sprint link</option>
         </select>
@@ -173,11 +173,11 @@
         <button class="modal-close" onclick="closeNewItem()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">What's on your mind?</label>
+        <label for="newItemText" class="form-label">What's on your mind?</label>
         <textarea class="form-input" id="newItemText" rows="4" placeholder="Share your thought..."></textarea>
       </div>
       <div class="form-group" id="newItemAuthorGroup">
-        <label class="form-label">Your Name (optional)</label>
+        <label for="newItemAuthor" class="form-label">Your Name (optional)</label>
         <input type="text" class="form-input" id="newItemAuthor" placeholder="Anonymous">
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -195,11 +195,11 @@
         <button class="modal-close" onclick="closeEditItem()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Text</label>
+        <label for="editItemText" class="form-label">Text</label>
         <textarea class="form-input" id="editItemText" rows="4"></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Move to Column</label>
+        <label for="editItemColumn" class="form-label">Move to Column</label>
         <select class="form-input" id="editItemColumn">
           <option value="went-well">Went Well</option>
           <option value="went-poorly">Didn't Go Well</option>
@@ -280,7 +280,7 @@
   </div>
 
   <!-- Status indicator -->
-  <div id="status" class="status"></div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
 
   <!-- Load app as ES module -->
   <script type="module" src="js/retro-app.js"></script>

@@ -66,13 +66,13 @@
 
 .pert-node__subtitle {
   fill: var(--text-muted);
-  font-size: 10px;
+  font-size: var(--font-xs);
   text-anchor: middle;
 }
 
 /* PERT values inside node */
 .pert-node__values {
-  font-size: 10px;
+  font-size: var(--font-xs);
 }
 
 .pert-node__value-label {
@@ -93,13 +93,13 @@
 
 .pert-node__duration {
   fill: var(--text-secondary);
-  font-size: 10px;
+  font-size: var(--font-xs);
   text-anchor: middle;
 }
 
 .pert-node__slack {
   fill: var(--text-muted);
-  font-size: 10px;
+  font-size: var(--font-xs);
   text-anchor: middle;
 }
 
@@ -158,7 +158,7 @@
 
 .pert-edge-hint__text {
   fill: var(--text-secondary);
-  font-size: 10px;
+  font-size: var(--font-xs);
   text-anchor: middle;
 }
 
@@ -309,7 +309,7 @@
 
 @media (max-width: 640px) {
   .pert-node__title {
-    font-size: 10px;
+    font-size: var(--font-xs);
   }
 
   .pert-node__values,

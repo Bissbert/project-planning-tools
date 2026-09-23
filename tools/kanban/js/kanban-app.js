@@ -184,6 +184,7 @@ function getHandlers() {
     onDragOver: (e, columnId) => handleDragOver(e, columnId),
     onDragLeave: (e, columnId) => handleDragLeave(e, columnId),
     onDrop: (e, columnId) => handleDrop(e, columnId),
+    onKeyboardMove: (taskId, columnStep, positionStep) => moveTaskByKeyboard(taskId, columnStep, positionStep),
 
     // Column events
     onToggleCollapse: (columnId) => {
@@ -265,6 +266,36 @@ function handleDrop(e, columnId) {
   }
 
   draggedTaskId = null;
+}
+
+// ========== KEYBOARD MOVES ==========
+
+function moveTaskByKeyboard(taskId, columnStep, positionStep) {
+  if (!editMode) {
+    statusManager.show('Press E for edit mode to move cards');
+    return;
+  }
+
+  const task = projectData.tasks.find(t => t.id === taskId);
+  if (!task?.board) return;
+
+  const columns = [...projectData.workflow.columns].sort((a, b) => a.position - b.position);
+  const target = columns[columns.findIndex(c => c.id === task.board.columnId) + columnStep];
+  if (!target) return;
+
+  const others = projectData.tasks.filter(t => t.board?.columnId === target.id && t.id !== taskId);
+  const position = columnStep === 0
+    ? task.board.position + positionStep
+    : Math.min(task.board.position, others.length);
+  if (position < 0 || position > others.length) return;
+
+  saveState();
+  if (moveTask(projectData, taskId, target.id, position)) {
+    save();
+    renderApp();
+    document.querySelector(`.kanban-card[data-task-id="${CSS.escape(taskId)}"]`)?.focus();
+    statusManager.show(`Moved to ${target.name}, position ${position + 1} of ${others.length + 1}`, true);
+  }
 }
 
 // ========== TASK EDIT MODAL ==========

@@ -264,9 +264,6 @@ body.edit-mode:has(.pert-container) {
 }
 
 /* vis-network overrides for dark theme */
-#networkContainer canvas {
-  outline: none;
-}
 
 /* Hide vis-network manipulation toolbar and all its elements completely */
 .vis-manipulation,

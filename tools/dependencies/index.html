@@ -102,7 +102,7 @@
         <button class="modal-close" onclick="closeSettings()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Project Title</label>
+        <label for="settingsTitle" class="form-label">Project Title</label>
         <input type="text" class="form-input" id="settingsTitle">
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -228,7 +228,7 @@
   </main>
 
   <!-- Status indicator -->
-  <div id="status" class="status"></div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
 
   <!-- Load app as ES module -->
   <script type="module" src="js/deps-app.js"></script>

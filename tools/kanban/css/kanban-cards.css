@@ -137,7 +137,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--accent);
   text-transform: uppercase;
@@ -187,7 +187,7 @@
 }
 
 .kanban-card__progress-text {
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -209,7 +209,8 @@
   gap: 2px;
 }
 
-.edit-mode .kanban-card:hover .kanban-card__actions {
+.edit-mode .kanban-card:hover .kanban-card__actions,
+.edit-mode .kanban-card:focus-within .kanban-card__actions {
   display: flex;
 }
 

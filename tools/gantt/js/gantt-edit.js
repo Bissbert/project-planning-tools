@@ -310,8 +310,8 @@ export function addCategory(projectData) {
     return null;
   }
 
-  // Generate a random color
-  const colors = ['#4472C4', '#ED7D31', '#70AD47', '#7030A0', '#FFC000', '#5B9BD5', '#44546A'];
+  // Pick the first unused colour from the Warm Steel category palette
+  const colors = ['#a78bfa', '#f0abfc', '#86efac', '#38bdf8', '#fbbf24', '#fb923c', '#f87171', '#a3e635'];
   const usedColors = Object.values(projectData.categories);
   const availableColors = colors.filter(c => !usedColors.includes(c));
   const newColor = availableColors[0] || colors[Math.floor(Math.random() * colors.length)];

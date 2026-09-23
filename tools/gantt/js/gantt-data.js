@@ -55,12 +55,12 @@ export const defaultProjectData = {
   },
   team: [],
   categories: {
-    "Planning": "#4472C4",
-    "Characters": "#ED7D31",
-    "Env - Objectives": "#70AD47",
-    "Env - Town": "#70AD47",
-    "Env - Forest": "#70AD47",
-    "Misc": "#7030A0"
+    "Planning": "#a78bfa",
+    "Characters": "#f0abfc",
+    "Env - Objectives": "#86efac",
+    "Env - Town": "#86efac",
+    "Env - Forest": "#86efac",
+    "Misc": "#c4b5fd"
   },
   workflow: {
     columns: [

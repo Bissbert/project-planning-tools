@@ -122,7 +122,6 @@
 }
 
 .range-picker__field input:focus {
-  outline: none;
   border-color: var(--planning);
 }
 
@@ -190,7 +189,6 @@
 
 .popover-field select:focus,
 .popover-field textarea:focus {
-  outline: none;
   border-color: var(--planning);
 }
 
