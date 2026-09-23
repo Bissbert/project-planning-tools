@@ -51,7 +51,7 @@
 }
 
 .stat-item__label {
-  font-size: 10px;
+  font-size: var(--font-xs);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   color: var(--text-muted);

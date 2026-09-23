@@ -94,11 +94,11 @@
         <button class="modal-close" onclick="closeSettings()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Project Title</label>
+        <label for="settingsTitle" class="form-label">Project Title</label>
         <input type="text" class="form-input" id="settingsTitle">
       </div>
       <div class="form-group">
-        <label class="form-label">Default Sprint Duration (weeks)</label>
+        <label for="settingsSprintDuration" class="form-label">Default Sprint Duration (weeks)</label>
         <input type="number" class="form-input" id="settingsSprintDuration" min="1" max="8" value="2">
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -116,15 +116,15 @@
         <button class="modal-close" onclick="closeSprintEdit()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Sprint Name</label>
+        <label for="sprintEditName" class="form-label">Sprint Name</label>
         <input type="text" class="form-input" id="sprintEditName" placeholder="Sprint 1">
       </div>
       <div class="form-group">
-        <label class="form-label">Goal</label>
+        <label for="sprintEditGoal" class="form-label">Goal</label>
         <textarea class="form-input" id="sprintEditGoal" rows="2" placeholder="What is the goal of this sprint?"></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Timeline (Weeks)</label>
+        <label for="sprintEditStartWeek" class="form-label">Timeline (Weeks)</label>
         <div style="display: flex; gap: 8px; align-items: center;">
           <input type="number" class="form-input" id="sprintEditStartWeek" min="1" style="width: 80px;" placeholder="Start">
           <span>to</span>
@@ -132,7 +132,7 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Status</label>
+        <label for="sprintEditStatus" class="form-label">Status</label>
         <select class="form-input" id="sprintEditStatus">
           <option value="planning">Planning</option>
           <option value="active">Active</option>
@@ -157,12 +157,12 @@
         <button class="modal-close" onclick="closeTaskEdit()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Task Name</label>
+        <label for="taskEditName" class="form-label">Task Name</label>
         <input type="text" class="form-input" id="taskEditName">
       </div>
       <div class="form-group">
-        <label class="form-label">Story Points</label>
-        <div class="points-selector" id="pointsSelector">
+        <span class="form-label" id="pointsSelectorLabel">Story Points</span>
+        <div class="points-selector" id="pointsSelector" role="group" aria-labelledby="pointsSelectorLabel">
           <button type="button" class="points-btn" data-points="">?</button>
           <button type="button" class="points-btn" data-points="1">1</button>
           <button type="button" class="points-btn" data-points="2">2</button>
@@ -175,17 +175,17 @@
         <input type="hidden" id="taskEditPoints" value="">
       </div>
       <div class="form-group">
-        <label class="form-label">Category</label>
+        <label for="taskEditCategory" class="form-label">Category</label>
         <select class="form-input" id="taskEditCategory"></select>
       </div>
       <div class="form-group">
-        <label class="form-label">Assignee</label>
+        <label for="taskEditAssignee" class="form-label">Assignee</label>
         <select class="form-input" id="taskEditAssignee">
           <option value="">Unassigned</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Priority</label>
+        <label for="taskEditPriority" class="form-label">Priority</label>
         <select class="form-input" id="taskEditPriority">
           <option value="">None</option>
           <option value="high">High</option>
@@ -194,11 +194,11 @@
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Notes</label>
+        <label for="taskEditNotes" class="form-label">Notes</label>
         <textarea class="form-input" id="taskEditNotes" rows="3" placeholder="Add notes..."></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Kanban Status</label>
+        <label for="taskEditColumn" class="form-label">Kanban Status</label>
         <select class="form-input" id="taskEditColumn"></select>
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
@@ -217,12 +217,12 @@
         <button class="modal-close" onclick="closeNewTask()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Task Name</label>
+        <label for="newTaskName" class="form-label">Task Name</label>
         <input type="text" class="form-input" id="newTaskName" placeholder="Enter task name...">
       </div>
       <div class="form-group">
-        <label class="form-label">Story Points</label>
-        <div class="points-selector" id="newPointsSelector">
+        <span class="form-label" id="newPointsSelectorLabel">Story Points</span>
+        <div class="points-selector" id="newPointsSelector" role="group" aria-labelledby="newPointsSelectorLabel">
           <button type="button" class="points-btn points-btn--selected" data-points="">?</button>
           <button type="button" class="points-btn" data-points="1">1</button>
           <button type="button" class="points-btn" data-points="2">2</button>
@@ -235,7 +235,7 @@
         <input type="hidden" id="newTaskPoints" value="">
       </div>
       <div class="form-group">
-        <label class="form-label">Category</label>
+        <label for="newTaskCategory" class="form-label">Category</label>
         <select class="form-input" id="newTaskCategory"></select>
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -280,7 +280,7 @@
   </main>
 
   <!-- Status indicator -->
-  <div id="status" class="status"></div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
 
   <!-- Load app as ES module -->
   <script type="module" src="js/sprint-app.js"></script>

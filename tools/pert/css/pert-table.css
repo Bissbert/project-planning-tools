@@ -140,7 +140,7 @@
 
 .pert-table__critical-badge--yes::after {
   content: '\2713';
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
 }
 

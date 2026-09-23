@@ -47,7 +47,6 @@
 }
 
 .kanban-card__edit-input:focus {
-  outline: none;
   border-color: var(--accent-bright);
 }
 
@@ -102,7 +101,6 @@
 }
 
 .form-input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -132,10 +130,6 @@ textarea.form-input {
   border: none;
   color: var(--text-primary);
   margin-bottom: var(--spacing-sm);
-}
-
-.add-card-form__input:focus {
-  outline: none;
 }
 
 .add-card-form__input::placeholder {
@@ -258,7 +252,7 @@ textarea.form-input {
   min-width: 20px;
   height: 20px;
   padding: 0 var(--spacing-xs);
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-family: inherit;
   background: var(--bg-secondary);
   border: 1px solid var(--border);

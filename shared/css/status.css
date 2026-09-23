@@ -161,7 +161,7 @@
 }
 
 .variance-stat__label {
-  font-size: 9px;
+  font-size: var(--font-xs);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-muted);
@@ -249,7 +249,7 @@
 
 /* ========== LEGACY PRIORITY BADGES (kept for backwards compatibility) ========== */
 .priority-badge {
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   padding: 3px 6px;
   border-radius: 3px;

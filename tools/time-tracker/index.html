@@ -94,7 +94,7 @@
         <button class="modal-close" onclick="closeSettings()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Project Title</label>
+        <label for="settingsTitle" class="form-label">Project Title</label>
         <input type="text" class="form-input" id="settingsTitle">
       </div>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -112,31 +112,31 @@
         <button class="modal-close" onclick="closeEntryEdit()">&times;</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Date</label>
+        <label for="entryEditDate" class="form-label">Date</label>
         <input type="date" class="form-input" id="entryEditDate">
       </div>
       <div class="form-row">
         <div class="form-group" style="flex: 1;">
-          <label class="form-label">Start Time</label>
+          <label for="entryEditStartTime" class="form-label">Start Time</label>
           <input type="time" class="form-input" id="entryEditStartTime">
         </div>
         <div class="form-group" style="flex: 1;">
-          <label class="form-label">End Time</label>
+          <label for="entryEditEndTime" class="form-label">End Time</label>
           <input type="time" class="form-input" id="entryEditEndTime">
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Duration</label>
+        <span class="form-label">Duration</span>
         <div class="duration-display" id="entryEditDuration">0h 0m</div>
       </div>
       <div class="form-group">
-        <label class="form-label">Task (optional)</label>
+        <label for="entryEditTask" class="form-label">Task (optional)</label>
         <select class="form-input" id="entryEditTask">
           <option value="">No task</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Notes</label>
+        <label for="entryEditNotes" class="form-label">Notes</label>
         <textarea class="form-input" id="entryEditNotes" rows="2" placeholder="Add notes..."></textarea>
       </div>
       <div class="form-group">
@@ -164,7 +164,7 @@
         </div>
         <div class="timer-display" id="timerDisplay">00:00:00</div>
         <div class="timer-task">
-          <label class="form-label">Task</label>
+          <label for="timerTaskSelect" class="form-label">Task</label>
           <select class="form-input" id="timerTaskSelect">
             <option value="">No task</option>
           </select>
@@ -205,22 +205,22 @@
         </div>
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">Start</label>
+            <label for="quickAddStart" class="form-label">Start</label>
             <input type="time" class="form-input" id="quickAddStart">
           </div>
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">End</label>
+            <label for="quickAddEnd" class="form-label">End</label>
             <input type="time" class="form-input" id="quickAddEnd">
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Task</label>
+          <label for="quickAddTask" class="form-label">Task</label>
           <select class="form-input" id="quickAddTask">
             <option value="">No task</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Notes</label>
+          <label for="quickAddNotes" class="form-label">Notes</label>
           <input type="text" class="form-input" id="quickAddNotes" placeholder="Add notes...">
         </div>
         <button class="quick-add-btn edit-only" onclick="quickAddEntry()">+ Add Entry</button>
@@ -260,7 +260,7 @@
   </main>
 
   <!-- Status indicator -->
-  <div id="status" class="status"></div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
 
   <!-- Load app as ES module -->
   <script type="module" src="js/time-app.js"></script>

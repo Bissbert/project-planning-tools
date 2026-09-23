@@ -48,7 +48,6 @@
 }
 
 .filter-select:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -198,10 +197,6 @@ body.edit-mode:has(.deps-container) {
   height: 100%;
   position: absolute;
   inset: 0;
-}
-
-#networkContainer canvas {
-  outline: none;
 }
 
 /* Empty state */
