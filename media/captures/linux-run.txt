@@ -1,0 +1,39 @@
+
+=== environment
+Linux 6.5.11-linuxkit aarch64
+Python 3.12.14
+
+=== devtools/measure_docs.py
+tool_entrypoints=11
+tool_names=burndown,dashboard,dependencies,gantt,kanban,milestone-tracker,pert,resource-calendar,retrospective,sprint,time-tracker
+navigation_tools=11
+source_files=111
+source_bytes=1086718
+source_lines=39553
+data_version=13
+migration_steps=9
+storage_key=ganttProject
+external_script_urls=2
+external_script=https://unpkg.com/elkjs@0.9.3/lib/elk.bundled.js
+external_script=https://unpkg.com/vis-network/standalone/umd/vis-network.min.js
+
+=== quick start: python3 -m http.server, every entrypoint
+index.html                               200
+tools/burndown/index.html                200
+tools/dashboard/index.html               200
+tools/dependencies/index.html            200
+tools/gantt/index.html                   200
+tools/kanban/index.html                  200
+tools/milestone-tracker/index.html       200
+tools/pert/index.html                    200
+tools/resource-calendar/index.html       200
+tools/retrospective/index.html           200
+tools/sprint/index.html                  200
+tools/time-tracker/index.html            200
+
+=== devtools/timer-check.mjs (headless Chromium, fake clock)
+chromium 140.0.7339.16
+stop after 59s: display 00:00:59, entries 0 -> 0, status "Entry too short (< 1 minute)"
+stop after 61s: display 00:01:01, entries 0 -> 1, status "Logged 00:01:01"
+  saved entry: 2026-09-24 10:01-10:02
+page errors: none

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure repository facts used by the graphical documentation pass.
+"""Measure repository facts used by the documentation.
 
 The script reads only tracked source files and the checked-in tool entrypoints.
 It intentionally ignores untracked project exports in the working tree.
