@@ -1,44 +1,57 @@
 [← back to the documentation index](README.md)
 
-# Measurement and provenance
+# Measurement
 
-This repository intentionally reports only numbers that can be reproduced from
-the checked-in source. The measurement script uses the standard library and
-asks Git for the tracked paths, so an unrelated untracked project export in a
-developer worktree is not included.
-
-## Repository measurements
-
-Run from the repository root:
+Every number in this documentation comes from one script run in Linux
+containers:
 
 ```bash
-python3 devtools/measure_docs.py
+sh devtools/linux-run.sh > media/captures/linux-run.txt
 ```
 
-The command counts tool entrypoints, compares the entrypoint directories with
-the navigation registry, counts tracked HTML/CSS/JS files, sums their bytes and
-newline-delimited lines, reads the current data version and migration registry,
-and extracts external script URLs from the tool entrypoints.
+[`devtools/linux-run.sh`](../devtools/linux-run.sh) mounts the repository
+read-only, copies it, and runs three checks. The full output is
+[`media/captures/linux-run.txt`](../media/captures/linux-run.txt); the blocks
+below are taken from it.
+
+## Environment
+
+| | |
+|---|---|
+| Kernel | Linux 6.5.11-linuxkit, aarch64 (Docker Desktop VM) |
+| Python container | `python:3.12-slim-bookworm` (`sha256:392307d2…23564e`), Python 3.12.14 |
+| Browser container | `mcr.microsoft.com/playwright:v1.55.0-noble` (`sha256:b27e719e…d7fb29`), Node 22.18.0, Chromium 140.0.7339.16 |
+| Date | 2026-09-24 |
 
 ```mermaid
 flowchart LR
     S["Tracked source and<br/>tool entrypoints"] --> M["devtools/measure_docs.py"]
-    M --> C["Repository counts,<br/>version, migrations, URLs"]
-    C --> R["README measured results<br/>and this provenance page"]
+    S --> H["python3 -m http.server<br/>+ curl"]
+    S --> T["devtools/timer-check.mjs<br/>headless Chromium"]
+    M --> R["README results"]
+    H --> R
+    T --> B["Time Tracker timer"]
 
     style M fill:#1f6feb,stroke:#58a6ff,color:#fff
+    style T fill:#8250df,stroke:#bc8cff,color:#fff
     style R fill:#238636,stroke:#3fb950,color:#fff
 ```
 
-The output used for this pass was:
+## Repository facts
+
+[`devtools/measure_docs.py`](../devtools/measure_docs.py) counts tool
+entrypoints, compares them with the navigation registry, counts tracked
+HTML/CSS/JS files with their bytes and lines, reads the data version and
+migration registry, and extracts external script URLs. It asks Git for the
+tracked paths, so untracked project exports are not counted.
 
 ```text
 tool_entrypoints=11
 tool_names=burndown,dashboard,dependencies,gantt,kanban,milestone-tracker,pert,resource-calendar,retrospective,sprint,time-tracker
 navigation_tools=11
 source_files=111
-source_bytes=1081447
-source_lines=39529
+source_bytes=1086718
+source_lines=39553
 data_version=13
 migration_steps=9
 storage_key=ganttProject
@@ -47,28 +60,47 @@ external_script=https://unpkg.com/elkjs@0.9.3/lib/elk.bundled.js
 external_script=https://unpkg.com/vis-network/standalone/umd/vis-network.min.js
 ```
 
-The source totals are a snapshot of the repository state at the time of this
-pass. Run the script again after source changes; the output is expected to
-change.
+The byte and line totals change with every source edit. Run the script again
+to refresh them.
 
-## Quick-start verification
+## Quick start
 
-The quick start was exercised with:
+`python3 -m http.server 8765`, then every entrypoint fetched with `curl`:
 
-```bash
-python3 -m http.server 8765
-curl --fail --silent --show-error http://127.0.0.1:8765/index.html
-curl --fail --silent --show-error http://127.0.0.1:8765/tools/gantt/index.html
+```text
+index.html                               200
+tools/burndown/index.html                200
+tools/dashboard/index.html               200
+tools/dependencies/index.html            200
+tools/gantt/index.html                   200
+tools/kanban/index.html                  200
+tools/milestone-tracker/index.html       200
+tools/pert/index.html                    200
+tools/resource-calendar/index.html       200
+tools/retrospective/index.html           200
+tools/sprint/index.html                  200
+tools/time-tracker/index.html            200
 ```
 
-Both requests completed successfully. This verifies static serving and the
-entrypoint responses, not interactive behavior in a browser.
+## Time Tracker timer
 
-## What was not measured
+[`devtools/timer-check.mjs`](../devtools/timer-check.mjs) serves the repository,
+opens the Time Tracker in headless Chromium with Playwright's fake clock,
+turns on edit mode, and stops the timer after 59 and after 61 seconds:
 
-- No runtime performance benchmark was run.
-- No browser automation or visual regression run was available in this pass.
-- No animation was captured. The repository therefore ships Mermaid diagrams,
-  not a GIF pretending to be a recording of a real session.
-- The unpkg libraries were not bundled or benchmarked locally; their URLs were
-  read from the graph tool entrypoints.
+```text
+stop after 59s: display 00:00:59, entries 0 -> 0, status "Entry too short (< 1 minute)"
+stop after 61s: display 00:01:01, entries 0 -> 1, status "Logged 00:01:01"
+  saved entry: 2026-09-24 10:01-10:02
+page errors: none
+```
+
+This confirms the fix in
+[`0b4ad44`](https://github.com/Bissbert/project-planning-tools/commit/0b4ad44).
+
+## Not covered
+
+- Browser timing or rendering performance.
+- The other ten tools in a browser; they were only fetched over HTTP.
+- ELK.js and vis-network behavior. Their URLs are read from the graph tool
+  entrypoints; the libraries themselves were not loaded.

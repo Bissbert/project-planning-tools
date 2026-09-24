@@ -48,8 +48,9 @@ ES modules need an HTTP origin. From the repository root:
 python3 -m http.server 8765
 ```
 
-Open <http://localhost:8765>. The command was run during this documentation
-pass; the landing page and the Gantt entrypoint both returned successfully.
+Open <http://localhost:8765>. In a Linux container, all 12 entrypoints (the
+landing page and 11 tools) returned HTTP 200; see
+[docs/measurement.md](docs/measurement.md).
 
 ## Architecture
 
@@ -98,7 +99,7 @@ and the shared lifecycle is described in [architecture.md](docs/architecture.md)
 | [Dependencies](tools/dependencies/index.html) | Tasks and dependency edges | Status-oriented dependency network | You need a focused dependency map |
 | [Dashboard](tools/dashboard/index.html) | All shared project collections | Health, velocity, milestones, and capacity cards | You need a compact project overview |
 
-## Measured results
+## Results
 
 The checked-in script [devtools/measure_docs.py](devtools/measure_docs.py) reports
 facts from tracked files and tool entrypoints:
@@ -108,15 +109,15 @@ facts from tracked files and tool entrypoints:
 | Tool entrypoints | 11 |
 | Navigation entries | 11 |
 | Tracked HTML/CSS/JS files | 111 |
-| Tracked app source bytes | 1,081,447 |
-| Tracked app source lines | 39,529 |
+| Tracked app source bytes | 1,086,718 |
+| Tracked app source lines | 39,553 |
 | Current data version | 13 |
 | Migration steps registered | 9 |
 | External script URLs | 2 |
 
-The external scripts are ELK.js and vis-network, used by the graph views. No
-runtime performance benchmark is claimed here; the measurement script reports
-repository facts, not browser timing.
+The external scripts are ELK.js and vis-network, used by the graph views.
+These are repository facts, not browser timing. The run is described in
+[docs/measurement.md](docs/measurement.md).
 
 ## Repository layout
 
@@ -137,7 +138,9 @@ tools/
 ├── dependencies/        dependency network
 └── dashboard/           cross-tool summary
 devtools/
-└── measure_docs.py      documentation measurement script
+├── measure_docs.py      repository counts
+├── timer-check.mjs      headless-browser check of the Time Tracker timer
+└── linux-run.sh         runs both in Linux containers
 docs/                    diagrams and subsystem write-ups
 ```
 
@@ -155,12 +158,7 @@ See [docs/README.md](docs/README.md) for the documentation index.
   graph layout behavior until the resources are available or cached.
 - Imported documents are migrated in place to the current data format. Keep a
   JSON export before testing an old or experimental document.
-- Saved durations are still derived from the truncated clock strings rather
-  than from the raw elapsed milliseconds, which remains an open behavior
-  decision. The related too-short guard has been fixed: it now rejects raw
-  elapsed durations below one minute before any rounding, so sub-minute runs
-  are no longer stored as one-minute entries. See
-  [docs/BUGS-FOUND.md](docs/BUGS-FOUND.md).
-- This pass ships Mermaid diagrams only. No terminal animation is included
-  because a real interactive browser session was not captured as a reusable
-  recording.
+- Timer entries are stored as `HH:MM` start and end times, so a saved
+  duration comes from those truncated times, not from the exact elapsed time.
+  Timers under one minute are rejected since
+  [`0b4ad44`](https://github.com/Bissbert/project-planning-tools/commit/0b4ad44).

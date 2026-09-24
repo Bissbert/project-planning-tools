@@ -32,10 +32,12 @@ flowchart TD
 |---|---|---|
 | Tasks, categories, and timeEntries | Time entry date, interval, task link, notes, and billable flag | Daily/week lists and grouped duration reports |
 
-The timer is transient UI state until it is stopped. A stopped timer becomes a
-validated time entry after elapsed milliseconds are rounded to the nearest
-minute. The guard rejects only values that round to zero, so some sub-minute
-entries are accepted; see [BUGS-FOUND.md](BUGS-FOUND.md).
+The timer is transient UI state until it is stopped. A timer stopped before one
+full minute shows "Entry too short (< 1 minute)" and is discarded. A longer one
+becomes a time entry with `HH:MM` start and end times, so the saved duration is
+rounded to those clock minutes, not taken from the elapsed milliseconds. A
+61-second run is saved as `10:01-10:02`. The one-minute check was added in
+[`0b4ad44`](https://github.com/Bissbert/project-planning-tools/commit/0b4ad44).
 
 ## Reach for it when
 

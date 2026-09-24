@@ -21,11 +21,10 @@ in another, then use the tool write-ups for the individual workflows.
 | Scheduling | [PERT](pert.md) | Dependency graph to slack and critical path |
 | Dependency view | [Dependencies](dependencies.md) | Cycle-safe edge editing and network rendering |
 | Summary | [Dashboard](dashboard.md) | Shared data to project health cards |
-| Evidence | [Measurement](measurement.md) | How repository facts were produced |
-| Findings | [Bugs found](BUGS-FOUND.md) | Existing behavior issues recorded without source edits |
+| Evidence | [Measurement](measurement.md) | The Linux run behind every number |
 
 The source remains the authority for behavior. These pages explain the current
 implementation and call out limitations where the browser environment matters.
 
-The measurement script lives in `devtools/measure_docs.py` because `tools/`
-already contains the application source.
+The measurement scripts live in `devtools/` because `tools/` already contains
+the application source.
