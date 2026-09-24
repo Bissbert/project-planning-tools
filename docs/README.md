@@ -22,7 +22,6 @@ in another, then use the tool write-ups for the individual workflows.
 | Dependency view | [Dependencies](dependencies.md) | Cycle-safe edge editing and network rendering |
 | Summary | [Dashboard](dashboard.md) | Shared data to project health cards |
 | Evidence | [Measurement](measurement.md) | The Linux run behind every number |
-| Findings | [Bugs found](BUGS-FOUND.md) | Bugs found, with status and fix commit |
 
 The source remains the authority for behavior. These pages explain the current
 implementation and call out limitations where the browser environment matters.

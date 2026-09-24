@@ -35,7 +35,9 @@ flowchart TD
 The timer is transient UI state until it is stopped. A timer stopped before one
 full minute shows "Entry too short (< 1 minute)" and is discarded. A longer one
 becomes a time entry with `HH:MM` start and end times, so the saved duration is
-rounded to those clock minutes. See [BUGS-FOUND.md](BUGS-FOUND.md).
+rounded to those clock minutes, not taken from the elapsed milliseconds. A
+61-second run is saved as `10:01-10:02`. The one-minute check was added in
+[`0b4ad44`](https://github.com/Bissbert/project-planning-tools/commit/0b4ad44).
 
 ## Reach for it when
 

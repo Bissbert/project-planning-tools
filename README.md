@@ -160,5 +160,5 @@ See [docs/README.md](docs/README.md) for the documentation index.
   JSON export before testing an old or experimental document.
 - Timer entries are stored as `HH:MM` start and end times, so a saved
   duration comes from those truncated times, not from the exact elapsed time.
-  Timers under one minute are rejected. See
-  [docs/BUGS-FOUND.md](docs/BUGS-FOUND.md).
+  Timers under one minute are rejected since
+  [`0b4ad44`](https://github.com/Bissbert/project-planning-tools/commit/0b4ad44).

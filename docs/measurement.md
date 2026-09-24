@@ -30,7 +30,7 @@ flowchart LR
     S --> T["devtools/timer-check.mjs<br/>headless Chromium"]
     M --> R["README results"]
     H --> R
-    T --> B["Bugs found"]
+    T --> B["Time Tracker timer"]
 
     style M fill:#1f6feb,stroke:#58a6ff,color:#fff
     style T fill:#8250df,stroke:#bc8cff,color:#fff
@@ -95,7 +95,8 @@ stop after 61s: display 00:01:01, entries 0 -> 1, status "Logged 00:01:01"
 page errors: none
 ```
 
-This confirms the fix described in [Bugs found](BUGS-FOUND.md).
+This confirms the fix in
+[`0b4ad44`](https://github.com/Bissbert/project-planning-tools/commit/0b4ad44).
 
 ## Not covered
 
